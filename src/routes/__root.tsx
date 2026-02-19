@@ -7,7 +7,8 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { getLocale } from "#/paraglide/runtime";
-import Header from "../components/Header";
+import BottomNav from "../components/BottomNav";
+import PortfolioHeader from "../components/PortfolioHeader";
 
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
@@ -37,7 +38,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "Ricardo Gomes — Software Engineer",
 			},
 		],
 		links: [
@@ -52,14 +53,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang={getLocale()}>
+		<html lang={getLocale()} className="dark">
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body className="bg-[#05080d]">
 				<TanStackQueryProvider>
-					<Header />
+					<PortfolioHeader />
 					{children}
+					<BottomNav />
 					<TanStackDevtools
 						config={{
 							position: "bottom-right",
