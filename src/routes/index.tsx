@@ -1,86 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-	Bot,
-	BrainCircuit,
 	ExternalLink,
 	Github,
-	ImageIcon,
-	LayoutGrid,
 	Linkedin,
-	Music,
 	Sparkles,
 	Twitter,
-	Webhook,
+	Wallet,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: PortfolioPage });
 
 const apps = [
 	{
-		Icon: Bot,
-		title: "AI Chat",
+		Icon: Wallet,
+		title: "Finance Tracker",
 		description:
-			"Multi-provider streaming AI chat. Supports Claude, OpenAI, Gemini, and local Ollama with tool calling.",
-		tags: ["AI", "Streaming", "Multi-provider"],
-		href: "/demo/ai-chat",
-		iconColor: "text-cyan-400",
-		iconBg: "bg-cyan-500/10 border-cyan-500/20",
-		glow: "hover:border-cyan-500/30 hover:shadow-cyan-500/10",
-	},
-	{
-		Icon: Music,
-		title: "Guitar Shop",
-		description:
-			"Product inventory with AI-powered recommendations. Domain-driven design with TanStack Query.",
-		tags: ["AI", "DDD", "TanStack Query"],
-		href: "/demo/guitars",
-		iconColor: "text-violet-400",
-		iconBg: "bg-violet-500/10 border-violet-500/20",
-		glow: "hover:border-violet-500/30 hover:shadow-violet-500/10",
-	},
-	{
-		Icon: ImageIcon,
-		title: "AI Image Gen",
-		description:
-			"Generate images from prompts using AI models with real-time previews.",
-		tags: ["AI", "Image", "Generative"],
-		href: "/demo/ai-image",
-		iconColor: "text-blue-400",
-		iconBg: "bg-blue-500/10 border-blue-500/20",
-		glow: "hover:border-blue-500/30 hover:shadow-blue-500/10",
-	},
-	{
-		Icon: Webhook,
-		title: "MCP Server",
-		description:
-			"Model Context Protocol integration — exposes a todo server that any AI client can connect to.",
-		tags: ["MCP", "Protocol", "AI"],
-		href: "/demo/mcp-todos",
+			"Personal finance tracker with transaction management, filtering, and summary cards.",
+		tags: ["Finance", "DDD", "TanStack Store"],
+		href: "/finance",
 		iconColor: "text-emerald-400",
 		iconBg: "bg-emerald-500/10 border-emerald-500/20",
 		glow: "hover:border-emerald-500/30 hover:shadow-emerald-500/10",
-	},
-	{
-		Icon: LayoutGrid,
-		title: "Data Table",
-		description:
-			"TanStack Table with sorting, filtering, pagination, and column management.",
-		tags: ["TanStack Table", "UI"],
-		href: "/demo/table",
-		iconColor: "text-orange-400",
-		iconBg: "bg-orange-500/10 border-orange-500/20",
-		glow: "hover:border-orange-500/30 hover:shadow-orange-500/10",
-	},
-	{
-		Icon: BrainCircuit,
-		title: "Structured AI Output",
-		description:
-			"Generate type-safe structured data from natural language with AI and Zod schemas.",
-		tags: ["AI", "TypeScript", "Zod"],
-		href: "/demo/ai-structured",
-		iconColor: "text-pink-400",
-		iconBg: "bg-pink-500/10 border-pink-500/20",
-		glow: "hover:border-pink-500/30 hover:shadow-pink-500/10",
 	},
 ];
 

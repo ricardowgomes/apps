@@ -22,9 +22,6 @@ export const EXPENSE_CATEGORIES = [
 	"Other",
 ] as const;
 
-export type IncomeCategory = (typeof INCOME_CATEGORIES)[number];
-export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
-
 export const transactionSchema = z.object({
 	type: z.enum(["income", "expense"]),
 	amount: z.number().positive("Amount must be greater than zero"),
