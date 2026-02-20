@@ -1,25 +1,17 @@
 import { useStore } from "@tanstack/react-store";
 import { Plus } from "lucide-react";
-import { useState } from "react";
 import {
 	closeAddTransaction,
 	financeUiStore,
 	openAddTransaction,
 } from "../application/finance-ui-store";
-import type { TransactionFilters } from "../application/use-transactions";
 import { useTransactions } from "../application/use-transactions";
 import { AddTransactionSheet } from "./AddTransactionSheet";
 import { SummaryCards } from "./SummaryCards";
-import { TransactionFiltersBar } from "./TransactionFilters";
 import { TransactionList } from "./TransactionList";
 
 export function FinancePage() {
-	const [filters, setFilters] = useState<TransactionFilters>({
-		search: "",
-		type: "all",
-	});
-
-	const { transactions } = useTransactions(filters);
+	const transactions = useTransactions();
 	const sheetOpen = useStore(financeUiStore, (s) => s.addTransactionOpen);
 
 	return (
@@ -57,10 +49,7 @@ export function FinancePage() {
 					{/* Summary */}
 					<SummaryCards />
 
-					{/* Filters */}
-					<TransactionFiltersBar filters={filters} onChange={setFilters} />
-
-					{/* Transaction list */}
+					{/* Transaction list — owns filters internally */}
 					<TransactionList transactions={transactions} />
 				</div>
 			</main>

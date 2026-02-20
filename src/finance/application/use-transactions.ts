@@ -12,29 +12,8 @@ export interface TransactionFilters {
 	type: "all" | TransactionType;
 }
 
-export function useTransactions(filters: TransactionFilters) {
-	const transactions = useStore(transactionStore, (s) => s.transactions);
-
-	const filtered = useMemo(() => {
-		return transactions.filter((t) => {
-			if (filters.type !== "all" && t.type !== filters.type) return false;
-			if (filters.search) {
-				const q = filters.search.toLowerCase();
-				return (
-					t.description.toLowerCase().includes(q) ||
-					t.category.toLowerCase().includes(q)
-				);
-			}
-			return true;
-		});
-	}, [transactions, filters]);
-
-	const sorted = useMemo(
-		() => [...filtered].sort((a, b) => b.date.localeCompare(a.date)),
-		[filtered],
-	);
-
-	return { transactions: sorted };
+export function useTransactions() {
+	return useStore(transactionStore, (s) => s.transactions);
 }
 
 export function useSummary() {
