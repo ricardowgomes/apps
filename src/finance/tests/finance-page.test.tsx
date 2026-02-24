@@ -1,9 +1,9 @@
 /**
  * Finance application-layer integration tests.
  *
- * These tests verify the application logic (store + filtering + UI state) that
- * powers the finance page. They run without DOM so they are not affected by
- * the jsdom 27 / Node 20 ESM compatibility issue.
+ * These tests verify the application logic (filtering, summary calculations,
+ * and UI state) that powers the finance page. They run without DOM so they
+ * are not affected by the jsdom 27 / Node 20 ESM compatibility issue.
  *
  * TODO: Add React component render tests once the project runs on Node 22+
  * (which supports require()-ing ESM modules natively).
@@ -14,10 +14,6 @@ import {
 	financeUiStore,
 	openAddTransaction,
 } from "../application/finance-ui-store";
-import {
-	addTransaction,
-	transactionStore,
-} from "../application/transaction-store";
 import type { Transaction } from "../domain/transaction";
 
 function makeTx(overrides: Partial<Transaction> = {}): Transaction {
@@ -35,45 +31,40 @@ function makeTx(overrides: Partial<Transaction> = {}): Transaction {
 }
 
 beforeEach(() => {
-	transactionStore.setState(() => ({ transactions: [] }));
 	closeAddTransaction();
 });
 
-describe("transaction store filtering", () => {
-	it("stores and retrieves added transactions", () => {
-		const tx = makeTx({ description: "Grocery run", type: "expense" });
-		addTransaction(tx);
-		expect(transactionStore.state.transactions).toContainEqual(tx);
-	});
-
+describe("transaction filtering logic", () => {
 	it("filters income only", () => {
-		addTransaction(makeTx({ type: "income", description: "Salary" }));
-		addTransaction(makeTx({ type: "expense", description: "Rent" }));
+		const transactions = [
+			makeTx({ type: "income", description: "Salary" }),
+			makeTx({ type: "expense", description: "Rent" }),
+		];
 
-		const incomeOnly = transactionStore.state.transactions.filter(
-			(t) => t.type === "income",
-		);
+		const incomeOnly = transactions.filter((t) => t.type === "income");
 		expect(incomeOnly).toHaveLength(1);
 		expect(incomeOnly[0].description).toBe("Salary");
 	});
 
 	it("filters expenses only", () => {
-		addTransaction(makeTx({ type: "income", description: "Bonus" }));
-		addTransaction(makeTx({ type: "expense", description: "Groceries" }));
-		addTransaction(makeTx({ type: "expense", description: "Rent" }));
+		const transactions = [
+			makeTx({ type: "income", description: "Bonus" }),
+			makeTx({ type: "expense", description: "Groceries" }),
+			makeTx({ type: "expense", description: "Rent" }),
+		];
 
-		const expenseOnly = transactionStore.state.transactions.filter(
-			(t) => t.type === "expense",
-		);
+		const expenseOnly = transactions.filter((t) => t.type === "expense");
 		expect(expenseOnly).toHaveLength(2);
 	});
 
 	it("searches by description (case-insensitive)", () => {
-		addTransaction(makeTx({ description: "Grocery run" }));
-		addTransaction(makeTx({ description: "Transit pass" }));
+		const transactions = [
+			makeTx({ description: "Grocery run" }),
+			makeTx({ description: "Transit pass" }),
+		];
 
 		const query = "grocery";
-		const results = transactionStore.state.transactions.filter((t) =>
+		const results = transactions.filter((t) =>
 			t.description.toLowerCase().includes(query),
 		);
 		expect(results).toHaveLength(1);
@@ -81,10 +72,12 @@ describe("transaction store filtering", () => {
 	});
 
 	it("searches by category (case-insensitive)", () => {
-		addTransaction(makeTx({ category: "Transport", description: "Bus" }));
-		addTransaction(makeTx({ category: "Food & Dining", description: "Sushi" }));
+		const transactions = [
+			makeTx({ category: "Transport", description: "Bus" }),
+			makeTx({ category: "Food & Dining", description: "Sushi" }),
+		];
 
-		const results = transactionStore.state.transactions.filter((t) =>
+		const results = transactions.filter((t) =>
 			t.category.toLowerCase().includes("transport"),
 		);
 		expect(results).toHaveLength(1);
@@ -92,11 +85,13 @@ describe("transaction store filtering", () => {
 	});
 
 	it("sorts transactions by date descending", () => {
-		addTransaction(makeTx({ date: "2026-02-01" }));
-		addTransaction(makeTx({ date: "2026-02-15" }));
-		addTransaction(makeTx({ date: "2026-02-10" }));
+		const transactions = [
+			makeTx({ date: "2026-02-01" }),
+			makeTx({ date: "2026-02-15" }),
+			makeTx({ date: "2026-02-10" }),
+		];
 
-		const sorted = [...transactionStore.state.transactions].sort((a, b) =>
+		const sorted = [...transactions].sort((a, b) =>
 			b.date.localeCompare(a.date),
 		);
 		expect(sorted[0].date).toBe("2026-02-15");
@@ -107,36 +102,41 @@ describe("transaction store filtering", () => {
 
 describe("summary calculations", () => {
 	it("sums income correctly", () => {
-		addTransaction(makeTx({ type: "income", amount: 1000 }));
-		addTransaction(makeTx({ type: "income", amount: 500 }));
-		addTransaction(makeTx({ type: "expense", amount: 200 }));
+		const transactions = [
+			makeTx({ type: "income", amount: 1000 }),
+			makeTx({ type: "income", amount: 500 }),
+			makeTx({ type: "expense", amount: 200 }),
+		];
 
-		const income = transactionStore.state.transactions
+		const income = transactions
 			.filter((t) => t.type === "income")
 			.reduce((sum, t) => sum + t.amount, 0);
 		expect(income).toBe(1500);
 	});
 
 	it("sums expenses correctly", () => {
-		addTransaction(makeTx({ type: "income", amount: 1000 }));
-		addTransaction(makeTx({ type: "expense", amount: 200 }));
-		addTransaction(makeTx({ type: "expense", amount: 75.5 }));
+		const transactions = [
+			makeTx({ type: "income", amount: 1000 }),
+			makeTx({ type: "expense", amount: 200 }),
+			makeTx({ type: "expense", amount: 75.5 }),
+		];
 
-		const expenses = transactionStore.state.transactions
+		const expenses = transactions
 			.filter((t) => t.type === "expense")
 			.reduce((sum, t) => sum + t.amount, 0);
 		expect(expenses).toBeCloseTo(275.5);
 	});
 
 	it("computes balance as income minus expenses", () => {
-		addTransaction(makeTx({ type: "income", amount: 2000 }));
-		addTransaction(makeTx({ type: "expense", amount: 800 }));
+		const transactions = [
+			makeTx({ type: "income", amount: 2000 }),
+			makeTx({ type: "expense", amount: 800 }),
+		];
 
-		const txs = transactionStore.state.transactions;
-		const income = txs
+		const income = transactions
 			.filter((t) => t.type === "income")
 			.reduce((sum, t) => sum + t.amount, 0);
-		const expenses = txs
+		const expenses = transactions
 			.filter((t) => t.type === "expense")
 			.reduce((sum, t) => sum + t.amount, 0);
 		expect(income - expenses).toBe(1200);

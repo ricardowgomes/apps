@@ -29,12 +29,12 @@ export function AddTransactionSheet({
 			description: "",
 			date: today(),
 		},
-		onSubmit: ({ value }) => {
+		onSubmit: async ({ value }) => {
 			const parsed = Number(value.amount);
 			if (!parsed || parsed <= 0) return;
 			if (!value.category || !value.description || !value.date) return;
 
-			addTransaction({
+			await addTransaction({
 				type: value.type,
 				amount: parsed,
 				currency: value.currency,

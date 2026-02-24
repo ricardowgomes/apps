@@ -1,23 +1,33 @@
-import { useStore } from "@tanstack/react-store";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useMemo } from "react";
-import type {
-	Transaction,
-	TransactionInput,
-	TransactionType,
-} from "../domain/transaction";
-import { addTransaction, transactionStore } from "./transaction-store";
+import type { Transaction, TransactionInput } from "../domain/transaction";
+import {
+	createTransactionFn,
+	deleteTransactionFn,
+	getTransactionsFn,
+} from "./transaction-server-fns";
 
 export interface TransactionFilters {
 	search: string;
-	type: "all" | TransactionType;
+	type: "all" | "income" | "expense";
 }
 
+const TRANSACTIONS_KEY = ["transactions"] as const;
+
 export function useTransactions() {
-	return useStore(transactionStore, (s) => s.transactions);
+	const { data } = useSuspenseQuery<Transaction[]>({
+		queryKey: TRANSACTIONS_KEY,
+		queryFn: () => getTransactionsFn(),
+	});
+	return data;
 }
 
 export function useSummary() {
-	const transactions = useStore(transactionStore, (s) => s.transactions);
+	const transactions = useTransactions();
 
 	return useMemo(() => {
 		const income = transactions
@@ -31,13 +41,22 @@ export function useSummary() {
 }
 
 export function useAddTransaction() {
-	return (input: TransactionInput): Transaction => {
-		const transaction: Transaction = {
-			...input,
-			id: crypto.randomUUID(),
-			createdAt: new Date().toISOString(),
-		};
-		addTransaction(transaction);
-		return transaction;
-	};
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: (input: TransactionInput) =>
+			createTransactionFn({ data: input }),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
+	});
+	return (input: TransactionInput) => mutation.mutateAsync(input);
+}
+
+export function useRemoveTransaction() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: (id: string) => deleteTransactionFn({ data: { id } }),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
+	});
+	return (id: string) => mutation.mutateAsync(id);
 }

@@ -128,16 +128,15 @@ Component config: `components.json`
 
 ## Data Persistence
 
-Currently **no server-side database**. Data approaches in use:
-
 | Approach | Where | Used For |
 |---|---|---|
+| Cloudflare D1 | Edge SQLite | Finance transactions |
 | TanStack DB (client) | Browser memory | Chat messages (demo) |
 | In-memory store | Server process | MCP todos (resets on restart) |
 | Static files | `src/data/` | Guitar inventory, table demo data |
 | File system | `mcp-todos.json` | MCP todo persistence |
 
-Future apps (Finance, Files) will require **Cloudflare D1** (SQL) and **Cloudflare R2** (blob storage).
+The Files sub-app will require **Cloudflare R2** (blob storage) when built.
 
 ---
 

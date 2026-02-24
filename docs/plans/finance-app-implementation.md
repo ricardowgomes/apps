@@ -23,20 +23,25 @@ Shipped in commit `f4e9197` — in-memory state, no auth, no DB.
 - [x] Summary cards (balance, total income, total expenses)
 - [x] Finance-aware BottomNav (Home / Finance / + Add)
 - [x] Domain types + Zod validation
-- [x] 24 automated tests (domain unit + store unit + application integration)
+- [x] 19 automated tests (domain unit + application integration)
+
+## Persistence (Done ✅)
+
+Shipped 2026-02-23 — Cloudflare D1 replaces in-memory store. See [finance-mvp.md](../projects/finance-mvp.md#iteration-2--cloudflare-d1-persistence) for full details.
+
+- [x] Cloudflare D1 database (`finance`) with `transactions` table
+- [x] SQL migration at `migrations/0001_create_transactions.sql`
+- [x] D1 repository at `src/finance/infrastructure/d1-transaction-repository.ts`
+- [x] Server functions (`createServerFn`) for get / create / delete
+- [x] Custom Worker entry `src/server.ts` — bridges Cloudflare `env` into TanStack Start context
+- [x] Route loader pre-populates React Query cache (`queryClient.ensureQueryData`)
+- [x] Hooks rewritten: `useSuspenseQuery` + `useMutation` (was: TanStack Store)
 
 ---
 
 ## Backlog
 
-### Next Priority: Persistence
-
-- [ ] Wire up **Cloudflare D1** (SQLite at the edge) for transaction storage
-  - `src/finance/infrastructure/` — D1 repository implementing the same interface as the current in-memory store
-  - Migration: `CREATE TABLE transactions (id TEXT PRIMARY KEY, type TEXT, amount REAL, currency TEXT, category TEXT, description TEXT, date TEXT, created_at TEXT)`
-  - Swap `transactionStore` loader to fetch from D1 via a server function (`createServerFn`)
-
-### Authentication
+### Next Priority: Authentication
 
 - [ ] Gate `/finance/*` routes — options:
   - **Cloudflare Access** (zero-code, org-level; good for personal use)
@@ -146,6 +151,6 @@ Account (future — for multi-account tracking)
 | **Mobile-first** | Yes |
 | **Bank import format** | CSV |
 | **Auth** | TBD — Cloudflare Access or Clerk |
-| **Database** | Cloudflare D1 (planned); currently in-memory TanStack Store |
+| **Database** | Cloudflare D1 — `finance` database, `transactions` table |
 | **Charts** | TBD — recharts or chart.js |
 | **Bank API integration** | Not now; maybe future |
