@@ -7,15 +7,16 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { getLocale } from "#/paraglide/runtime";
+import type { SessionUser } from "@/auth/domain/session";
 import BottomNav from "../components/BottomNav";
 import PortfolioHeader from "../components/PortfolioHeader";
-
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
+	user: SessionUser | null;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -25,6 +26,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		if (typeof document !== "undefined") {
 			document.documentElement.setAttribute("lang", getLocale());
 		}
+		// Dynamic import prevents session-server-fns.ts from being evaluated at
+		// module initialisation time. __root.tsx is eagerly loaded by routeTree.gen.ts,
+		// and createServerFn() fails in the Cloudflare Workers module runner when called
+		// at startup. Importing lazily here defers evaluation to request-handling time,
+		// when the runtime is fully initialised — the same reason finance route fns work.
+		const { getSessionFn } = await import(
+			"@/auth/application/session-server-fns"
+		);
+		const user = await getSessionFn();
+		return { user };
 	},
 
 	head: () => ({
@@ -51,6 +62,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+	const { user } = Route.useRouteContext();
 	return (
 		<html lang={getLocale()} className="dark">
 			<head>
@@ -58,7 +70,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="bg-[#05080d]">
 				<TanStackQueryProvider>
-					<PortfolioHeader />
+					<PortfolioHeader user={user} />
 					{children}
 					<BottomNav />
 					<TanStackDevtools

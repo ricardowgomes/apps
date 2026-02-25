@@ -10,6 +10,9 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({
+	optimizeDeps: {
+		exclude: ["@cloudflare/vite-plugin"],
+	},
 	plugins: [
 		devtools(),
 		paraglideVitePlugin({

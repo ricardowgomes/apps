@@ -6,7 +6,10 @@ export function getRouter() {
 	const router = createTanStackRouter({
 		routeTree,
 
-		context: getContext(),
+		context: {
+			...getContext(),
+			user: null,
+		},
 
 		scrollRestoration: true,
 		defaultPreload: "intent",
@@ -19,6 +22,18 @@ export function getRouter() {
 declare module "@tanstack/react-router" {
 	interface Register {
 		router: ReturnType<typeof getRouter>;
+		server: {
+			requestContext: {
+				cloudflare: {
+					env: Env;
+				};
+			};
+		};
+	}
+}
+
+declare module "@tanstack/router-core" {
+	interface Register {
 		server: {
 			requestContext: {
 				cloudflare: {

@@ -1,4 +1,4 @@
-import { createServerFn } from "@tanstack/react-start/server";
+import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { transactionSchema } from "../domain/transaction";
 import {
@@ -15,7 +15,7 @@ export const getTransactionsFn = createServerFn({ method: "GET" }).handler(
 );
 
 export const createTransactionFn = createServerFn({ method: "POST" })
-	.validator(transactionSchema)
+	.inputValidator(transactionSchema)
 	.handler(async ({ data, context }) => {
 		const db = context.cloudflare.env.DB;
 		const transaction = {
@@ -28,7 +28,7 @@ export const createTransactionFn = createServerFn({ method: "POST" })
 	});
 
 export const deleteTransactionFn = createServerFn({ method: "POST" })
-	.validator(z.object({ id: z.string() }))
+	.inputValidator(z.object({ id: z.string() }))
 	.handler(async ({ data, context }) => {
 		const db = context.cloudflare.env.DB;
 		await remove(db, data.id);

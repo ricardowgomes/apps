@@ -11,5 +11,11 @@
       // Replace with the database_id from: wrangler d1 create finance
       "database_id": "REPLACE_WITH_DATABASE_ID"
     }
-  ]
+  ],
+  "vars": {
+    // Comma-separated list of emails allowed to access the app
+    "ALLOWED_EMAILS": "your@email.com",
+    // Update for production: https://your-domain.workers.dev/api/auth/callback/google
+    "GOOGLE_REDIRECT_URI": "http://localhost:3000/api/auth/callback/google"
+  }
 }
