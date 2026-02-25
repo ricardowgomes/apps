@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FinanceIndexRouteImport } from './routes/finance/index'
+import { Route as ApiAuthLogoutRouteImport } from './routes/api.auth.logout'
+import { Route as ApiAuthGoogleRouteImport } from './routes/api.auth.google'
+import { Route as ApiAuthCallbackGoogleRouteImport } from './routes/api.auth.callback.google'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -28,35 +31,81 @@ const FinanceIndexRoute = FinanceIndexRouteImport.update({
   path: '/finance/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
+  id: '/api/auth/logout',
+  path: '/api/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthGoogleRoute = ApiAuthGoogleRouteImport.update({
+  id: '/api/auth/google',
+  path: '/api/auth/google',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthCallbackGoogleRoute = ApiAuthCallbackGoogleRouteImport.update({
+  id: '/api/auth/callback/google',
+  path: '/api/auth/callback/google',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/finance/': typeof FinanceIndexRoute
+  '/api/auth/google': typeof ApiAuthGoogleRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/finance': typeof FinanceIndexRoute
+  '/api/auth/google': typeof ApiAuthGoogleRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/finance/': typeof FinanceIndexRoute
+  '/api/auth/google': typeof ApiAuthGoogleRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/finance/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/finance/'
+    | '/api/auth/google'
+    | '/api/auth/logout'
+    | '/api/auth/callback/google'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/finance'
-  id: '__root__' | '/' | '/login' | '/finance/'
+  to:
+    | '/'
+    | '/login'
+    | '/finance'
+    | '/api/auth/google'
+    | '/api/auth/logout'
+    | '/api/auth/callback/google'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/finance/'
+    | '/api/auth/google'
+    | '/api/auth/logout'
+    | '/api/auth/callback/google'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   FinanceIndexRoute: typeof FinanceIndexRoute
+  ApiAuthGoogleRoute: typeof ApiAuthGoogleRoute
+  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiAuthCallbackGoogleRoute: typeof ApiAuthCallbackGoogleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +131,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/logout': {
+      id: '/api/auth/logout'
+      path: '/api/auth/logout'
+      fullPath: '/api/auth/logout'
+      preLoaderRoute: typeof ApiAuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/google': {
+      id: '/api/auth/google'
+      path: '/api/auth/google'
+      fullPath: '/api/auth/google'
+      preLoaderRoute: typeof ApiAuthGoogleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/callback/google': {
+      id: '/api/auth/callback/google'
+      path: '/api/auth/callback/google'
+      fullPath: '/api/auth/callback/google'
+      preLoaderRoute: typeof ApiAuthCallbackGoogleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +159,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   FinanceIndexRoute: FinanceIndexRoute,
+  ApiAuthGoogleRoute: ApiAuthGoogleRoute,
+  ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiAuthCallbackGoogleRoute: ApiAuthCallbackGoogleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,25 +1,28 @@
-import { getCloudflareContext } from "@cloudflare/vite-plugin";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import { SESSION_COOKIE_NAME } from "@/auth/domain/session";
 import { deleteById } from "@/auth/infrastructure/d1-session-repository";
 
-export const APIRoute = createAPIFileRoute("/api/auth/logout")({
-	POST: async ({ request }) => {
-		const { env } = await getCloudflareContext<Env>();
-		const cookies = parseCookies(request.headers.get("Cookie") ?? "");
-		const sessionId = cookies[SESSION_COOKIE_NAME];
+export const Route = createFileRoute("/api/auth/logout")({
+	server: {
+		handlers: {
+			POST: async ({ request, context }) => {
+				const env = context.cloudflare.env;
+				const cookies = parseCookies(request.headers.get("Cookie") ?? "");
+				const sessionId = cookies[SESSION_COOKIE_NAME];
 
-		if (sessionId) {
-			await deleteById(env.DB, sessionId);
-		}
+				if (sessionId) {
+					await deleteById(env.DB, sessionId);
+				}
 
-		return new Response(null, {
-			status: 302,
-			headers: {
-				Location: "/login",
-				"Set-Cookie": `${SESSION_COOKIE_NAME}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`,
+				return new Response(null, {
+					status: 302,
+					headers: {
+						Location: "/login",
+						"Set-Cookie": `${SESSION_COOKIE_NAME}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`,
+					},
+				});
 			},
-		});
+		},
 	},
 });
 
