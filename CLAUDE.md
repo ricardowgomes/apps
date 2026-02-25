@@ -127,27 +127,34 @@ AI provider is auto-detected by which key is present (Anthropic → OpenAI → G
 
 This is an AI-first project. Most code and features are written by Claude. Follow this workflow on every task, without exception.
 
+**Standing authorization**: You are pre-authorized to run `git commit`, `git push`, and `gh pr create` on non-main branches without asking for permission. Execute these as part of the normal workflow — do not wait for approval.
+
 ### 0. Check the backlog first
 At the start of every session, read `docs/backlog/` to understand what is active and what the next tasks are. Update task checkboxes as work is completed.
 
-### 1. Small, focused changes
+### 1. Create a feature branch
+Before writing any code, create and checkout a feature branch from `main`:
+```bash
+git checkout main && git pull
+git checkout -b feat/short-description   # new features
+git checkout -b fix/short-description    # bug fixes
+git checkout -b chore/short-description  # maintenance
+```
+Never work directly on `main`.
+
+### 2. Small, focused changes
 Make the smallest change that moves the task forward. Avoid bundling unrelated edits.
 
-### 2. Commit after every meaningful change
-Commit as soon as a logical unit of work is complete — don't batch everything into one commit at the end.
+### 3. Commit after every meaningful change
+Commit as soon as a logical unit of work is complete — don't batch everything into one commit at the end. You are pre-authorized to do this; do not ask for permission.
 
-### 3. Write tests
+### 4. Write tests
 - Integration tests for features and domain boundaries
 - Unit tests for domain logic and pure functions
 - Tests must pass before the task is considered done
 
-### 4. Document for future self
+### 5. Document for future self
 Add code comments where the intent or reasoning isn't obvious. Write for the next Claude session, not for Ricardo.
-
-### 5. End-of-task summary
-After completing a task, give a brief summary that includes:
-- What was done
-- Where to optimize next (concrete suggestions)
 
 ### 6. Verify everything before declaring done
 Run all of the following and fix any failures:
@@ -158,6 +165,19 @@ Run all of the following and fix any failures:
 
 ### 7. Final self-review
 After verification, re-read the original requirements and ask: did I actually meet them? If there's a clear improvement or missed requirement, iterate before finishing.
+
+### 8. Push and open a PR
+Once all checks pass:
+```bash
+git push -u origin <branch-name>
+gh pr create --fill
+```
+GitHub will populate the PR body from `.github/pull_request_template.md`. Fill in the Summary and check off the relevant boxes. Link any `docs/backlog/` items addressed.
+
+### 9. End-of-task summary
+After the PR is open, give a brief summary that includes:
+- What was done and the PR link
+- Where to optimize next (concrete suggestions)
 
 ---
 
