@@ -25,7 +25,8 @@ Primary purpose: portfolio showcase for Ricardo (software engineer). Future sub-
 |---|---|
 | `docs/architecture.md` | Codebase structure, patterns, and decisions |
 | `docs/adr/` | Architecture Decision Records — read before making design choices |
-| `docs/plans/` | Future app ideas and specs |
+| `docs/backlog/` | **Active epics and tasks — check here at the start of every session** |
+| `docs/logs/` | Implementation logs — historical record of what was shipped and why |
 | `src/routes/__root.tsx` | Root layout — wraps all pages |
 | `src/router.tsx` | Router instance setup |
 | `src/routeTree.gen.ts` | **Auto-generated — never edit** |
@@ -122,6 +123,47 @@ AI provider is auto-detected by which key is present (Anthropic → OpenAI → G
 
 ---
 
-## Owner
+## Workflow (AI-first — follow this on every task)
 
-Ricardo — software engineer. This is a personal/family project.
+This is an AI-first project. Most code and features are written by Claude. Follow this workflow on every task, without exception.
+
+### 0. Check the backlog first
+At the start of every session, read `docs/backlog/` to understand what is active and what the next tasks are. Update task checkboxes as work is completed.
+
+### 1. Small, focused changes
+Make the smallest change that moves the task forward. Avoid bundling unrelated edits.
+
+### 2. Commit after every meaningful change
+Commit as soon as a logical unit of work is complete — don't batch everything into one commit at the end.
+
+### 3. Write tests
+- Integration tests for features and domain boundaries
+- Unit tests for domain logic and pure functions
+- Tests must pass before the task is considered done
+
+### 4. Document for future self
+Add code comments where the intent or reasoning isn't obvious. Write for the next Claude session, not for Ricardo.
+
+### 5. End-of-task summary
+After completing a task, give a brief summary that includes:
+- What was done
+- Where to optimize next (concrete suggestions)
+
+### 6. Verify everything before declaring done
+Run all of the following and fix any failures:
+- `npm run test` — tests pass
+- `npm run check` — Biome lint + format
+- `npx tsc --noEmit` — TypeScript
+- `npm run knip` — no dead code
+
+### 7. Final self-review
+After verification, re-read the original requirements and ask: did I actually meet them? If there's a clear improvement or missed requirement, iterate before finishing.
+
+---
+
+## Ownership
+
+- **Ricardo** — product owner: sets priorities, approves epics, makes product decisions
+- **Claude** — primary implementer and co-author: proposes task sizes and scope, executes tasks, maintains the backlog as work progresses
+
+This is a personal/family project. See [ADR-0008](docs/adr/0008-ai-first-project-management.md) for the project management approach.

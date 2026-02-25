@@ -195,7 +195,7 @@ npx wrangler types
 
 ## What's Next
 
-See [finance-app-implementation.md](../plans/finance-app-implementation.md) for the full backlog.
+See [epic-finance.md](../backlog/epic-finance.md) for the full backlog.
 
 Prioritised next steps:
 
