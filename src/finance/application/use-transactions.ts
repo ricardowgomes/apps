@@ -51,6 +51,7 @@ export function useAddTransaction() {
 	return (input: TransactionInput) => mutation.mutateAsync(input);
 }
 
+/** @internal Planned for delete transaction UI — not wired up yet. */
 export function useRemoveTransaction() {
 	const queryClient = useQueryClient();
 	const mutation = useMutation({

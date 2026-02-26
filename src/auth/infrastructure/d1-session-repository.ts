@@ -52,6 +52,7 @@ export async function deleteById(db: D1Database, id: string): Promise<void> {
 	await db.prepare("DELETE FROM sessions WHERE id = ?").bind(id).run();
 }
 
+/** @internal Planned for auth session cleanup cron job — not wired up yet. */
 export async function deleteExpiredSessions(db: D1Database): Promise<void> {
 	await db
 		.prepare("DELETE FROM sessions WHERE expires_at < ?")

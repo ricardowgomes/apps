@@ -10,6 +10,7 @@ See [ADR-0008](../adr/0008-ai-first-project-management.md) for the full rational
 
 | File | Epic | Status | Priority |
 |---|---|---|---|
+| [epic-devops.md](epic-devops.md) | DevOps & CI/CD | Backlog | High |
 | [epic-finance.md](epic-finance.md) | Finance Tracker | In Progress | High |
 | [epic-portfolio.md](epic-portfolio.md) | Portfolio Showcase | Backlog | Medium |
 | [epic-files.md](epic-files.md) | File Storage & Indexing | Backlog | Low |
