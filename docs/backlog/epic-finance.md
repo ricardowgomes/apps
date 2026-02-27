@@ -41,7 +41,7 @@ A private family finance application at `/finance/` for tracking income and expe
 
 ### Transaction Management
 - [x] (S) Delete transaction — wire `useRemoveTransaction()` to the trash icon on each row; the trash icon is already rendered, the delete hook is already wired up via `onDelete`
-- [ ] (M) Edit transaction — open the add-transaction sheet pre-filled with existing values; reuse the existing form; add `updateTransactionFn` server fn + D1 `UPDATE` in the repository
+- [x] (M) Edit transaction — open the add-transaction sheet pre-filled with existing values; reuse the existing form; add `updateTransactionFn` server fn + D1 `UPDATE` in the repository
 
 ### Filtering & Views
 - [ ] (S) Month picker — add a month selector to the filters bar; pass the selected month to the query; default to the current month; update summary cards to reflect the filtered month
