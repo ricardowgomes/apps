@@ -153,7 +153,46 @@ test.describe("Finance", () => {
 		await expect(page.getByText("Test Income Entry")).not.toBeVisible();
 	});
 
-	// ---- 5. Filter: income ---------------------------------------------------
+	// ---- 5. Edit transaction -------------------------------------------------
+
+	test("edit transaction — updated values appear in the list", async ({
+		page,
+		request,
+	}) => {
+		await seedTransactions(request, [
+			makeTransaction({
+				id: "test-edit-1",
+				type: "expense",
+				amount: 100,
+				category: "Food & Dining",
+				description: "Original Description",
+				date: TEST_DATE,
+			}),
+		]);
+
+		await page.goto("/finance");
+		await expect(page.getByText("Original Description")).toBeVisible();
+
+		// Click the edit button on the row
+		await page.getByRole("button", { name: "Edit transaction" }).first().click();
+
+		const sheet = page.getByRole("dialog", { name: "Edit transaction" });
+		await expect(sheet).toBeVisible();
+		await expect(sheet.getByRole("heading", { name: "Edit Transaction" })).toBeVisible();
+
+		// Update description and amount
+		await sheet.getByLabel("Description").fill("Updated Description");
+		await sheet.getByLabel("Amount (CAD)").fill("250");
+
+		await sheet.getByRole("button", { name: "Save Changes" }).click();
+
+		// Sheet should close and updated row should be visible
+		await expect(sheet).not.toBeVisible();
+		await expect(page.getByText("Updated Description")).toBeVisible();
+		await expect(page.getByText("Original Description")).not.toBeVisible();
+	});
+
+	// ---- 6. Filter: income ---------------------------------------------------
 
 	test("filter by income — only income rows are visible", async ({
 		page,

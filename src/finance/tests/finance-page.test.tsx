@@ -11,8 +11,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
 	closeAddTransaction,
+	closeTransactionSheet,
 	financeUiStore,
 	openAddTransaction,
+	openEditTransaction,
 } from "../application/finance-ui-store";
 import type { Transaction } from "../domain/transaction";
 
@@ -31,7 +33,7 @@ function makeTx(overrides: Partial<Transaction> = {}): Transaction {
 }
 
 beforeEach(() => {
-	closeAddTransaction();
+	closeTransactionSheet();
 });
 
 describe("transaction filtering logic", () => {
@@ -144,18 +146,42 @@ describe("summary calculations", () => {
 });
 
 describe("finance UI store", () => {
-	it("starts with sheet closed", () => {
+	it("starts with sheet closed and no editing transaction", () => {
 		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+		expect(financeUiStore.state.editingTransaction).toBeNull();
 	});
 
 	it("opens the add transaction sheet", () => {
 		openAddTransaction();
 		expect(financeUiStore.state.addTransactionOpen).toBe(true);
+		expect(financeUiStore.state.editingTransaction).toBeNull();
 	});
 
 	it("closes the add transaction sheet", () => {
 		openAddTransaction();
 		closeAddTransaction();
 		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+	});
+
+	it("opens edit mode with the selected transaction", () => {
+		const tx = makeTx({ id: "tx-edit-1", description: "Edited Entry" });
+		openEditTransaction(tx);
+		expect(financeUiStore.state.editingTransaction).toEqual(tx);
+		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+	});
+
+	it("openEditTransaction clears the add sheet if it was open", () => {
+		openAddTransaction();
+		const tx = makeTx({ id: "tx-edit-2" });
+		openEditTransaction(tx);
+		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+		expect(financeUiStore.state.editingTransaction).toEqual(tx);
+	});
+
+	it("closeTransactionSheet clears both add and edit state", () => {
+		openEditTransaction(makeTx({ id: "tx-edit-3" }));
+		closeTransactionSheet();
+		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+		expect(financeUiStore.state.editingTransaction).toBeNull();
 	});
 });

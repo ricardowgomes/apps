@@ -9,6 +9,7 @@ import {
 	createTransactionFn,
 	deleteTransactionFn,
 	getTransactionsFn,
+	updateTransactionFn,
 } from "./transaction-server-fns";
 
 export interface TransactionFilters {
@@ -49,6 +50,18 @@ export function useAddTransaction() {
 			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
 	});
 	return (input: TransactionInput) => mutation.mutateAsync(input);
+}
+
+export function useUpdateTransaction() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: (input: TransactionInput & { id: string }) =>
+			updateTransactionFn({ data: input }),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
+	});
+	return (input: TransactionInput & { id: string }) =>
+		mutation.mutateAsync(input);
 }
 
 export function useRemoveTransaction() {

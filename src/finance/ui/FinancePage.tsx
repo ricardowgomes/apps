@@ -1,9 +1,10 @@
 import { useStore } from "@tanstack/react-store";
 import { Plus } from "lucide-react";
 import {
-	closeAddTransaction,
+	closeTransactionSheet,
 	financeUiStore,
 	openAddTransaction,
+	openEditTransaction,
 } from "../application/finance-ui-store";
 import { useTransactions } from "../application/use-transactions";
 import { AddTransactionSheet } from "./AddTransactionSheet";
@@ -12,7 +13,16 @@ import { TransactionList } from "./TransactionList";
 
 export function FinancePage() {
 	const transactions = useTransactions();
-	const sheetOpen = useStore(financeUiStore, (s) => s.addTransactionOpen);
+	const addTransactionOpen = useStore(
+		financeUiStore,
+		(s) => s.addTransactionOpen,
+	);
+	const editingTransaction = useStore(
+		financeUiStore,
+		(s) => s.editingTransaction,
+	);
+
+	const sheetOpen = addTransactionOpen || editingTransaction !== null;
 
 	return (
 		<>
@@ -50,12 +60,19 @@ export function FinancePage() {
 					<SummaryCards />
 
 					{/* Transaction list — owns filters internally */}
-					<TransactionList transactions={transactions} />
+					<TransactionList
+						transactions={transactions}
+						onEdit={openEditTransaction}
+					/>
 				</div>
 			</main>
 
-			{/* Add transaction sheet */}
-			<AddTransactionSheet open={sheetOpen} onClose={closeAddTransaction} />
+			{/* Add / edit transaction sheet */}
+			<AddTransactionSheet
+				open={sheetOpen}
+				onClose={closeTransactionSheet}
+				initialValues={editingTransaction ?? undefined}
+			/>
 		</>
 	);
 }

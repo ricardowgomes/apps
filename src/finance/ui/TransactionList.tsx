@@ -7,7 +7,13 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownLeft, ArrowUpRight, Inbox, Trash2 } from "lucide-react";
+import {
+	ArrowDownLeft,
+	ArrowUpRight,
+	Inbox,
+	Pencil,
+	Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import {
 	type TransactionFilters,
@@ -51,9 +57,11 @@ function groupByDate(
 
 function TransactionRow({
 	transaction,
+	onEdit,
 	onDelete,
 }: {
 	transaction: Transaction;
+	onEdit: (t: Transaction) => void;
 	onDelete: (id: string) => void;
 }) {
 	const isIncome = transaction.type === "income";
@@ -92,6 +100,16 @@ function TransactionRow({
 				{isIncome ? "+" : "-"}
 				{formatCurrency(transaction.amount)}
 			</p>
+
+			{/* Edit */}
+			<button
+				type="button"
+				onClick={() => onEdit(transaction)}
+				aria-label="Edit transaction"
+				className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+			>
+				<Pencil size={15} />
+			</button>
 
 			{/* Delete */}
 			<button
@@ -133,9 +151,13 @@ const DEFAULT_SORTING: SortingState = [{ id: "date", desc: true }];
 
 interface TransactionListProps {
 	transactions: Transaction[];
+	onEdit: (t: Transaction) => void;
 }
 
-export function TransactionList({ transactions }: TransactionListProps) {
+export function TransactionList({
+	transactions,
+	onEdit,
+}: TransactionListProps) {
 	const removeTransaction = useRemoveTransaction();
 	const [globalFilter, setGlobalFilter] = useState("");
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -197,6 +219,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
 								<TransactionRow
 									key={t.id}
 									transaction={t}
+									onEdit={onEdit}
 									onDelete={removeTransaction}
 								/>
 							))}

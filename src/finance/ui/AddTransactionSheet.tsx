@@ -1,12 +1,21 @@
 import { useForm } from "@tanstack/react-form";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAddTransaction } from "../application/use-transactions";
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "../domain/transaction";
+import {
+	useAddTransaction,
+	useUpdateTransaction,
+} from "../application/use-transactions";
+import {
+	EXPENSE_CATEGORIES,
+	INCOME_CATEGORIES,
+	type Transaction,
+} from "../domain/transaction";
 
 interface AddTransactionSheetProps {
 	open: boolean;
 	onClose: () => void;
+	/** When provided the sheet opens in edit mode pre-filled with these values. */
+	initialValues?: Transaction;
 }
 
 const today = () => new Date().toISOString().split("T")[0];
@@ -14,47 +23,73 @@ const today = () => new Date().toISOString().split("T")[0];
 export function AddTransactionSheet({
 	open,
 	onClose,
+	initialValues,
 }: AddTransactionSheetProps) {
+	const isEditMode = initialValues !== undefined;
 	const addTransaction = useAddTransaction();
+	const updateTransaction = useUpdateTransaction();
+
 	const [selectedType, setSelectedType] = useState<"income" | "expense">(
-		"expense",
+		initialValues?.type ?? "expense",
 	);
 
 	const form = useForm({
 		defaultValues: {
-			type: "expense" as "income" | "expense",
-			amount: "" as unknown as number,
-			currency: "CAD",
-			category: "",
-			description: "",
-			date: today(),
+			type: (initialValues?.type ?? "expense") as "income" | "expense",
+			amount: (initialValues?.amount ?? "") as unknown as number,
+			currency: initialValues?.currency ?? "CAD",
+			category: initialValues?.category ?? "",
+			description: initialValues?.description ?? "",
+			date: initialValues?.date ?? today(),
 		},
 		onSubmit: async ({ value }) => {
 			const parsed = Number(value.amount);
 			if (!parsed || parsed <= 0) return;
 			if (!value.category || !value.description || !value.date) return;
 
-			await addTransaction({
-				type: value.type,
-				amount: parsed,
-				currency: value.currency,
-				category: value.category,
-				description: value.description,
-				date: value.date,
-			});
+			if (isEditMode && initialValues) {
+				await updateTransaction({
+					id: initialValues.id,
+					type: value.type,
+					amount: parsed,
+					currency: value.currency,
+					category: value.category,
+					description: value.description,
+					date: value.date,
+				});
+			} else {
+				await addTransaction({
+					type: value.type,
+					amount: parsed,
+					currency: value.currency,
+					category: value.category,
+					description: value.description,
+					date: value.date,
+				});
+			}
 			onClose();
 			form.reset();
 			setSelectedType("expense");
 		},
 	});
 
-	// Reset form when sheet closes
+	// Reset form when sheet opens/closes or switches between add/edit
 	useEffect(() => {
 		if (!open) {
 			form.reset();
 			setSelectedType("expense");
+		} else if (initialValues) {
+			form.reset({
+				type: initialValues.type,
+				amount: initialValues.amount,
+				currency: initialValues.currency,
+				category: initialValues.category,
+				description: initialValues.description,
+				date: initialValues.date,
+			});
+			setSelectedType(initialValues.type);
 		}
-	}, [open, form]);
+	}, [open, initialValues, form]);
 
 	// Trap escape key
 	useEffect(() => {
@@ -86,7 +121,7 @@ export function AddTransactionSheet({
 			<div
 				role="dialog"
 				aria-modal="true"
-				aria-label="Add transaction"
+				aria-label={isEditMode ? "Edit transaction" : "Add transaction"}
 				className={`fixed bottom-0 left-0 right-0 z-50 max-h-[90dvh] overflow-y-auto rounded-t-3xl border-t border-white/[0.08] bg-[#070d14] shadow-2xl transition-transform duration-300 ease-out ${
 					open ? "translate-y-0" : "translate-y-full"
 				}`}
@@ -99,7 +134,7 @@ export function AddTransactionSheet({
 				{/* Header */}
 				<div className="flex items-center justify-between px-6 py-4">
 					<h2 className="text-base font-semibold text-white">
-						New Transaction
+						{isEditMode ? "Edit Transaction" : "New Transaction"}
 					</h2>
 					<button
 						type="button"
@@ -264,7 +299,13 @@ export function AddTransactionSheet({
 								disabled={isSubmitting}
 								className="w-full py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-sm transition-all duration-200 shadow-lg shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
 							>
-								{isSubmitting ? "Adding…" : "Add Transaction"}
+								{isSubmitting
+									? isEditMode
+										? "Saving…"
+										: "Adding…"
+									: isEditMode
+										? "Save Changes"
+										: "Add Transaction"}
 							</button>
 						)}
 					</form.Subscribe>

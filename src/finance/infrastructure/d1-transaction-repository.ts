@@ -1,4 +1,4 @@
-import type { Transaction } from "../domain/transaction";
+import type { Transaction, TransactionInput } from "../domain/transaction";
 
 interface D1TransactionRow {
 	id: string;
@@ -46,6 +46,27 @@ export async function insert(db: D1Database, tx: Transaction): Promise<void> {
 			tx.description,
 			tx.date,
 			tx.createdAt,
+		)
+		.run();
+}
+
+export async function update(
+	db: D1Database,
+	id: string,
+	data: TransactionInput,
+): Promise<void> {
+	await db
+		.prepare(
+			`UPDATE transactions SET type=?, amount=?, currency=?, category=?, description=?, date=? WHERE id=?`,
+		)
+		.bind(
+			data.type,
+			data.amount,
+			data.currency,
+			data.category,
+			data.description,
+			data.date,
+			id,
 		)
 		.run();
 }
