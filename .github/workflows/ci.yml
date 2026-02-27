@@ -40,9 +40,13 @@ jobs:
         run: pnpm knip
 
   playwright:
-    name: Playwright E2E
+    name: Playwright E2E (non-blocking)
     runs-on: ubuntu-latest
     needs: [ci]
+    # Non-blocking until the app is deployed to a stable environment.
+    # Failures show as warnings in the PR but do not prevent merging.
+    # Revisit when a staging/production deployment target exists.
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
