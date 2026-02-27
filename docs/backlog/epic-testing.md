@@ -22,28 +22,15 @@ Establish full Cypress E2E test coverage for all existing production features (F
 - Unit test gap-filling (Vitest unit tests already exist for domain logic)
 - Coverage enforcement via Cypress (use Vitest for coverage reports)
 
-## Tasks
+## Stories
 
-### Setup
-- [ ] (S) Install Cypress — `npx pnpm add -D cypress`; add `cy:open` and `cy:run` scripts to `package.json`; create `cypress.config.ts` pointing `baseUrl` at `http://localhost:3000` (Wrangler local dev)
-- [ ] (S) Auth stub — create a `cy.loginAsTestUser()` custom command that seeds a test session directly into the local D1 database (or intercepts the OAuth redirect and sets the session cookie) so protected routes are accessible without a real Google account
-
-### Auth Tests (`cypress/e2e/auth/`)
-- [ ] (S) Unauthenticated redirect — visiting `/finance` without a session cookie should redirect to `/login`
-- [ ] (S) Login page renders — `/login` shows the "Sign in with Google" button
-
-### Finance Tests (`cypress/e2e/finance/`)
-- [ ] (S) Finance page loads — after login, `/finance` renders the dashboard with the summary cards and transaction list
-- [ ] (M) Add income transaction — open the add-transaction sheet, fill type=income + amount + category + description + date, submit; verify the new row appears in the list and the income summary card total increases
-- [ ] (M) Add expense transaction — same flow for type=expense; verify expense total increases and balance decreases
-- [ ] (S) Delete transaction — click the delete icon on an existing row, confirm; verify the row is removed and totals update
-- [ ] (S) Filter by income — click the "Income" filter toggle; verify only income rows are visible
-- [ ] (S) Filter by expense — click the "Expenses" filter toggle; verify only expense rows are visible
-- [ ] (S) Search by description — type a description into the search box; verify only matching rows appear
-- [ ] (S) Summary cards — verify the balance, total income, and total expenses values match the sum of visible transactions
-
-### CI Integration
-- [ ] (S) Add a `cy:run` step to the GitHub Actions workflow — runs after the build step against a local Wrangler dev server started in the background
+| Story | Size | Status | Description |
+|---|---|---|---|
+| [testing-01-cypress-setup](stories/testing-01-cypress-setup.md) | S | Backlog | Install Cypress, configure baseUrl, add cy:open/cy:run scripts |
+| [testing-02-auth-stub](stories/testing-02-auth-stub.md) | M | Backlog | `cy.loginAsTestUser()` command — bypasses Google OAuth via D1 session seed |
+| [testing-03-auth-e2e](stories/testing-03-auth-e2e.md) | S | Backlog | Auth E2E tests: unauthenticated redirect + login page render |
+| [testing-04-finance-e2e](stories/testing-04-finance-e2e.md) | M | Backlog | Finance E2E tests: load, add, delete, filter, search, summary cards |
+| [testing-05-ci-integration](stories/testing-05-ci-integration.md) | S | Backlog | Add cy:run step to GitHub Actions; start Wrangler dev server in CI |
 
 ## Done When
 
