@@ -30,7 +30,7 @@ Establish full Playwright E2E test coverage for all existing production features
 | [testing-02-auth-stub](stories/testing-02-auth-stub.md) | M | Done | `loginAsTestUser()` helper — bypasses Google OAuth via D1 session seed |
 | [testing-03-auth-e2e](stories/testing-03-auth-e2e.md) | S | Done | Auth E2E tests: unauthenticated redirect + login page render |
 | [testing-04-finance-e2e](stories/testing-04-finance-e2e.md) | M | Backlog | Finance E2E tests: load, add, delete, filter, search, summary cards |
-| [testing-05-ci-integration](stories/testing-05-ci-integration.md) | S | Backlog | Add pw:run step to GitHub Actions; start Wrangler dev server in CI |
+| [testing-05-ci-integration](stories/testing-05-ci-integration.md) | S | Done | Add pw:run step to GitHub Actions; start Wrangler dev server in CI |
 
 ## Done When
 

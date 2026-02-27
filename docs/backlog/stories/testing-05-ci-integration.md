@@ -1,7 +1,7 @@
 # Story: CI Integration
 
 - **Epic**: [Automated Testing](../epic-testing.md)
-- **Status**: Backlog
+- **Status**: Done
 - **Size**: S
 - **Priority**: High
 - **Depends on**: [testing-04-finance-e2e.md](testing-04-finance-e2e.md)
@@ -31,17 +31,17 @@ The Wrangler dev server needs a local D1 database to exist, so migrations must b
 
 ## Tasks
 
-- [ ] Review the existing GitHub Actions workflow file(s) in `.github/workflows/`
-- [ ] Add a step that installs Playwright browsers: `npx playwright install --with-deps chromium`
-- [ ] Add a step that applies D1 migrations locally
-- [ ] Add a step that starts `wrangler dev` in the background and waits for the server to be ready
-- [ ] Add the `npm run pw:run` step
-- [ ] Configure artifact upload for Playwright traces on failure
-- [ ] Set required secrets/env vars in GitHub Actions (e.g. `ALLOWED_EMAILS` for the test user)
+- [x] Review the existing GitHub Actions workflow file(s) in `.github/workflows/`
+- [x] Add a step that installs Playwright browsers: `npx playwright install --with-deps chromium`
+- [x] Add a step that applies D1 migrations locally
+- [x] Add a step that starts `wrangler dev` in the background and waits for the server to be ready
+- [x] Add the `npm run pw:run` step
+- [x] Configure artifact upload for Playwright traces on failure
+- [x] Set required secrets/env vars in GitHub Actions (e.g. `ALLOWED_EMAILS` for the test user)
 - [ ] Verify the workflow passes on a test branch before merging
 
 ## Done When
 
 - [ ] A PR with a green Playwright suite shows a passing CI check
 - [ ] A deliberate spec failure causes the CI check to fail and uploads artifacts
-- [ ] Changes committed and PR opened
+- [x] Changes committed and PR opened
