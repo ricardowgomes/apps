@@ -1,7 +1,7 @@
 # Story: Finance E2E Tests
 
 - **Epic**: [Automated Testing](../epic-testing.md)
-- **Status**: Backlog
+- **Status**: Done
 - **Size**: M
 - **Priority**: High
 - **Depends on**: [testing-02-auth-stub.md](testing-02-auth-stub.md)
@@ -32,21 +32,21 @@ Full Playwright E2E coverage for every user-facing Finance tracker feature: load
 
 ## Tasks
 
-- [ ] Decide on test-data strategy: seed transactions via the test API endpoint or via the UI in each spec (prefer API seed for speed)
-- [ ] Create `tests/e2e/finance/finance.spec.ts`
-- [ ] Implement spec: Finance page loads
-- [ ] Implement spec: Add income transaction
-- [ ] Implement spec: Add expense transaction
-- [ ] Implement spec: Delete transaction
-- [ ] Implement spec: Filter by income
-- [ ] Implement spec: Filter by expense
-- [ ] Implement spec: Search by description
-- [ ] Implement spec: Summary cards match transaction sums
-- [ ] Verify teardown: each spec leaves the DB in a clean state for the next
+- [x] Decide on test-data strategy: seed transactions via the test API endpoint or via the UI in each spec (prefer API seed for speed)
+- [x] Create `tests/e2e/finance/finance.spec.ts`
+- [x] Implement spec: Finance page loads
+- [x] Implement spec: Add income transaction
+- [x] Implement spec: Add expense transaction
+- [x] Implement spec: Delete transaction
+- [x] Implement spec: Filter by income
+- [x] Implement spec: Filter by expense
+- [x] Implement spec: Search by description
+- [x] Implement spec: Summary cards match transaction sums
+- [x] Verify teardown: each spec leaves the DB in a clean state for the next
 
 ## Done When
 
-- [ ] All 8 specs pass in `npm run pw:run`
-- [ ] No flakiness on three consecutive runs
-- [ ] `npm run test` (Vitest) still passes — no regressions
-- [ ] Changes committed on a feature branch
+- [x] All 8 specs pass in `npm run pw:run`
+- [x] No flakiness on three consecutive runs
+- [x] `npm run test` (Vitest) still passes — no regressions
+- [x] Changes committed on a feature branch

@@ -16,7 +16,10 @@ export function SummaryCards() {
 	return (
 		<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
 			{/* Balance */}
-			<div className="sm:col-span-1 flex flex-col gap-1 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
+			<div
+				data-testid="balance-card"
+				className="sm:col-span-1 flex flex-col gap-1 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5"
+			>
 				<div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-widest font-medium">
 					<Wallet size={13} />
 					Balance
@@ -30,7 +33,10 @@ export function SummaryCards() {
 			</div>
 
 			{/* Income */}
-			<div className="flex flex-col gap-1 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-5">
+			<div
+				data-testid="income-card"
+				className="flex flex-col gap-1 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-5"
+			>
 				<div className="flex items-center gap-2 text-xs text-emerald-500/80 uppercase tracking-widest font-medium">
 					<ArrowUpRight size={13} />
 					Income
@@ -42,7 +48,10 @@ export function SummaryCards() {
 			</div>
 
 			{/* Expenses */}
-			<div className="flex flex-col gap-1 rounded-2xl border border-rose-500/20 bg-rose-500/[0.04] p-5">
+			<div
+				data-testid="expenses-card"
+				className="flex flex-col gap-1 rounded-2xl border border-rose-500/20 bg-rose-500/[0.04] p-5"
+			>
 				<div className="flex items-center gap-2 text-xs text-rose-500/80 uppercase tracking-widest font-medium">
 					<ArrowDownLeft size={13} />
 					Expenses
