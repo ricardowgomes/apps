@@ -40,7 +40,7 @@ A private family finance application at `/finance/` for tracking income and expe
 - [x] (S) Gate `/finance/*` routes — add `beforeLoad` check for `context.user`, redirect to `/login` if null; verify the existing Google OAuth session works end-to-end on the finance route
 
 ### Transaction Management
-- [ ] (S) Delete transaction — wire `useRemoveTransaction()` (already implemented) to a trash icon on each row; add a confirmation step (alert dialog or swipe-to-confirm)
+- [x] (S) Delete transaction — wire `useRemoveTransaction()` to the trash icon on each row; the trash icon is already rendered, the delete hook is already wired up via `onDelete`
 - [ ] (M) Edit transaction — open the add-transaction sheet pre-filled with existing values; reuse the existing form; add `updateTransactionFn` server fn + D1 `UPDATE` in the repository
 
 ### Filtering & Views
