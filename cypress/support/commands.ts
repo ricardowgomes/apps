@@ -1,5 +1,17 @@
 // Custom Cypress commands
-// Add application-specific commands here (e.g. cy.loginAsTestUser())
 // See: https://on.cypress.io/custom-commands
 
-export {};
+Cypress.Commands.add("loginAsTestUser", () => {
+	cy.request("/api/test/login").then((response) => {
+		const { sessionId, cookieName } = response.body as {
+			sessionId: string;
+			cookieName: string;
+		};
+		cy.setCookie(cookieName, sessionId, {
+			domain: "localhost",
+			path: "/",
+			httpOnly: true,
+			secure: false,
+		});
+	});
+});
