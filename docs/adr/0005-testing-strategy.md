@@ -1,7 +1,7 @@
 # ADR-0005: Testing Strategy
 
 - **Date**: 2026-02-18
-- **Status**: Accepted
+- **Status**: Amended by [ADR-0009](0009-cypress-e2e-testing.md)
 
 ## Context
 
@@ -54,3 +54,7 @@ Adopt a **two-level testing strategy**:
 | E2E tests only (Playwright/Cypress) | Too slow for rapid iteration; no unit-level confidence |
 | Unit tests only | Miss integration bugs; don't reflect real user flows |
 | No tests | Unacceptable for a codebase that will grow and be maintained |
+
+## Amendment
+
+[ADR-0009](0009-cypress-e2e-testing.md) adds Cypress as a **third layer** on top of this strategy. The two Vitest levels above remain unchanged; Cypress covers full user flows that unit and integration tests cannot reach.

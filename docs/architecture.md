@@ -143,10 +143,20 @@ The Files sub-app will require **Cloudflare R2** (blob storage) when built.
 ## Code Quality Standards
 
 ### Testing Strategy
-- **Integration tests** at the route/feature level (user-facing behaviour)
-- **Unit tests** for domain logic, utilities, and pure functions
-- Framework: **Vitest** + **Testing Library**
-- Test environment: **jsdom**
+
+Three layers, outermost to innermost:
+
+| Layer | Tool | Scope | Location |
+|---|---|---|---|
+| E2E | **Cypress** | Full user flows against a running Wrangler local server | `cypress/e2e/{domain}/` |
+| Integration | **Vitest** + Testing Library | Application-layer logic (filters, stores, calculations) | `src/{domain}/tests/` |
+| Unit | **Vitest** | Domain entities, pure functions, validation | `src/{domain}/domain/__tests__/` |
+
+**Rule: every production feature must ship with at least one Cypress E2E test.** See [ADR-0009](adr/0009-cypress-e2e-testing.md).
+
+- `npm run cy:run` — headless E2E suite (requires Wrangler local server running)
+- `npm run cy:open` — interactive Cypress Test Runner
+- `npm run test` — Vitest unit + integration suite
 
 ### Style & Formatting
 - **Biome** for linting and formatting (replaces ESLint + Prettier)
