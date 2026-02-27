@@ -1,7 +1,7 @@
 # ADR-0009: Cypress E2E Testing as Third Testing Layer
 
 - **Date**: 2026-02-26
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0010](0010-playwright-over-cypress.md)
 - **Amends**: [ADR-0005](0005-testing-strategy.md)
 
 ## Context

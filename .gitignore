@@ -14,7 +14,6 @@ __unconfig*
 todos.json
 mcp-todos.json
 
-# Cypress
-.cypress-cache
-cypress/videos
-cypress/screenshots
+# Playwright
+test-results/
+playwright-report/

@@ -1,4 +1,4 @@
-# Story: Cypress Setup & Configuration
+# Story: E2E Test Runner Setup
 
 - **Epic**: [Automated Testing](../epic-testing.md)
 - **Status**: Done
@@ -7,31 +7,24 @@
 
 ## Goal
 
-Install Cypress and wire it into the project so that E2E tests can be written and run against the local Wrangler dev server. This story produces no tests itself — it is the foundation everything else depends on.
+Install an E2E test runner and wire it into the project so that E2E tests can be written and run against the local Wrangler dev server.
 
-## Acceptance Criteria
+## History
 
-- `npx pnpm add -D cypress` has been run and `cypress` appears in `devDependencies`
-- `cypress.config.ts` exists at the repo root, with `baseUrl: "http://localhost:3000"` and `specPattern: "cypress/e2e/**/*.cy.{ts,tsx}"`
-- `package.json` has two new scripts:
-  - `cy:open` — opens the Cypress interactive Test Runner
-  - `cy:run` — runs the full suite headless
-- `cypress/support/commands.ts` and `cypress/support/e2e.ts` exist (Cypress boilerplate)
-- Running `npm run cy:open` opens the Cypress UI without errors
-- `cypress/` directory is committed; `.cypress-cache` is gitignored
+Initially set up with **Cypress** (15.11.0), then migrated to **Playwright** (`@playwright/test`) due to a Cypress binary path resolution bug on macOS 13 that prevented headless execution. See [ADR-0009](../../adr/0009-cypress-e2e-testing.md) (superseded) and [ADR-0010](../../adr/0010-playwright-over-cypress.md).
 
-## Tasks
+## Acceptance Criteria (Playwright)
 
-- [x] Install Cypress: `npx pnpm add -D cypress`
-- [x] Create `cypress.config.ts` with `baseUrl`, `specPattern`, and TypeScript support
-- [x] Add `cy:open` and `cy:run` scripts to `package.json`
-- [x] Scaffold `cypress/support/commands.ts` and `cypress/support/e2e.ts`
-- [x] Add Cypress cache and video/screenshot output dirs to `.gitignore`
-- [x] Verify `npm run cy:open` launches without errors
+- `@playwright/test` appears in `devDependencies`
+- `playwright.config.ts` exists at the repo root with `baseURL: "http://localhost:3000"` and `testDir: "tests/e2e"`
+- `package.json` has two scripts:
+  - `pw:open` — opens Playwright interactive UI mode
+  - `pw:run` — runs the full suite headless
+- `tests/e2e/` directory exists and is committed
 
 ## Done When
 
-- [x] `npm run cy:open` opens Cypress UI cleanly
-- [x] `npm run cy:run` exits 0 with no test files (empty suite is fine at this stage)
+- [x] Playwright installed and configured
+- [x] `npm run pw:run` exits 0 with the auth suite passing
 - [x] `npm run check` passes (Biome)
 - [x] Changes committed on a feature branch

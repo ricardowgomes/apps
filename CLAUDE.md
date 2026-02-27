@@ -14,7 +14,7 @@ Read `docs/architecture.md` for the full codebase overview.
 - Tailwind CSS v4 + shadcn/ui
 - Biome (linting + formatting)
 - Vitest + Testing Library (unit + integration tests)
-- Cypress (E2E tests — required for every production feature)
+- Playwright (E2E tests — required for every production feature)
 
 Primary purpose: portfolio showcase for Ricardo (software engineer). Future sub-apps: Finance tracker, File storage.
 
@@ -52,13 +52,13 @@ Three mandatory layers — all must pass before a task is done:
 
 1. **Unit tests** (Vitest) — domain logic, pure functions, validation; live in `src/{domain}/domain/__tests__/`
 2. **Integration tests** (Vitest) — application-layer logic (filters, stores, calculations); live in `src/{domain}/tests/`
-3. **E2E tests** (Cypress) — full user flows against a running Wrangler local server; live in `cypress/e2e/{domain}/`
+3. **E2E tests** (Playwright) — full user flows against a running Wrangler local server; live in `tests/e2e/{domain}/`
 
-**Every new production feature must ship with at least one Cypress E2E test** covering its primary user flow. A feature without a Cypress test is not done.
+**Every new production feature must ship with at least one Playwright E2E test** covering its primary user flow. A feature without a Playwright test is not done.
 
 - Never test auto-generated files (`routeTree.gen.ts`, `src/paraglide/`)
-- Demo/scaffold routes are exempt from the Cypress requirement
-- See ADR-0005 and ADR-0009 for full guidance
+- Demo/scaffold routes are exempt from the Playwright requirement
+- See ADR-0005 and ADR-0010 for full guidance
 
 ### 3. ADRs
 - Before making a significant architectural decision, check `docs/adr/` for existing decisions
@@ -83,8 +83,8 @@ Three mandatory layers — all must pass before a task is done:
 pnpm dev          # Start dev server on port 3000
 pnpm build        # Production build
 pnpm test         # Run all Vitest tests (unit + integration)
-pnpm cy:open      # Open Cypress Test Runner (interactive)
-pnpm cy:run       # Run Cypress E2E suite headless (requires dev server running)
+pnpm pw:open      # Open Playwright Test Runner (interactive UI mode)
+pnpm pw:run       # Run Playwright E2E suite headless (requires dev server running)
 pnpm check        # Biome: lint + format check
 pnpm format       # Biome: auto-format
 pnpm lint         # Biome: lint only

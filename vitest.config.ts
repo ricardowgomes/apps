@@ -17,5 +17,6 @@ export default defineConfig({
 		// --experimental-require-module and enables React component render tests.
 		environment: "node",
 		globals: true,
+		exclude: ["tests/e2e/**", "node_modules/**"],
 	},
 });
