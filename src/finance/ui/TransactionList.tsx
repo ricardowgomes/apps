@@ -7,9 +7,12 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownLeft, ArrowUpRight, Inbox } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Inbox, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import type { TransactionFilters } from "../application/use-transactions";
+import {
+	type TransactionFilters,
+	useRemoveTransaction,
+} from "../application/use-transactions";
 import type { Transaction, TransactionType } from "../domain/transaction";
 import { formatCurrency } from "./SummaryCards";
 import { TransactionFiltersBar } from "./TransactionFilters";
@@ -46,7 +49,13 @@ function groupByDate(
 	return Array.from(map.entries()).map(([label, items]) => ({ label, items }));
 }
 
-function TransactionRow({ transaction }: { transaction: Transaction }) {
+function TransactionRow({
+	transaction,
+	onDelete,
+}: {
+	transaction: Transaction;
+	onDelete: (id: string) => void;
+}) {
 	const isIncome = transaction.type === "income";
 
 	return (
@@ -83,6 +92,16 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
 				{isIncome ? "+" : "-"}
 				{formatCurrency(transaction.amount)}
 			</p>
+
+			{/* Delete */}
+			<button
+				type="button"
+				onClick={() => onDelete(transaction.id)}
+				aria-label="Delete transaction"
+				className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+			>
+				<Trash2 size={15} />
+			</button>
 		</div>
 	);
 }
@@ -117,6 +136,7 @@ interface TransactionListProps {
 }
 
 export function TransactionList({ transactions }: TransactionListProps) {
+	const removeTransaction = useRemoveTransaction();
 	const [globalFilter, setGlobalFilter] = useState("");
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -174,7 +194,11 @@ export function TransactionList({ transactions }: TransactionListProps) {
 						</p>
 						<div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.04]">
 							{items.map((t) => (
-								<TransactionRow key={t.id} transaction={t} />
+								<TransactionRow
+									key={t.id}
+									transaction={t}
+									onDelete={removeTransaction}
+								/>
 							))}
 						</div>
 					</div>
