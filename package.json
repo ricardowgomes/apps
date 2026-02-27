@@ -14,8 +14,8 @@
     "lint": "biome lint",
     "check": "biome check",
     "knip": "knip",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run",
+    "pw:open": "playwright test --ui",
+    "pw:run": "playwright test",
     "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
@@ -42,6 +42,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
     "@inlang/paraglide-js": "^2.8.0",
+    "@playwright/test": "^1.58.2",
     "@tanstack/devtools-vite": "^0.3.11",
     "@tanstack/router-core": "^1.160.0",
     "@types/node": "^22.10.2",
@@ -49,7 +50,6 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "babel-plugin-react-compiler": "^1.0.0",
-    "cypress": "^15.11.0",
     "jsdom": "^27.0.0",
     "knip": "^5.84.1",
     "typescript": "^5.7.2",

@@ -148,14 +148,14 @@ Three layers, outermost to innermost:
 
 | Layer | Tool | Scope | Location |
 |---|---|---|---|
-| E2E | **Cypress** | Full user flows against a running Wrangler local server | `cypress/e2e/{domain}/` |
+| E2E | **Playwright** | Full user flows against a running Wrangler local server | `tests/e2e/{domain}/` |
 | Integration | **Vitest** + Testing Library | Application-layer logic (filters, stores, calculations) | `src/{domain}/tests/` |
 | Unit | **Vitest** | Domain entities, pure functions, validation | `src/{domain}/domain/__tests__/` |
 
-**Rule: every production feature must ship with at least one Cypress E2E test.** See [ADR-0009](adr/0009-cypress-e2e-testing.md).
+**Rule: every production feature must ship with at least one Playwright E2E test.** See [ADR-0010](adr/0010-playwright-over-cypress.md).
 
-- `npm run cy:run` — headless E2E suite (requires Wrangler local server running)
-- `npm run cy:open` — interactive Cypress Test Runner
+- `npm run pw:run` — headless E2E suite (requires Wrangler local server running)
+- `npm run pw:open` — interactive Playwright UI mode
 - `npm run test` — Vitest unit + integration suite
 
 ### Style & Formatting
