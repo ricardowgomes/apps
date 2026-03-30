@@ -44,8 +44,8 @@ A private family finance application at `/finance/` for tracking income and expe
 - [x] (M) Edit transaction — open the add-transaction sheet pre-filled with existing values; reuse the existing form; add `updateTransactionFn` server fn + D1 `UPDATE` in the repository
 
 ### Filtering & Views
-- [ ] (S) Month picker — add a month selector to the filters bar; pass the selected month to the query; default to the current month; update summary cards to reflect the filtered month
-- [ ] (S) Sort order toggle — newest first / oldest first, client-side, persisted in UI store
+- [x] (S) Month picker — add a month selector to the filters bar; pass the selected month to the query; default to the current month; update summary cards to reflect the filtered month
+- [x] (S) Sort order toggle — newest first / oldest first, client-side, persisted in UI store
 
 ### Dashboard & Charts
 - [ ] (M) Category breakdown chart — pie or horizontal bar showing spend by category for the selected month; use recharts; show on the finance index page below the summary cards
