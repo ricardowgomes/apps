@@ -1,10 +1,12 @@
 import { useStore } from "@tanstack/react-store";
 import { Plus } from "lucide-react";
+import { useMemo } from "react";
 import {
 	closeTransactionSheet,
 	financeUiStore,
 	openAddTransaction,
 	openEditTransaction,
+	setSelectedMonth,
 } from "../application/finance-ui-store";
 import { useTransactions } from "../application/use-transactions";
 import { AddTransactionSheet } from "./AddTransactionSheet";
@@ -12,7 +14,7 @@ import { SummaryCards } from "./SummaryCards";
 import { TransactionList } from "./TransactionList";
 
 export function FinancePage() {
-	const transactions = useTransactions();
+	const allTransactions = useTransactions();
 	const addTransactionOpen = useStore(
 		financeUiStore,
 		(s) => s.addTransactionOpen,
@@ -21,8 +23,15 @@ export function FinancePage() {
 		financeUiStore,
 		(s) => s.editingTransaction,
 	);
+	const selectedMonth = useStore(financeUiStore, (s) => s.selectedMonth);
 
 	const sheetOpen = addTransactionOpen || editingTransaction !== null;
+
+	// Filter to only transactions in the selected month for both list and summary cards
+	const monthTransactions = useMemo(
+		() => allTransactions.filter((t) => t.date.startsWith(selectedMonth)),
+		[allTransactions, selectedMonth],
+	);
 
 	return (
 		<>
@@ -49,6 +58,7 @@ export function FinancePage() {
 						<button
 							type="button"
 							onClick={openAddTransaction}
+							data-testid="open-add-transaction"
 							className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-semibold transition-all duration-200 shadow-lg shadow-cyan-500/20"
 						>
 							<Plus size={16} />
@@ -56,13 +66,18 @@ export function FinancePage() {
 						</button>
 					</div>
 
-					{/* Summary */}
-					<SummaryCards />
+					{/* Summary — scoped to the selected month */}
+					<SummaryCards
+						transactions={monthTransactions}
+						selectedMonth={selectedMonth}
+					/>
 
-					{/* Transaction list — owns filters internally */}
+					{/* Transaction list — scoped to the selected month */}
 					<TransactionList
-						transactions={transactions}
+						transactions={monthTransactions}
 						onEdit={openEditTransaction}
+						selectedMonth={selectedMonth}
+						onMonthChange={setSelectedMonth}
 					/>
 				</div>
 			</main>

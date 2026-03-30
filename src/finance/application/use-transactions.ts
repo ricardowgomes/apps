@@ -3,7 +3,6 @@ import {
 	useQueryClient,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useMemo } from "react";
 import type { Transaction, TransactionInput } from "../domain/transaction";
 import {
 	createTransactionFn,
@@ -25,20 +24,6 @@ export function useTransactions() {
 		queryFn: () => getTransactionsFn(),
 	});
 	return data;
-}
-
-export function useSummary() {
-	const transactions = useTransactions();
-
-	return useMemo(() => {
-		const income = transactions
-			.filter((t) => t.type === "income")
-			.reduce((sum, t) => sum + t.amount, 0);
-		const expenses = transactions
-			.filter((t) => t.type === "expense")
-			.reduce((sum, t) => sum + t.amount, 0);
-		return { income, expenses, balance: income - expenses };
-	}, [transactions]);
 }
 
 export function useAddTransaction() {

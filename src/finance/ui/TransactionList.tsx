@@ -1,3 +1,4 @@
+import { useStore } from "@tanstack/react-store";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -15,6 +16,10 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import {
+	financeUiStore,
+	toggleSortOrder,
+} from "../application/finance-ui-store";
 import {
 	type TransactionFilters,
 	useRemoveTransaction,
@@ -147,25 +152,33 @@ const columns: ColumnDef<Transaction>[] = [
 	},
 ];
 
-const DEFAULT_SORTING: SortingState = [{ id: "date", desc: true }];
-
 interface TransactionListProps {
 	transactions: Transaction[];
 	onEdit: (t: Transaction) => void;
+	selectedMonth: string;
+	onMonthChange: (month: string) => void;
 }
 
 export function TransactionList({
 	transactions,
 	onEdit,
+	selectedMonth,
+	onMonthChange,
 }: TransactionListProps) {
 	const removeTransaction = useRemoveTransaction();
 	const [globalFilter, setGlobalFilter] = useState("");
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const sortOrder = useStore(financeUiStore, (s) => s.sortOrder);
+
+	const sorting: SortingState = useMemo(
+		() => [{ id: "date", desc: sortOrder === "desc" }],
+		[sortOrder],
+	);
 
 	const table = useReactTable({
 		data: transactions,
 		columns,
-		state: { globalFilter, columnFilters, sorting: DEFAULT_SORTING },
+		state: { globalFilter, columnFilters, sorting },
 		onGlobalFilterChange: setGlobalFilter,
 		onColumnFiltersChange: setColumnFilters,
 		globalFilterFn: "includesString",
@@ -198,7 +211,14 @@ export function TransactionList({
 
 	return (
 		<div className="flex flex-col gap-6">
-			<TransactionFiltersBar filters={filters} onChange={handleFiltersChange} />
+			<TransactionFiltersBar
+				filters={filters}
+				onChange={handleFiltersChange}
+				selectedMonth={selectedMonth}
+				onMonthChange={onMonthChange}
+				sortOrder={sortOrder}
+				onSortToggle={toggleSortOrder}
+			/>
 
 			{groups.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-16 text-center">
