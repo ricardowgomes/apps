@@ -10,6 +10,8 @@ import {
 } from "../application/finance-ui-store";
 import { useTransactions } from "../application/use-transactions";
 import { AddTransactionSheet } from "./AddTransactionSheet";
+import { CategoryBreakdownChart } from "./CategoryBreakdownChart";
+import { MonthlyTrendChart } from "./MonthlyTrendChart";
 import { SummaryCards } from "./SummaryCards";
 import { TransactionList } from "./TransactionList";
 
@@ -71,6 +73,10 @@ export function FinancePage() {
 						transactions={monthTransactions}
 						selectedMonth={selectedMonth}
 					/>
+
+					{/* Charts — category breakdown (month-scoped) + 6-month trend (all-time) */}
+					<CategoryBreakdownChart transactions={monthTransactions} />
+					<MonthlyTrendChart allTransactions={allTransactions} />
 
 					{/* Transaction list — scoped to the selected month */}
 					<TransactionList

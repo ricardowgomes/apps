@@ -16,6 +16,10 @@ import {
 	openAddTransaction,
 	openEditTransaction,
 } from "../application/finance-ui-store";
+import {
+	computeCategoryBreakdown,
+	computeMonthlyTrend,
+} from "../application/use-chart-data";
 import type { Transaction } from "../domain/transaction";
 
 function makeTx(overrides: Partial<Transaction> = {}): Transaction {
@@ -183,5 +187,102 @@ describe("finance UI store", () => {
 		closeTransactionSheet();
 		expect(financeUiStore.state.addTransactionOpen).toBe(false);
 		expect(financeUiStore.state.editingTransaction).toBeNull();
+	});
+});
+
+describe("computeCategoryBreakdown", () => {
+	it("aggregates expenses by category", () => {
+		const txs = [
+			makeTx({ type: "expense", category: "Food & Dining", amount: 100 }),
+			makeTx({ type: "expense", category: "Food & Dining", amount: 50 }),
+			makeTx({ type: "expense", category: "Transport", amount: 80 }),
+			makeTx({ type: "income", category: "Salary", amount: 2000 }),
+		];
+
+		const result = computeCategoryBreakdown(txs);
+
+		expect(result).toHaveLength(2);
+		expect(result[0]).toEqual({ category: "Food & Dining", amount: 150 });
+		expect(result[1]).toEqual({ category: "Transport", amount: 80 });
+	});
+
+	it("sorts categories by amount descending", () => {
+		const txs = [
+			makeTx({ type: "expense", category: "Shopping", amount: 30 }),
+			makeTx({ type: "expense", category: "Transport", amount: 200 }),
+			makeTx({ type: "expense", category: "Food & Dining", amount: 120 }),
+		];
+
+		const result = computeCategoryBreakdown(txs);
+
+		expect(result.map((s) => s.category)).toEqual([
+			"Transport",
+			"Food & Dining",
+			"Shopping",
+		]);
+	});
+
+	it("returns empty array when there are no expenses", () => {
+		const txs = [makeTx({ type: "income", category: "Salary", amount: 3000 })];
+
+		expect(computeCategoryBreakdown(txs)).toEqual([]);
+	});
+
+	it("ignores income transactions", () => {
+		const txs = [
+			makeTx({ type: "income", category: "Salary", amount: 3000 }),
+			makeTx({ type: "expense", category: "Utilities", amount: 90 }),
+		];
+
+		const result = computeCategoryBreakdown(txs);
+		expect(result).toHaveLength(1);
+		expect(result[0].category).toBe("Utilities");
+	});
+});
+
+describe("computeMonthlyTrend", () => {
+	it("returns exactly 6 data points", () => {
+		const now = new Date("2026-03-15");
+		const result = computeMonthlyTrend([], now);
+		expect(result).toHaveLength(6);
+	});
+
+	it("labels span the last 6 months ending in the current month", () => {
+		const now = new Date("2026-03-15");
+		const result = computeMonthlyTrend([], now);
+
+		// Months should be Oct-25 through Mar-26
+		expect(result[0].month).toBe("2025-10");
+		expect(result[5].month).toBe("2026-03");
+	});
+
+	it("sums income and expenses per month", () => {
+		const now = new Date("2026-03-15");
+		const txs = [
+			makeTx({ type: "income", amount: 1000, date: "2026-03-10" }),
+			makeTx({ type: "income", amount: 500, date: "2026-03-20" }),
+			makeTx({ type: "expense", amount: 200, date: "2026-03-05" }),
+			makeTx({ type: "income", amount: 800, date: "2026-02-14" }),
+		];
+
+		const result = computeMonthlyTrend(txs, now);
+
+		const march = result.find((p) => p.month === "2026-03");
+		expect(march?.income).toBe(1500);
+		expect(march?.expenses).toBe(200);
+
+		const feb = result.find((p) => p.month === "2026-02");
+		expect(feb?.income).toBe(800);
+		expect(feb?.expenses).toBe(0);
+	});
+
+	it("returns zero for months with no transactions", () => {
+		const now = new Date("2026-03-15");
+		const result = computeMonthlyTrend([], now);
+
+		for (const point of result) {
+			expect(point.income).toBe(0);
+			expect(point.expenses).toBe(0);
+		}
 	});
 });

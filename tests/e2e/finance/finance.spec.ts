@@ -463,4 +463,71 @@ test.describe("Finance", () => {
 			.evaluate((el) => el.getBoundingClientRect().top);
 		expect(earlyAfter).toBeLessThan(lateAfter);
 	});
+
+	// ---- 12. Category breakdown chart ----------------------------------------
+
+	test("category breakdown chart appears with expense data", async ({
+		page,
+		request,
+	}) => {
+		await seedTransactions(request, [
+			makeTransaction({
+				id: "test-chart-expense-1",
+				type: "expense",
+				amount: 120,
+				category: "Food & Dining",
+				description: "Chart Expense Food",
+			}),
+			makeTransaction({
+				id: "test-chart-expense-2",
+				type: "expense",
+				amount: 60,
+				category: "Transport",
+				description: "Chart Expense Transport",
+			}),
+		]);
+
+		await page.goto("/finance");
+
+		const chart = page.getByTestId("category-breakdown-chart");
+		await expect(chart).toBeVisible();
+
+		// Category labels should appear in the chart
+		await expect(chart.getByText("Food & Dining")).toBeVisible();
+		await expect(chart.getByText("Transport")).toBeVisible();
+	});
+
+	test("category breakdown chart shows empty state when no expenses", async ({
+		page,
+		request,
+	}) => {
+		await seedTransactions(request, [
+			makeTransaction({
+				id: "test-chart-income-only",
+				type: "income",
+				amount: 3000,
+				description: "Chart Income Only",
+			}),
+		]);
+
+		await page.goto("/finance");
+
+		const chart = page.getByTestId("category-breakdown-chart");
+		await expect(chart).toBeVisible();
+		await expect(chart.getByText("No expenses this month")).toBeVisible();
+	});
+
+	// ---- 13. Monthly trend chart ---------------------------------------------
+
+	test("monthly trend chart is visible on the finance page", async ({
+		page,
+	}) => {
+		await page.goto("/finance");
+
+		const chart = page.getByTestId("monthly-trend-chart");
+		await expect(chart).toBeVisible();
+		await expect(
+			chart.getByText("Income vs Expenses — Last 6 Months"),
+		).toBeVisible();
+	});
 });
