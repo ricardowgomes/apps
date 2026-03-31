@@ -3,10 +3,11 @@ import { Plus } from "lucide-react";
 import { useMemo } from "react";
 import {
 	closeTransactionSheet,
+	computeDateBounds,
 	financeUiStore,
+	getDateRangeLabel,
 	openAddTransaction,
 	openEditTransaction,
-	setSelectedMonth,
 } from "../application/finance-ui-store";
 import { useTransactions } from "../application/use-transactions";
 import { AddTransactionSheet } from "./AddTransactionSheet";
@@ -25,15 +26,18 @@ export function FinancePage() {
 		financeUiStore,
 		(s) => s.editingTransaction,
 	);
-	const selectedMonth = useStore(financeUiStore, (s) => s.selectedMonth);
+	const dateRange = useStore(financeUiStore, (s) => s.dateRange);
 
 	const sheetOpen = addTransactionOpen || editingTransaction !== null;
 
-	// Filter to only transactions in the selected month for both list and summary cards
-	const monthTransactions = useMemo(
-		() => allTransactions.filter((t) => t.date.startsWith(selectedMonth)),
-		[allTransactions, selectedMonth],
+	// Filter transactions to those within the selected date range
+	const { from, to } = computeDateBounds(dateRange);
+	const rangeTransactions = useMemo(
+		() => allTransactions.filter((t) => t.date >= from && t.date <= to),
+		[allTransactions, from, to],
 	);
+
+	const rangeLabel = getDateRangeLabel(dateRange);
 
 	return (
 		<>
@@ -68,22 +72,21 @@ export function FinancePage() {
 						</button>
 					</div>
 
-					{/* Summary — scoped to the selected month */}
+					{/* Summary — scoped to the selected date range */}
 					<SummaryCards
-						transactions={monthTransactions}
-						selectedMonth={selectedMonth}
+						transactions={rangeTransactions}
+						rangeLabel={rangeLabel}
 					/>
 
-					{/* Charts — category breakdown (month-scoped) + 6-month trend (all-time) */}
-					<CategoryBreakdownChart transactions={monthTransactions} />
+					{/* Charts — category breakdown (range-scoped) + 6-month trend (all-time) */}
+					<CategoryBreakdownChart transactions={rangeTransactions} />
 					<MonthlyTrendChart allTransactions={allTransactions} />
 
-					{/* Transaction list — scoped to the selected month */}
+					{/* Transaction list — scoped to the selected date range */}
 					<TransactionList
-						transactions={monthTransactions}
+						transactions={rangeTransactions}
 						onEdit={openEditTransaction}
-						selectedMonth={selectedMonth}
-						onMonthChange={setSelectedMonth}
+						dateRange={dateRange}
 					/>
 				</div>
 			</main>

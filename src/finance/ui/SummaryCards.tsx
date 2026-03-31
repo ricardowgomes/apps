@@ -10,22 +10,12 @@ function formatCurrency(amount: number): string {
 	}).format(amount);
 }
 
-function formatMonthLabel(yearMonth: string): string {
-	return new Date(`${yearMonth}-01T12:00:00`).toLocaleDateString("en-CA", {
-		month: "long",
-		year: "numeric",
-	});
-}
-
 interface SummaryCardsProps {
 	transactions: Transaction[];
-	selectedMonth: string;
+	rangeLabel: string;
 }
 
-export function SummaryCards({
-	transactions,
-	selectedMonth,
-}: SummaryCardsProps) {
+export function SummaryCards({ transactions, rangeLabel }: SummaryCardsProps) {
 	const { income, expenses, balance } = useMemo(() => {
 		const income = transactions
 			.filter((t) => t.type === "income")
@@ -37,7 +27,6 @@ export function SummaryCards({
 	}, [transactions]);
 
 	const isPositive = balance >= 0;
-	const monthLabel = formatMonthLabel(selectedMonth);
 
 	return (
 		<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -55,7 +44,7 @@ export function SummaryCards({
 				>
 					{formatCurrency(balance)}
 				</p>
-				<p className="text-xs text-gray-600">{monthLabel}</p>
+				<p className="text-xs text-gray-600">{rangeLabel}</p>
 			</div>
 
 			{/* Income */}
@@ -70,7 +59,7 @@ export function SummaryCards({
 				<p className="text-2xl font-bold mt-1 text-emerald-400">
 					{formatCurrency(income)}
 				</p>
-				<p className="text-xs text-gray-600">{monthLabel}</p>
+				<p className="text-xs text-gray-600">{rangeLabel}</p>
 			</div>
 
 			{/* Expenses */}
@@ -85,7 +74,7 @@ export function SummaryCards({
 				<p className="text-2xl font-bold mt-1 text-rose-400">
 					{formatCurrency(expenses)}
 				</p>
-				<p className="text-xs text-gray-600">{monthLabel}</p>
+				<p className="text-xs text-gray-600">{rangeLabel}</p>
 			</div>
 		</div>
 	);

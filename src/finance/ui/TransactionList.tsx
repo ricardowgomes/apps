@@ -16,6 +16,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import type { DateRange } from "../application/finance-ui-store";
 import {
 	financeUiStore,
 	toggleSortOrder,
@@ -155,15 +156,13 @@ const columns: ColumnDef<Transaction>[] = [
 interface TransactionListProps {
 	transactions: Transaction[];
 	onEdit: (t: Transaction) => void;
-	selectedMonth: string;
-	onMonthChange: (month: string) => void;
+	dateRange: DateRange;
 }
 
 export function TransactionList({
 	transactions,
 	onEdit,
-	selectedMonth,
-	onMonthChange,
+	dateRange,
 }: TransactionListProps) {
 	const removeTransaction = useRemoveTransaction();
 	const [globalFilter, setGlobalFilter] = useState("");
@@ -214,8 +213,7 @@ export function TransactionList({
 			<TransactionFiltersBar
 				filters={filters}
 				onChange={handleFiltersChange}
-				selectedMonth={selectedMonth}
-				onMonthChange={onMonthChange}
+				dateRange={dateRange}
 				sortOrder={sortOrder}
 				onSortToggle={toggleSortOrder}
 			/>

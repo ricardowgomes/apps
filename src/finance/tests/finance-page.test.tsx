@@ -12,7 +12,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
 	closeAddTransaction,
 	closeTransactionSheet,
+	computeDateBounds,
 	financeUiStore,
+	getDateRangeLabel,
 	openAddTransaction,
 	openEditTransaction,
 } from "../application/finance-ui-store";
@@ -237,6 +239,84 @@ describe("computeCategoryBreakdown", () => {
 		const result = computeCategoryBreakdown(txs);
 		expect(result).toHaveLength(1);
 		expect(result[0].category).toBe("Utilities");
+	});
+});
+
+describe("computeDateBounds", () => {
+	it("preset 30d spans today minus 29 days through today", () => {
+		const { from, to } = computeDateBounds({ type: "preset", preset: "30d" });
+		const today = new Date().toISOString().slice(0, 10);
+		const expected = new Date();
+		expected.setDate(expected.getDate() - 29);
+		const expectedFrom = expected.toISOString().slice(0, 10);
+		expect(to).toBe(today);
+		expect(from).toBe(expectedFrom);
+	});
+
+	it("preset 7d spans today minus 6 days through today", () => {
+		const { from, to } = computeDateBounds({ type: "preset", preset: "7d" });
+		const today = new Date().toISOString().slice(0, 10);
+		const expected = new Date();
+		expected.setDate(expected.getDate() - 6);
+		expect(to).toBe(today);
+		expect(from).toBe(expected.toISOString().slice(0, 10));
+	});
+
+	it("month type spans first to last day of month", () => {
+		const { from, to } = computeDateBounds({ type: "month", month: "2026-02" });
+		expect(from).toBe("2026-02-01");
+		expect(to).toBe("2026-02-28");
+	});
+
+	it("month type handles 31-day months", () => {
+		const { from, to } = computeDateBounds({ type: "month", month: "2026-03" });
+		expect(from).toBe("2026-03-01");
+		expect(to).toBe("2026-03-31");
+	});
+
+	it("custom type returns the provided from/to unchanged", () => {
+		const { from, to } = computeDateBounds({
+			type: "custom",
+			from: "2026-01-10",
+			to: "2026-03-20",
+		});
+		expect(from).toBe("2026-01-10");
+		expect(to).toBe("2026-03-20");
+	});
+});
+
+describe("getDateRangeLabel", () => {
+	it("returns human-readable labels for presets", () => {
+		expect(getDateRangeLabel({ type: "preset", preset: "7d" })).toBe(
+			"Last 7 days",
+		);
+		expect(getDateRangeLabel({ type: "preset", preset: "30d" })).toBe(
+			"Last 30 days",
+		);
+		expect(getDateRangeLabel({ type: "preset", preset: "90d" })).toBe(
+			"Last 3 months",
+		);
+		expect(getDateRangeLabel({ type: "preset", preset: "6m" })).toBe(
+			"Last 6 months",
+		);
+		expect(getDateRangeLabel({ type: "preset", preset: "12m" })).toBe(
+			"Last 12 months",
+		);
+	});
+
+	it("returns formatted month name for month type", () => {
+		const label = getDateRangeLabel({ type: "month", month: "2026-03" });
+		expect(label).toBe("March 2026");
+	});
+
+	it("returns formatted date range for custom type", () => {
+		const label = getDateRangeLabel({
+			type: "custom",
+			from: "2026-01-01",
+			to: "2026-01-31",
+		});
+		expect(label).toContain("Jan");
+		expect(label).toContain("–");
 	});
 });
 
