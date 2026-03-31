@@ -8,14 +8,11 @@
     {
       "binding": "DB",
       "database_name": "finance",
-      // Replace with the database_id from: wrangler d1 create finance
-      "database_id": "REPLACE_WITH_DATABASE_ID"
+      "database_id": "1b6898b0-1b7a-452a-b04d-053c5d66d296"
     }
   ],
   "vars": {
-    // Comma-separated list of emails allowed to access the app
-    "ALLOWED_EMAILS": "your@email.com",
-    // Update for production: https://your-domain.workers.dev/api/auth/callback/google
-    "GOOGLE_REDIRECT_URI": "http://localhost:3000/api/auth/callback/google"
+    "ALLOWED_EMAILS": "riwgomes@gmail.com,leticiamizota@gmail.com,mizotagomes@gmail.com",
+    "GOOGLE_REDIRECT_URI": "https://tanstack-start-app.ricardowgomes.workers.dev/api/auth/callback/google"
   }
 }
