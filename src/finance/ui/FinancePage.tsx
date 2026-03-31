@@ -1,17 +1,20 @@
 import { useStore } from "@tanstack/react-store";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { useMemo } from "react";
 import {
+	closeImportSheet,
 	closeTransactionSheet,
 	computeDateBounds,
 	financeUiStore,
 	getDateRangeLabel,
 	openAddTransaction,
 	openEditTransaction,
+	openImportSheet,
 } from "../application/finance-ui-store";
 import { useTransactions } from "../application/use-transactions";
 import { AddTransactionSheet } from "./AddTransactionSheet";
 import { CategoryBreakdownChart } from "./CategoryBreakdownChart";
+import { ImportTransactionsSheet } from "./ImportTransactionsSheet";
 import { MonthlyTrendChart } from "./MonthlyTrendChart";
 import { SummaryCards } from "./SummaryCards";
 import { TransactionList } from "./TransactionList";
@@ -26,6 +29,7 @@ export function FinancePage() {
 		financeUiStore,
 		(s) => s.editingTransaction,
 	);
+	const importSheetOpen = useStore(financeUiStore, (s) => s.importSheetOpen);
 	const dateRange = useStore(financeUiStore, (s) => s.dateRange);
 
 	const sheetOpen = addTransactionOpen || editingTransaction !== null;
@@ -61,15 +65,26 @@ export function FinancePage() {
 							</p>
 							<h1 className="text-3xl font-bold text-white">Transactions</h1>
 						</div>
-						<button
-							type="button"
-							onClick={openAddTransaction}
-							data-testid="open-add-transaction"
-							className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-semibold transition-all duration-200 shadow-lg shadow-cyan-500/20"
-						>
-							<Plus size={16} />
-							Add
-						</button>
+						<div className="flex items-center gap-2">
+							<button
+								type="button"
+								onClick={openImportSheet}
+								data-testid="open-import"
+								className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/[0.10] text-gray-400 hover:text-white hover:border-white/20 text-sm font-semibold transition-all duration-200"
+							>
+								<Upload size={15} />
+								Import
+							</button>
+							<button
+								type="button"
+								onClick={openAddTransaction}
+								data-testid="open-add-transaction"
+								className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-semibold transition-all duration-200 shadow-lg shadow-cyan-500/20"
+							>
+								<Plus size={16} />
+								Add
+							</button>
+						</div>
 					</div>
 
 					{/* Summary — scoped to the selected date range */}
@@ -96,6 +111,12 @@ export function FinancePage() {
 				open={sheetOpen}
 				onClose={closeTransactionSheet}
 				initialValues={editingTransaction ?? undefined}
+			/>
+
+			{/* CSV import sheet */}
+			<ImportTransactionsSheet
+				open={importSheetOpen}
+				onClose={closeImportSheet}
 			/>
 		</>
 	);

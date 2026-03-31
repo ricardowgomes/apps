@@ -11,6 +11,7 @@ export type DateRange =
 interface FinanceUiState {
 	addTransactionOpen: boolean;
 	editingTransaction: Transaction | null;
+	importSheetOpen: boolean;
 	dateRange: DateRange;
 	sortOrder: "desc" | "asc"; // newest-first or oldest-first
 }
@@ -18,6 +19,7 @@ interface FinanceUiState {
 export const financeUiStore = new Store<FinanceUiState>({
 	addTransactionOpen: false,
 	editingTransaction: null,
+	importSheetOpen: false,
 	dateRange: { type: "preset", preset: "30d" },
 	sortOrder: "desc",
 });
@@ -48,6 +50,14 @@ export function closeTransactionSheet(): void {
 		addTransactionOpen: false,
 		editingTransaction: null,
 	}));
+}
+
+export function openImportSheet(): void {
+	financeUiStore.setState((s) => ({ ...s, importSheetOpen: true }));
+}
+
+export function closeImportSheet(): void {
+	financeUiStore.setState((s) => ({ ...s, importSheetOpen: false }));
 }
 
 export function setDateRange(range: DateRange): void {
