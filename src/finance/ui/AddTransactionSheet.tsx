@@ -117,11 +117,14 @@ export function AddTransactionSheet({
 				aria-hidden="true"
 			/>
 
-			{/* Sheet */}
+			{/* Sheet — aria-hidden when closed so off-screen content is invisible to
+		    screen readers and Playwright's toBeVisible() properly waits for open state */}
 			<div
 				role="dialog"
 				aria-modal="true"
 				aria-label={isEditMode ? "Edit transaction" : "Add transaction"}
+				aria-hidden={open ? undefined : true}
+				data-testid="transaction-sheet"
 				className={`fixed bottom-0 left-0 right-0 z-50 max-h-[90dvh] overflow-y-auto rounded-t-3xl border-t border-white/[0.08] bg-[#070d14] shadow-2xl transition-transform duration-300 ease-out ${
 					open ? "translate-y-0" : "translate-y-full"
 				}`}
