@@ -1,6 +1,6 @@
 import type { Transaction, TransactionInput } from "../domain/transaction";
 
-export interface InsertManyResult {
+interface InsertManyResult {
 	inserted: number;
 	duplicates: number;
 }
@@ -81,7 +81,7 @@ export async function remove(db: D1Database, id: string): Promise<void> {
 }
 
 /** Returns the set of (date|amount|description) signatures already in the DB. */
-export async function getDuplicateSignatures(
+async function getDuplicateSignatures(
 	db: D1Database,
 	candidates: Array<{ date: string; amount: number; description: string }>,
 ): Promise<Set<string>> {

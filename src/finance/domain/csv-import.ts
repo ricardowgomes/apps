@@ -1,6 +1,4 @@
-import type { TransactionInput } from "./transaction";
-
-export type WealthsimpleFormat =
+type WealthsimpleFormat =
 	| "wealthsimple-account" // checking or debit: date,transaction,description,amount,balance,currency
 	| "wealthsimple-credit"; // credit card: transaction_date,post_date,type,details,amount,currency
 
@@ -14,17 +12,10 @@ export interface ParsedRow {
 	rowIndex: number;
 }
 
-export interface ParseResult {
+interface ParseResult {
 	format: WealthsimpleFormat;
 	rows: ParsedRow[];
 	skippedRows: number;
-}
-
-export interface ImportPreviewRow extends ParsedRow {
-	/** Will be set to "Uncategorized" — editable in a future categorisation feature */
-	category: string;
-	/** Whether a transaction with the same (date, amount, description) already exists */
-	isDuplicate: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -197,17 +188,4 @@ export function parseWealthsimpleCSV(csvText: string): ParseResult | null {
 		return parseWealthsimpleCredit(csvText);
 	}
 	return parseWealthsimpleAccount(csvText);
-}
-
-export function toTransactionInput(
-	row: ParsedRow,
-): Omit<TransactionInput, "category"> & { category: string } {
-	return {
-		type: row.type,
-		amount: row.amount,
-		currency: row.currency,
-		category: "Uncategorized",
-		description: row.description,
-		date: row.date,
-	};
 }
