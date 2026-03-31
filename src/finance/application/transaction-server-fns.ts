@@ -4,6 +4,7 @@ import { transactionSchema } from "../domain/transaction";
 import {
 	getAll,
 	insert,
+	insertMany,
 	remove,
 	update,
 } from "../infrastructure/d1-transaction-repository";
@@ -41,4 +42,16 @@ export const deleteTransactionFn = createServerFn({ method: "POST" })
 	.handler(async ({ data, context }) => {
 		const db = context.cloudflare.env.DB;
 		await remove(db, data.id);
+	});
+
+const importRowSchema = transactionSchema.extend({
+	id: z.string(),
+	createdAt: z.string(),
+});
+
+export const bulkImportTransactionsFn = createServerFn({ method: "POST" })
+	.inputValidator(z.object({ transactions: z.array(importRowSchema) }))
+	.handler(async ({ data, context }) => {
+		const db = context.cloudflare.env.DB;
+		return insertMany(db, data.transactions);
 	});

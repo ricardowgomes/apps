@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import type { Transaction, TransactionInput } from "../domain/transaction";
 import {
+	bulkImportTransactionsFn,
 	createTransactionFn,
 	deleteTransactionFn,
 	getTransactionsFn,
@@ -57,4 +58,15 @@ export function useRemoveTransaction() {
 			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
 	});
 	return (id: string) => mutation.mutateAsync(id);
+}
+
+export function useImportTransactions() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: (transactions: Transaction[]) =>
+			bulkImportTransactionsFn({ data: { transactions } }),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
+	});
+	return mutation;
 }
