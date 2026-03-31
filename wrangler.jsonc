@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tanstack-start-app",
+  "name": "app",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./src/server.ts",
@@ -13,6 +13,6 @@
   ],
   "vars": {
     "ALLOWED_EMAILS": "riwgomes@gmail.com,leticiamizota@gmail.com,mizotagomes@gmail.com",
-    "GOOGLE_REDIRECT_URI": "https://tanstack-start-app.ricardowgomes.workers.dev/api/auth/callback/google"
+    "GOOGLE_REDIRECT_URI": "https://app.ricardowgomes.workers.dev/api/auth/callback/google"
   }
 }
