@@ -16,4 +16,11 @@ export default defineConfig({
 			use: { ...devices["Desktop Chrome"] },
 		},
 	],
+	// Auto-start the dev server when running E2E tests (skip if already running)
+	webServer: {
+		command: "npm run dev",
+		url: "http://localhost:3000",
+		reuseExistingServer: true,
+		timeout: 60_000,
+	},
 });
