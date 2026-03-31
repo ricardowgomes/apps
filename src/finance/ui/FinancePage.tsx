@@ -1,18 +1,43 @@
 import { useStore } from "@tanstack/react-store";
 import { Plus } from "lucide-react";
+import { useMemo } from "react";
 import {
-	closeAddTransaction,
+	closeTransactionSheet,
+	computeDateBounds,
 	financeUiStore,
+	getDateRangeLabel,
 	openAddTransaction,
+	openEditTransaction,
 } from "../application/finance-ui-store";
 import { useTransactions } from "../application/use-transactions";
 import { AddTransactionSheet } from "./AddTransactionSheet";
+import { CategoryBreakdownChart } from "./CategoryBreakdownChart";
+import { MonthlyTrendChart } from "./MonthlyTrendChart";
 import { SummaryCards } from "./SummaryCards";
 import { TransactionList } from "./TransactionList";
 
 export function FinancePage() {
-	const transactions = useTransactions();
-	const sheetOpen = useStore(financeUiStore, (s) => s.addTransactionOpen);
+	const allTransactions = useTransactions();
+	const addTransactionOpen = useStore(
+		financeUiStore,
+		(s) => s.addTransactionOpen,
+	);
+	const editingTransaction = useStore(
+		financeUiStore,
+		(s) => s.editingTransaction,
+	);
+	const dateRange = useStore(financeUiStore, (s) => s.dateRange);
+
+	const sheetOpen = addTransactionOpen || editingTransaction !== null;
+
+	// Filter transactions to those within the selected date range
+	const { from, to } = computeDateBounds(dateRange);
+	const rangeTransactions = useMemo(
+		() => allTransactions.filter((t) => t.date >= from && t.date <= to),
+		[allTransactions, from, to],
+	);
+
+	const rangeLabel = getDateRangeLabel(dateRange);
 
 	return (
 		<>
@@ -39,6 +64,7 @@ export function FinancePage() {
 						<button
 							type="button"
 							onClick={openAddTransaction}
+							data-testid="open-add-transaction"
 							className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-semibold transition-all duration-200 shadow-lg shadow-cyan-500/20"
 						>
 							<Plus size={16} />
@@ -46,16 +72,31 @@ export function FinancePage() {
 						</button>
 					</div>
 
-					{/* Summary */}
-					<SummaryCards />
+					{/* Summary — scoped to the selected date range */}
+					<SummaryCards
+						transactions={rangeTransactions}
+						rangeLabel={rangeLabel}
+					/>
 
-					{/* Transaction list — owns filters internally */}
-					<TransactionList transactions={transactions} />
+					{/* Charts — category breakdown (range-scoped) + 6-month trend (all-time) */}
+					<CategoryBreakdownChart transactions={rangeTransactions} />
+					<MonthlyTrendChart allTransactions={allTransactions} />
+
+					{/* Transaction list — scoped to the selected date range */}
+					<TransactionList
+						transactions={rangeTransactions}
+						onEdit={openEditTransaction}
+						dateRange={dateRange}
+					/>
 				</div>
 			</main>
 
-			{/* Add transaction sheet */}
-			<AddTransactionSheet open={sheetOpen} onClose={closeAddTransaction} />
+			{/* Add / edit transaction sheet */}
+			<AddTransactionSheet
+				open={sheetOpen}
+				onClose={closeTransactionSheet}
+				initialValues={editingTransaction ?? undefined}
+			/>
 		</>
 	);
 }

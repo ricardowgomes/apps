@@ -11,9 +11,17 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
 	closeAddTransaction,
+	closeTransactionSheet,
+	computeDateBounds,
 	financeUiStore,
+	getDateRangeLabel,
 	openAddTransaction,
+	openEditTransaction,
 } from "../application/finance-ui-store";
+import {
+	computeCategoryBreakdown,
+	computeMonthlyTrend,
+} from "../application/use-chart-data";
 import type { Transaction } from "../domain/transaction";
 
 function makeTx(overrides: Partial<Transaction> = {}): Transaction {
@@ -31,7 +39,7 @@ function makeTx(overrides: Partial<Transaction> = {}): Transaction {
 }
 
 beforeEach(() => {
-	closeAddTransaction();
+	closeTransactionSheet();
 });
 
 describe("transaction filtering logic", () => {
@@ -144,18 +152,217 @@ describe("summary calculations", () => {
 });
 
 describe("finance UI store", () => {
-	it("starts with sheet closed", () => {
+	it("starts with sheet closed and no editing transaction", () => {
 		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+		expect(financeUiStore.state.editingTransaction).toBeNull();
 	});
 
 	it("opens the add transaction sheet", () => {
 		openAddTransaction();
 		expect(financeUiStore.state.addTransactionOpen).toBe(true);
+		expect(financeUiStore.state.editingTransaction).toBeNull();
 	});
 
 	it("closes the add transaction sheet", () => {
 		openAddTransaction();
 		closeAddTransaction();
 		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+	});
+
+	it("opens edit mode with the selected transaction", () => {
+		const tx = makeTx({ id: "tx-edit-1", description: "Edited Entry" });
+		openEditTransaction(tx);
+		expect(financeUiStore.state.editingTransaction).toEqual(tx);
+		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+	});
+
+	it("openEditTransaction clears the add sheet if it was open", () => {
+		openAddTransaction();
+		const tx = makeTx({ id: "tx-edit-2" });
+		openEditTransaction(tx);
+		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+		expect(financeUiStore.state.editingTransaction).toEqual(tx);
+	});
+
+	it("closeTransactionSheet clears both add and edit state", () => {
+		openEditTransaction(makeTx({ id: "tx-edit-3" }));
+		closeTransactionSheet();
+		expect(financeUiStore.state.addTransactionOpen).toBe(false);
+		expect(financeUiStore.state.editingTransaction).toBeNull();
+	});
+});
+
+describe("computeCategoryBreakdown", () => {
+	it("aggregates expenses by category", () => {
+		const txs = [
+			makeTx({ type: "expense", category: "Food & Dining", amount: 100 }),
+			makeTx({ type: "expense", category: "Food & Dining", amount: 50 }),
+			makeTx({ type: "expense", category: "Transport", amount: 80 }),
+			makeTx({ type: "income", category: "Salary", amount: 2000 }),
+		];
+
+		const result = computeCategoryBreakdown(txs);
+
+		expect(result).toHaveLength(2);
+		expect(result[0]).toEqual({ category: "Food & Dining", amount: 150 });
+		expect(result[1]).toEqual({ category: "Transport", amount: 80 });
+	});
+
+	it("sorts categories by amount descending", () => {
+		const txs = [
+			makeTx({ type: "expense", category: "Shopping", amount: 30 }),
+			makeTx({ type: "expense", category: "Transport", amount: 200 }),
+			makeTx({ type: "expense", category: "Food & Dining", amount: 120 }),
+		];
+
+		const result = computeCategoryBreakdown(txs);
+
+		expect(result.map((s) => s.category)).toEqual([
+			"Transport",
+			"Food & Dining",
+			"Shopping",
+		]);
+	});
+
+	it("returns empty array when there are no expenses", () => {
+		const txs = [makeTx({ type: "income", category: "Salary", amount: 3000 })];
+
+		expect(computeCategoryBreakdown(txs)).toEqual([]);
+	});
+
+	it("ignores income transactions", () => {
+		const txs = [
+			makeTx({ type: "income", category: "Salary", amount: 3000 }),
+			makeTx({ type: "expense", category: "Utilities", amount: 90 }),
+		];
+
+		const result = computeCategoryBreakdown(txs);
+		expect(result).toHaveLength(1);
+		expect(result[0].category).toBe("Utilities");
+	});
+});
+
+describe("computeDateBounds", () => {
+	it("preset 30d spans today minus 29 days through today", () => {
+		const { from, to } = computeDateBounds({ type: "preset", preset: "30d" });
+		const today = new Date().toISOString().slice(0, 10);
+		const expected = new Date();
+		expected.setDate(expected.getDate() - 29);
+		const expectedFrom = expected.toISOString().slice(0, 10);
+		expect(to).toBe(today);
+		expect(from).toBe(expectedFrom);
+	});
+
+	it("preset 7d spans today minus 6 days through today", () => {
+		const { from, to } = computeDateBounds({ type: "preset", preset: "7d" });
+		const today = new Date().toISOString().slice(0, 10);
+		const expected = new Date();
+		expected.setDate(expected.getDate() - 6);
+		expect(to).toBe(today);
+		expect(from).toBe(expected.toISOString().slice(0, 10));
+	});
+
+	it("month type spans first to last day of month", () => {
+		const { from, to } = computeDateBounds({ type: "month", month: "2026-02" });
+		expect(from).toBe("2026-02-01");
+		expect(to).toBe("2026-02-28");
+	});
+
+	it("month type handles 31-day months", () => {
+		const { from, to } = computeDateBounds({ type: "month", month: "2026-03" });
+		expect(from).toBe("2026-03-01");
+		expect(to).toBe("2026-03-31");
+	});
+
+	it("custom type returns the provided from/to unchanged", () => {
+		const { from, to } = computeDateBounds({
+			type: "custom",
+			from: "2026-01-10",
+			to: "2026-03-20",
+		});
+		expect(from).toBe("2026-01-10");
+		expect(to).toBe("2026-03-20");
+	});
+});
+
+describe("getDateRangeLabel", () => {
+	it("returns human-readable labels for presets", () => {
+		expect(getDateRangeLabel({ type: "preset", preset: "7d" })).toBe(
+			"Last 7 days",
+		);
+		expect(getDateRangeLabel({ type: "preset", preset: "30d" })).toBe(
+			"Last 30 days",
+		);
+		expect(getDateRangeLabel({ type: "preset", preset: "90d" })).toBe(
+			"Last 3 months",
+		);
+		expect(getDateRangeLabel({ type: "preset", preset: "6m" })).toBe(
+			"Last 6 months",
+		);
+		expect(getDateRangeLabel({ type: "preset", preset: "12m" })).toBe(
+			"Last 12 months",
+		);
+	});
+
+	it("returns formatted month name for month type", () => {
+		const label = getDateRangeLabel({ type: "month", month: "2026-03" });
+		expect(label).toBe("March 2026");
+	});
+
+	it("returns formatted date range for custom type", () => {
+		const label = getDateRangeLabel({
+			type: "custom",
+			from: "2026-01-01",
+			to: "2026-01-31",
+		});
+		expect(label).toContain("Jan");
+		expect(label).toContain("–");
+	});
+});
+
+describe("computeMonthlyTrend", () => {
+	it("returns exactly 6 data points", () => {
+		const now = new Date("2026-03-15");
+		const result = computeMonthlyTrend([], now);
+		expect(result).toHaveLength(6);
+	});
+
+	it("labels span the last 6 months ending in the current month", () => {
+		const now = new Date("2026-03-15");
+		const result = computeMonthlyTrend([], now);
+
+		// Months should be Oct-25 through Mar-26
+		expect(result[0].month).toBe("2025-10");
+		expect(result[5].month).toBe("2026-03");
+	});
+
+	it("sums income and expenses per month", () => {
+		const now = new Date("2026-03-15");
+		const txs = [
+			makeTx({ type: "income", amount: 1000, date: "2026-03-10" }),
+			makeTx({ type: "income", amount: 500, date: "2026-03-20" }),
+			makeTx({ type: "expense", amount: 200, date: "2026-03-05" }),
+			makeTx({ type: "income", amount: 800, date: "2026-02-14" }),
+		];
+
+		const result = computeMonthlyTrend(txs, now);
+
+		const march = result.find((p) => p.month === "2026-03");
+		expect(march?.income).toBe(1500);
+		expect(march?.expenses).toBe(200);
+
+		const feb = result.find((p) => p.month === "2026-02");
+		expect(feb?.income).toBe(800);
+		expect(feb?.expenses).toBe(0);
+	});
+
+	it("returns zero for months with no transactions", () => {
+		const now = new Date("2026-03-15");
+		const result = computeMonthlyTrend([], now);
+
+		for (const point of result) {
+			expect(point.income).toBe(0);
+			expect(point.expenses).toBe(0);
+		}
 	});
 });

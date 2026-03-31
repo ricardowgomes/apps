@@ -41,15 +41,15 @@ A private family finance application at `/finance/` for tracking income and expe
 
 ### Transaction Management
 - [x] (S) Delete transaction — wire `useRemoveTransaction()` to the trash icon on each row; the trash icon is already rendered, the delete hook is already wired up via `onDelete`
-- [ ] (M) Edit transaction — open the add-transaction sheet pre-filled with existing values; reuse the existing form; add `updateTransactionFn` server fn + D1 `UPDATE` in the repository
+- [x] (M) Edit transaction — open the add-transaction sheet pre-filled with existing values; reuse the existing form; add `updateTransactionFn` server fn + D1 `UPDATE` in the repository
 
 ### Filtering & Views
-- [ ] (S) Month picker — add a month selector to the filters bar; pass the selected month to the query; default to the current month; update summary cards to reflect the filtered month
-- [ ] (S) Sort order toggle — newest first / oldest first, client-side, persisted in UI store
+- [x] (S) Month picker — add a month selector to the filters bar; pass the selected month to the query; default to the current month; update summary cards to reflect the filtered month
+- [x] (S) Sort order toggle — newest first / oldest first, client-side, persisted in UI store
 
 ### Dashboard & Charts
-- [ ] (M) Category breakdown chart — pie or horizontal bar showing spend by category for the selected month; use recharts; show on the finance index page below the summary cards
-- [ ] (M) Monthly trend chart — last 6 months income vs. expenses; bar or line chart; recharts
+- [x] (M) Category breakdown chart — pie or horizontal bar showing spend by category for the selected month; use recharts; show on the finance index page below the summary cards
+- [x] (M) Monthly trend chart — last 6 months income vs. expenses; bar or line chart; recharts
 
 ### Import
 - [ ] (L) CSV import — file upload UI → column mapping → row preview → bulk insert; support BMO / RBC / TD formats + a generic fallback; duplicate detection by (date, amount, description)

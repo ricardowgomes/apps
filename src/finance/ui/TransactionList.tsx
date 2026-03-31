@@ -1,3 +1,4 @@
+import { useStore } from "@tanstack/react-store";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -7,8 +8,19 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownLeft, ArrowUpRight, Inbox, Trash2 } from "lucide-react";
+import {
+	ArrowDownLeft,
+	ArrowUpRight,
+	Inbox,
+	Pencil,
+	Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
+import type { DateRange } from "../application/finance-ui-store";
+import {
+	financeUiStore,
+	toggleSortOrder,
+} from "../application/finance-ui-store";
 import {
 	type TransactionFilters,
 	useRemoveTransaction,
@@ -51,9 +63,11 @@ function groupByDate(
 
 function TransactionRow({
 	transaction,
+	onEdit,
 	onDelete,
 }: {
 	transaction: Transaction;
+	onEdit: (t: Transaction) => void;
 	onDelete: (id: string) => void;
 }) {
 	const isIncome = transaction.type === "income";
@@ -93,6 +107,16 @@ function TransactionRow({
 				{formatCurrency(transaction.amount)}
 			</p>
 
+			{/* Edit */}
+			<button
+				type="button"
+				onClick={() => onEdit(transaction)}
+				aria-label="Edit transaction"
+				className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+			>
+				<Pencil size={15} />
+			</button>
+
 			{/* Delete */}
 			<button
 				type="button"
@@ -129,21 +153,31 @@ const columns: ColumnDef<Transaction>[] = [
 	},
 ];
 
-const DEFAULT_SORTING: SortingState = [{ id: "date", desc: true }];
-
 interface TransactionListProps {
 	transactions: Transaction[];
+	onEdit: (t: Transaction) => void;
+	dateRange: DateRange;
 }
 
-export function TransactionList({ transactions }: TransactionListProps) {
+export function TransactionList({
+	transactions,
+	onEdit,
+	dateRange,
+}: TransactionListProps) {
 	const removeTransaction = useRemoveTransaction();
 	const [globalFilter, setGlobalFilter] = useState("");
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const sortOrder = useStore(financeUiStore, (s) => s.sortOrder);
+
+	const sorting: SortingState = useMemo(
+		() => [{ id: "date", desc: sortOrder === "desc" }],
+		[sortOrder],
+	);
 
 	const table = useReactTable({
 		data: transactions,
 		columns,
-		state: { globalFilter, columnFilters, sorting: DEFAULT_SORTING },
+		state: { globalFilter, columnFilters, sorting },
 		onGlobalFilterChange: setGlobalFilter,
 		onColumnFiltersChange: setColumnFilters,
 		globalFilterFn: "includesString",
@@ -176,7 +210,13 @@ export function TransactionList({ transactions }: TransactionListProps) {
 
 	return (
 		<div className="flex flex-col gap-6">
-			<TransactionFiltersBar filters={filters} onChange={handleFiltersChange} />
+			<TransactionFiltersBar
+				filters={filters}
+				onChange={handleFiltersChange}
+				dateRange={dateRange}
+				sortOrder={sortOrder}
+				onSortToggle={toggleSortOrder}
+			/>
 
 			{groups.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-16 text-center">
@@ -197,6 +237,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
 								<TransactionRow
 									key={t.id}
 									transaction={t}
+									onEdit={onEdit}
 									onDelete={removeTransaction}
 								/>
 							))}

@@ -1,5 +1,6 @@
 import { ArrowDownLeft, ArrowUpRight, Wallet } from "lucide-react";
-import { useSummary } from "../application/use-transactions";
+import { useMemo } from "react";
+import type { Transaction } from "../domain/transaction";
 
 function formatCurrency(amount: number): string {
 	return new Intl.NumberFormat("en-CA", {
@@ -9,8 +10,22 @@ function formatCurrency(amount: number): string {
 	}).format(amount);
 }
 
-export function SummaryCards() {
-	const { income, expenses, balance } = useSummary();
+interface SummaryCardsProps {
+	transactions: Transaction[];
+	rangeLabel: string;
+}
+
+export function SummaryCards({ transactions, rangeLabel }: SummaryCardsProps) {
+	const { income, expenses, balance } = useMemo(() => {
+		const income = transactions
+			.filter((t) => t.type === "income")
+			.reduce((sum, t) => sum + t.amount, 0);
+		const expenses = transactions
+			.filter((t) => t.type === "expense")
+			.reduce((sum, t) => sum + t.amount, 0);
+		return { income, expenses, balance: income - expenses };
+	}, [transactions]);
+
 	const isPositive = balance >= 0;
 
 	return (
@@ -29,7 +44,7 @@ export function SummaryCards() {
 				>
 					{formatCurrency(balance)}
 				</p>
-				<p className="text-xs text-gray-600">All time</p>
+				<p className="text-xs text-gray-600">{rangeLabel}</p>
 			</div>
 
 			{/* Income */}
@@ -44,7 +59,7 @@ export function SummaryCards() {
 				<p className="text-2xl font-bold mt-1 text-emerald-400">
 					{formatCurrency(income)}
 				</p>
-				<p className="text-xs text-gray-600">All time</p>
+				<p className="text-xs text-gray-600">{rangeLabel}</p>
 			</div>
 
 			{/* Expenses */}
@@ -59,7 +74,7 @@ export function SummaryCards() {
 				<p className="text-2xl font-bold mt-1 text-rose-400">
 					{formatCurrency(expenses)}
 				</p>
-				<p className="text-xs text-gray-600">All time</p>
+				<p className="text-xs text-gray-600">{rangeLabel}</p>
 			</div>
 		</div>
 	);

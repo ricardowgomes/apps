@@ -5,6 +5,7 @@ import {
 	getAll,
 	insert,
 	remove,
+	update,
 } from "../infrastructure/d1-transaction-repository";
 
 export const getTransactionsFn = createServerFn({ method: "GET" }).handler(
@@ -25,6 +26,14 @@ export const createTransactionFn = createServerFn({ method: "POST" })
 		};
 		await insert(db, transaction);
 		return transaction;
+	});
+
+export const updateTransactionFn = createServerFn({ method: "POST" })
+	.inputValidator(transactionSchema.extend({ id: z.string() }))
+	.handler(async ({ data, context }) => {
+		const db = context.cloudflare.env.DB;
+		const { id, ...fields } = data;
+		await update(db, id, fields);
 	});
 
 export const deleteTransactionFn = createServerFn({ method: "POST" })

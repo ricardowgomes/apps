@@ -3,12 +3,12 @@ import {
 	useQueryClient,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useMemo } from "react";
 import type { Transaction, TransactionInput } from "../domain/transaction";
 import {
 	createTransactionFn,
 	deleteTransactionFn,
 	getTransactionsFn,
+	updateTransactionFn,
 } from "./transaction-server-fns";
 
 export interface TransactionFilters {
@@ -26,20 +26,6 @@ export function useTransactions() {
 	return data;
 }
 
-export function useSummary() {
-	const transactions = useTransactions();
-
-	return useMemo(() => {
-		const income = transactions
-			.filter((t) => t.type === "income")
-			.reduce((sum, t) => sum + t.amount, 0);
-		const expenses = transactions
-			.filter((t) => t.type === "expense")
-			.reduce((sum, t) => sum + t.amount, 0);
-		return { income, expenses, balance: income - expenses };
-	}, [transactions]);
-}
-
 export function useAddTransaction() {
 	const queryClient = useQueryClient();
 	const mutation = useMutation({
@@ -49,6 +35,18 @@ export function useAddTransaction() {
 			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
 	});
 	return (input: TransactionInput) => mutation.mutateAsync(input);
+}
+
+export function useUpdateTransaction() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: (input: TransactionInput & { id: string }) =>
+			updateTransactionFn({ data: input }),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
+	});
+	return (input: TransactionInput & { id: string }) =>
+		mutation.mutateAsync(input);
 }
 
 export function useRemoveTransaction() {
