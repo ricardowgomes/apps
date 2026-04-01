@@ -148,4 +148,63 @@ describe("edge cases", () => {
 		const result = parsed(csv);
 		expect(result.rows[0].description).toBe("Coffee, pastry");
 	});
+
+	it('handles escaped quotes ("") inside quoted fields', () => {
+		const csv = `"date","transaction","description","amount","balance","currency"
+"2026-03-01","SPEND","Tim Hortons ""Double Double""","5.00","200.00","CAD"`;
+		const result = parsed(csv);
+		expect(result.rows[0].description).toBe('Tim Hortons "Double Double"');
+	});
+
+	it("skips account rows with too few columns", () => {
+		const csv = `"date","transaction","description","amount","balance","currency"
+"2026-03-01","SPEND"
+"2026-03-02","SPEND","Coffee","5.00","200.00","CAD"`;
+		const result = parsed(csv);
+		expect(result.skippedRows).toBe(1);
+		expect(result.rows).toHaveLength(1);
+	});
+
+	it("skips account rows with an invalid amount", () => {
+		const csv = `"date","transaction","description","amount","balance","currency"
+"2026-03-01","SPEND","Coffee","not-a-number","200.00","CAD"`;
+		const result = parsed(csv);
+		expect(result.skippedRows).toBe(1);
+		expect(result.rows).toHaveLength(0);
+	});
+
+	it("defaults currency to CAD when the field is empty in account format", () => {
+		const csv = `"date","transaction","description","amount","balance","currency"
+"2026-03-01","SPEND","Coffee","5.00","200.00",""`;
+		const result = parsed(csv);
+		expect(result.rows[0].currency).toBe("CAD");
+	});
+
+	it("skips credit rows with too few columns", () => {
+		const csv = `"transaction_date","post_date","type","details","amount","currency"
+"2026-03-01","2026-03-02"
+"2026-03-03","2026-03-04","Purchase","Coffee","5.00","CAD"`;
+		const result = parseWealthsimpleCSV(csv);
+		if (!result) throw new Error("Expected non-null result");
+		expect(result.skippedRows).toBe(1);
+		expect(result.rows).toHaveLength(1);
+	});
+
+	it("skips credit rows with a negative amount (card payoff)", () => {
+		const csv = `"transaction_date","post_date","type","details","amount","currency"
+"2026-03-01","2026-03-02","Purchase","Coffee","-5.00","CAD"`;
+		const result = parseWealthsimpleCSV(csv);
+		if (!result) throw new Error("Expected non-null result");
+		expect(result.skippedRows).toBe(1);
+		expect(result.rows).toHaveLength(0);
+	});
+
+	it("skips credit rows with an invalid amount", () => {
+		const csv = `"transaction_date","post_date","type","details","amount","currency"
+"2026-03-01","2026-03-02","Purchase","Coffee","not-a-number","CAD"`;
+		const result = parseWealthsimpleCSV(csv);
+		if (!result) throw new Error("Expected non-null result");
+		expect(result.skippedRows).toBe(1);
+		expect(result.rows).toHaveLength(0);
+	});
 });

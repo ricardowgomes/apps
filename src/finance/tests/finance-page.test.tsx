@@ -11,12 +11,16 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
 	closeAddTransaction,
+	closeImportSheet,
 	closeTransactionSheet,
 	computeDateBounds,
 	financeUiStore,
 	getDateRangeLabel,
 	openAddTransaction,
 	openEditTransaction,
+	openImportSheet,
+	setDateRange,
+	toggleSortOrder,
 } from "../application/finance-ui-store";
 import {
 	computeCategoryBreakdown,
@@ -40,6 +44,12 @@ function makeTx(overrides: Partial<Transaction> = {}): Transaction {
 
 beforeEach(() => {
 	closeTransactionSheet();
+	closeImportSheet();
+	setDateRange({ type: "preset", preset: "30d" });
+	// Reset sort order to default
+	if (financeUiStore.state.sortOrder !== "desc") {
+		toggleSortOrder();
+	}
 });
 
 describe("transaction filtering logic", () => {
@@ -190,6 +200,46 @@ describe("finance UI store", () => {
 		expect(financeUiStore.state.addTransactionOpen).toBe(false);
 		expect(financeUiStore.state.editingTransaction).toBeNull();
 	});
+
+	it("opens the import sheet", () => {
+		openImportSheet();
+		expect(financeUiStore.state.importSheetOpen).toBe(true);
+	});
+
+	it("closes the import sheet", () => {
+		openImportSheet();
+		closeImportSheet();
+		expect(financeUiStore.state.importSheetOpen).toBe(false);
+	});
+
+	it("sets a custom date range", () => {
+		setDateRange({ type: "custom", from: "2026-01-01", to: "2026-01-31" });
+		expect(financeUiStore.state.dateRange).toEqual({
+			type: "custom",
+			from: "2026-01-01",
+			to: "2026-01-31",
+		});
+	});
+
+	it("sets a month date range", () => {
+		setDateRange({ type: "month", month: "2026-03" });
+		expect(financeUiStore.state.dateRange).toEqual({
+			type: "month",
+			month: "2026-03",
+		});
+	});
+
+	it("toggleSortOrder switches from desc to asc", () => {
+		expect(financeUiStore.state.sortOrder).toBe("desc");
+		toggleSortOrder();
+		expect(financeUiStore.state.sortOrder).toBe("asc");
+	});
+
+	it("toggleSortOrder switches from asc back to desc", () => {
+		toggleSortOrder(); // desc → asc
+		toggleSortOrder(); // asc → desc
+		expect(financeUiStore.state.sortOrder).toBe("desc");
+	});
 });
 
 describe("computeCategoryBreakdown", () => {
@@ -272,6 +322,33 @@ describe("computeDateBounds", () => {
 		const { from, to } = computeDateBounds({ type: "month", month: "2026-03" });
 		expect(from).toBe("2026-03-01");
 		expect(to).toBe("2026-03-31");
+	});
+
+	it("preset 90d spans today minus 89 days through today", () => {
+		const { from, to } = computeDateBounds({ type: "preset", preset: "90d" });
+		const today = new Date().toISOString().slice(0, 10);
+		const expected = new Date();
+		expected.setDate(expected.getDate() - 89);
+		expect(to).toBe(today);
+		expect(from).toBe(expected.toISOString().slice(0, 10));
+	});
+
+	it("preset 6m spans 6 months back through today", () => {
+		const { from, to } = computeDateBounds({ type: "preset", preset: "6m" });
+		const today = new Date().toISOString().slice(0, 10);
+		const expected = new Date();
+		expected.setMonth(expected.getMonth() - 6);
+		expect(to).toBe(today);
+		expect(from).toBe(expected.toISOString().slice(0, 10));
+	});
+
+	it("preset 12m spans 12 months back through today", () => {
+		const { from, to } = computeDateBounds({ type: "preset", preset: "12m" });
+		const today = new Date().toISOString().slice(0, 10);
+		const expected = new Date();
+		expected.setMonth(expected.getMonth() - 12);
+		expect(to).toBe(today);
+		expect(from).toBe(expected.toISOString().slice(0, 10));
 	});
 
 	it("custom type returns the provided from/to unchanged", () => {
