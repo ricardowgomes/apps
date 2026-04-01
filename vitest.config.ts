@@ -18,5 +18,24 @@ export default defineConfig({
 		environment: "node",
 		globals: true,
 		exclude: ["tests/e2e/**", "node_modules/**"],
+		coverage: {
+			provider: "v8",
+			reporter: ["text", "json-summary"],
+			reportsDirectory: "./coverage",
+			// Exclude non-business-logic files from coverage measurement
+			exclude: [
+				"tests/**",
+				"test/**",
+				"dist/**",
+				"src/routeTree.gen.ts",
+				"src/paraglide/**",
+				"src/routes/**",
+				"src/components/ui/**",
+				"src/tanstack-query/**",
+				"**/*.config.{ts,js}",
+				"**/*.d.ts",
+				"demo/**",
+			],
+		},
 	},
 });
