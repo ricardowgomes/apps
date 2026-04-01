@@ -192,6 +192,44 @@ export function ImportTransactionsSheet({ open, onClose }: Props) {
 // Step components
 // ---------------------------------------------------------------------------
 
+function ImportTotalsSummary({ rows }: { rows: PreviewRow[] }) {
+	const totalIncome = rows
+		.filter((r) => r.type === "income")
+		.reduce((sum, r) => sum + r.amount, 0);
+	const totalExpense = rows
+		.filter((r) => r.type === "expense")
+		.reduce((sum, r) => sum + r.amount, 0);
+	const net = totalIncome - totalExpense;
+
+	return (
+		<div
+			data-testid="import-totals-summary"
+			className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 flex justify-between text-xs"
+		>
+			<div className="space-y-0.5">
+				<p className="text-gray-500">Income</p>
+				<p className="text-emerald-400 font-mono font-semibold">
+					+${totalIncome.toFixed(2)}
+				</p>
+			</div>
+			<div className="space-y-0.5 text-center">
+				<p className="text-gray-500">Expenses</p>
+				<p className="text-rose-400 font-mono font-semibold">
+					-${totalExpense.toFixed(2)}
+				</p>
+			</div>
+			<div className="space-y-0.5 text-right">
+				<p className="text-gray-500">Net</p>
+				<p
+					className={`font-mono font-semibold ${net >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+				>
+					{net >= 0 ? "+" : "-"}${Math.abs(net).toFixed(2)}
+				</p>
+			</div>
+		</div>
+	);
+}
+
 function UploadStep({
 	error,
 	fileInputRef,
@@ -346,6 +384,9 @@ function PreviewStep({
 					</table>
 				</div>
 			</div>
+
+			{/* Totals summary */}
+			<ImportTotalsSummary rows={rows} />
 
 			<div className="flex gap-3 pt-1">
 				<button

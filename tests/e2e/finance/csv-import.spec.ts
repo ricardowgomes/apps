@@ -177,7 +177,24 @@ test.describe("Finance — CSV Import", () => {
 		await expect(page.getByText("2 duplicates skipped")).toBeVisible();
 	});
 
-	// ---- 7. "Change file" goes back to upload step --------------------------
+	// ---- 7. Preview shows totals summary ------------------------------------
+
+	test("preview step shows income, expense, and net totals", async ({
+		page,
+	}) => {
+		await openImportSheet(page);
+		await uploadCSV(page, ACCOUNT_CSV);
+		await expect(page.getByText("2 transactions found")).toBeVisible();
+
+		const summary = page.getByTestId("import-totals-summary");
+		await expect(summary).toBeVisible();
+		// Income: 1200.00, Expense: 85.50, Net: 1114.50
+		await expect(summary.getByText("+$1200.00")).toBeVisible();
+		await expect(summary.getByText("-$85.50")).toBeVisible();
+		await expect(summary.getByText("+$1114.50")).toBeVisible();
+	});
+
+	// ---- 8. "Change file" goes back to upload step --------------------------
 
 	test("Change file link returns to the upload step", async ({ page }) => {
 		await openImportSheet(page);
