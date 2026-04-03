@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FinanceIndexRouteImport } from './routes/finance/index'
+import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
 import { Route as ApiTestLoginRouteImport } from './routes/api.test.login'
 import { Route as ApiTestFinanceRouteImport } from './routes/api.test.finance'
+import { Route as ApiTestCategoriesRouteImport } from './routes/api.test.categories'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api.auth.logout'
 import { Route as ApiAuthGoogleRouteImport } from './routes/api.auth.google'
 import { Route as ApiAuthCallbackGoogleRouteImport } from './routes/api.auth.callback.google'
@@ -33,6 +35,11 @@ const FinanceIndexRoute = FinanceIndexRouteImport.update({
   path: '/finance/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
+  id: '/finance/categories',
+  path: '/finance/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTestLoginRoute = ApiTestLoginRouteImport.update({
   id: '/api/test/login',
   path: '/api/test/login',
@@ -41,6 +48,11 @@ const ApiTestLoginRoute = ApiTestLoginRouteImport.update({
 const ApiTestFinanceRoute = ApiTestFinanceRouteImport.update({
   id: '/api/test/finance',
   path: '/api/test/finance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTestCategoriesRoute = ApiTestCategoriesRouteImport.update({
+  id: '/api/test/categories',
+  path: '/api/test/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
@@ -62,9 +74,11 @@ const ApiAuthCallbackGoogleRoute = ApiAuthCallbackGoogleRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/': typeof FinanceIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
@@ -72,9 +86,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/finance/categories': typeof FinanceCategoriesRoute
   '/finance': typeof FinanceIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
@@ -83,9 +99,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/': typeof FinanceIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
@@ -95,9 +113,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/finance/categories'
     | '/finance/'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/auth/callback/google'
@@ -105,9 +125,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/finance/categories'
     | '/finance'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/auth/callback/google'
@@ -115,9 +137,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/finance/categories'
     | '/finance/'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/auth/callback/google'
@@ -126,9 +150,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  FinanceCategoriesRoute: typeof FinanceCategoriesRoute
   FinanceIndexRoute: typeof FinanceIndexRoute
   ApiAuthGoogleRoute: typeof ApiAuthGoogleRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiTestCategoriesRoute: typeof ApiTestCategoriesRoute
   ApiTestFinanceRoute: typeof ApiTestFinanceRoute
   ApiTestLoginRoute: typeof ApiTestLoginRoute
   ApiAuthCallbackGoogleRoute: typeof ApiAuthCallbackGoogleRoute
@@ -157,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/finance/categories': {
+      id: '/finance/categories'
+      path: '/finance/categories'
+      fullPath: '/finance/categories'
+      preLoaderRoute: typeof FinanceCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/test/login': {
       id: '/api/test/login'
       path: '/api/test/login'
@@ -169,6 +202,13 @@ declare module '@tanstack/react-router' {
       path: '/api/test/finance'
       fullPath: '/api/test/finance'
       preLoaderRoute: typeof ApiTestFinanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/test/categories': {
+      id: '/api/test/categories'
+      path: '/api/test/categories'
+      fullPath: '/api/test/categories'
+      preLoaderRoute: typeof ApiTestCategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/logout': {
@@ -198,9 +238,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  FinanceCategoriesRoute: FinanceCategoriesRoute,
   FinanceIndexRoute: FinanceIndexRoute,
   ApiAuthGoogleRoute: ApiAuthGoogleRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiTestCategoriesRoute: ApiTestCategoriesRoute,
   ApiTestFinanceRoute: ApiTestFinanceRoute,
   ApiTestLoginRoute: ApiTestLoginRoute,
   ApiAuthCallbackGoogleRoute: ApiAuthCallbackGoogleRoute,

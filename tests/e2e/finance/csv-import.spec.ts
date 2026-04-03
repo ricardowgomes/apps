@@ -120,11 +120,11 @@ test.describe("Finance — CSV Import", () => {
 		await expect(page.getByText("E2E Direct Deposit")).toBeVisible();
 		await expect(page.getByText("E2E Grocery Purchase")).toBeVisible();
 
-		// Income row has + prefix, expense row has - prefix (scope to table to avoid
-		// colliding with the totals summary which shows the same formatted amounts)
-		const previewTable = page.getByRole("table");
-		await expect(previewTable.getByText(`+$${formatAmount(ACCOUNT_INCOME)}`)).toBeVisible();
-		await expect(previewTable.getByText(`-$${formatAmount(ACCOUNT_EXPENSE)}`)).toBeVisible();
+		// Income row has + prefix, expense row has - prefix.
+		// The preview is now rendered as cards (not a table), so we check the
+		// row cards which are scoped above the totals summary.
+		await expect(page.getByText(`+$${formatAmount(ACCOUNT_INCOME)}`).first()).toBeVisible();
+		await expect(page.getByText(`-$${formatAmount(ACCOUNT_EXPENSE)}`).first()).toBeVisible();
 	});
 
 	// ---- 4. Credit card CSV → payments skipped ------------------------------

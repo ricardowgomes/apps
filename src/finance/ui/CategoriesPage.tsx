@@ -223,7 +223,7 @@ export function CategoriesPage() {
 	return (
 		<div className="min-h-screen bg-[#030712] text-white pb-32">
 			{/* Header */}
-			<div className="px-4 pt-8 pb-6 max-w-2xl mx-auto">
+			<div className="px-4 pt-24 pb-6 max-w-2xl mx-auto">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						<div className="w-9 h-9 rounded-xl bg-cyan-500/10 flex items-center justify-center">
