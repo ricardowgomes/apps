@@ -1,15 +1,14 @@
 import { useForm } from "@tanstack/react-form";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAddCategory, useCategories } from "../application/use-categories";
 import {
 	useAddTransaction,
+	useUpdateCategoryByDescription,
 	useUpdateTransaction,
 } from "../application/use-transactions";
-import {
-	EXPENSE_CATEGORIES,
-	INCOME_CATEGORIES,
-	type Transaction,
-} from "../domain/transaction";
+import type { Transaction } from "../domain/transaction";
+import { CategoryCombobox } from "./CategoryCombobox";
 
 interface AddTransactionSheetProps {
 	open: boolean;
@@ -28,10 +27,11 @@ export function AddTransactionSheet({
 	const isEditMode = initialValues !== undefined;
 	const addTransaction = useAddTransaction();
 	const updateTransaction = useUpdateTransaction();
+	const updateCategoryByDescription = useUpdateCategoryByDescription();
+	const addCategory = useAddCategory();
+	const { data: categories } = useCategories();
 
-	const [selectedType, setSelectedType] = useState<"income" | "expense">(
-		initialValues?.type ?? "expense",
-	);
+	const [applyToAll, setApplyToAll] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
@@ -57,6 +57,13 @@ export function AddTransactionSheet({
 					description: value.description,
 					date: value.date,
 				});
+				// Apply category to all transactions with the same description
+				if (applyToAll && value.category !== initialValues.category) {
+					await updateCategoryByDescription({
+						description: value.description,
+						category: value.category,
+					});
+				}
 			} else {
 				await addTransaction({
 					type: value.type,
@@ -69,7 +76,7 @@ export function AddTransactionSheet({
 			}
 			onClose();
 			form.reset();
-			setSelectedType("expense");
+			setApplyToAll(false);
 		},
 	});
 
@@ -77,7 +84,7 @@ export function AddTransactionSheet({
 	useEffect(() => {
 		if (!open) {
 			form.reset();
-			setSelectedType("expense");
+			setApplyToAll(false);
 		} else if (initialValues) {
 			form.reset({
 				type: initialValues.type,
@@ -87,7 +94,6 @@ export function AddTransactionSheet({
 				description: initialValues.description,
 				date: initialValues.date,
 			});
-			setSelectedType(initialValues.type);
 		}
 	}, [open, initialValues, form]);
 
@@ -101,12 +107,9 @@ export function AddTransactionSheet({
 		return () => window.removeEventListener("keydown", onKey);
 	}, [open, onClose]);
 
-	const categories =
-		selectedType === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-
 	return (
 		<>
-			{/* Backdrop — aria-hidden; Escape key closes via useEffect above */}
+			{/* Backdrop */}
 			<div
 				className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
 					open ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -117,8 +120,7 @@ export function AddTransactionSheet({
 				aria-hidden="true"
 			/>
 
-			{/* Sheet — aria-hidden when closed so off-screen content is invisible to
-		    screen readers and Playwright's toBeVisible() properly waits for open state */}
+			{/* Sheet */}
 			<div
 				role="dialog"
 				aria-modal="true"
@@ -168,7 +170,6 @@ export function AddTransactionSheet({
 										type="button"
 										onClick={() => {
 											field.handleChange(t);
-											setSelectedType(t);
 											form.setFieldValue("category", "");
 										}}
 										className={`flex-1 py-2.5 text-sm font-medium transition-all capitalize ${
@@ -219,35 +220,50 @@ export function AddTransactionSheet({
 						)}
 					</form.Field>
 
-					{/* Category */}
+					{/* Category — searchable combobox */}
 					<form.Field name="category">
 						{(field) => (
 							<div className="flex flex-col gap-1.5">
 								<label
-									htmlFor="category"
+									htmlFor="category-combobox"
 									className="text-xs text-gray-500 font-medium"
 								>
 									Category
 								</label>
-								<select
-									id="category"
+								<CategoryCombobox
+									id="category-combobox"
+									categories={categories}
 									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									className="w-full px-3.5 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:outline-none focus:border-cyan-500/40 transition-colors appearance-none"
-								>
-									<option value="" disabled>
-										Select a category…
-									</option>
-									{categories.map((cat) => (
-										<option key={cat} value={cat} className="bg-[#070d14]">
-											{cat}
-										</option>
-									))}
-								</select>
+									onChange={(v) => field.handleChange(v)}
+									allowCreate
+									onCreateCategory={async (name) => {
+										await addCategory({
+											name,
+											icon: "",
+											color: "#6366f1",
+											keywords: [],
+										});
+									}}
+								/>
 							</div>
 						)}
 					</form.Field>
+
+					{/* Apply-to-all checkbox (edit mode only, when category changes) */}
+					{isEditMode && (
+						<label className="flex items-start gap-2.5 cursor-pointer select-none">
+							<input
+								type="checkbox"
+								checked={applyToAll}
+								onChange={(e) => setApplyToAll(e.target.checked)}
+								className="mt-0.5 accent-cyan-500"
+							/>
+							<span className="text-xs text-gray-400 leading-relaxed">
+								Apply this category to all transactions with the same
+								description
+							</span>
+						</label>
+					)}
 
 					{/* Description */}
 					<form.Field name="description">

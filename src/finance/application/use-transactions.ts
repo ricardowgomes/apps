@@ -9,6 +9,7 @@ import {
 	createTransactionFn,
 	deleteTransactionFn,
 	getTransactionsFn,
+	updateCategoryByDescriptionFn,
 	updateTransactionFn,
 } from "./transaction-server-fns";
 
@@ -58,6 +59,18 @@ export function useRemoveTransaction() {
 			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
 	});
 	return (id: string) => mutation.mutateAsync(id);
+}
+
+export function useUpdateCategoryByDescription() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: (input: { description: string; category: string }) =>
+			updateCategoryByDescriptionFn({ data: input }),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
+	});
+	return (input: { description: string; category: string }) =>
+		mutation.mutateAsync(input);
 }
 
 export function useImportTransactions() {
