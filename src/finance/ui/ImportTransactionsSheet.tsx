@@ -15,6 +15,13 @@ interface PreviewRow extends ParsedRow {
 	category: string;
 }
 
+function formatAmount(amount: number): string {
+	return amount.toLocaleString("en-CA", {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	});
+}
+
 function makeTransactions(rows: PreviewRow[]): Transaction[] {
 	return rows.map((r) => ({
 		id: crypto.randomUUID(),
@@ -192,6 +199,44 @@ export function ImportTransactionsSheet({ open, onClose }: Props) {
 // Step components
 // ---------------------------------------------------------------------------
 
+function ImportTotalsSummary({ rows }: { rows: PreviewRow[] }) {
+	const totalIncome = rows
+		.filter((r) => r.type === "income")
+		.reduce((sum, r) => sum + r.amount, 0);
+	const totalExpense = rows
+		.filter((r) => r.type === "expense")
+		.reduce((sum, r) => sum + r.amount, 0);
+	const net = totalIncome - totalExpense;
+
+	return (
+		<div
+			data-testid="import-totals-summary"
+			className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 flex justify-between text-xs"
+		>
+			<div className="space-y-0.5">
+				<p className="text-gray-500">Income</p>
+				<p className="text-emerald-400 font-mono font-semibold">
+					+${formatAmount(totalIncome)}
+				</p>
+			</div>
+			<div className="space-y-0.5 text-center">
+				<p className="text-gray-500">Expenses</p>
+				<p className="text-rose-400 font-mono font-semibold">
+					-${formatAmount(totalExpense)}
+				</p>
+			</div>
+			<div className="space-y-0.5 text-right">
+				<p className="text-gray-500">Net</p>
+				<p
+					className={`font-mono font-semibold ${net >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+				>
+					{net >= 0 ? "+" : "-"}${formatAmount(Math.abs(net))}
+				</p>
+			</div>
+		</div>
+	);
+}
+
 function UploadStep({
 	error,
 	fileInputRef,
@@ -334,7 +379,7 @@ function PreviewStep({
 											}
 										>
 											{row.type === "income" ? "+" : "-"}$
-											{row.amount.toFixed(2)}
+											{formatAmount(row.amount)}
 										</span>
 									</td>
 									<td className="px-3 py-2 whitespace-nowrap capitalize text-gray-400">
@@ -346,6 +391,9 @@ function PreviewStep({
 					</table>
 				</div>
 			</div>
+
+			{/* Totals summary */}
+			<ImportTotalsSummary rows={rows} />
 
 			<div className="flex gap-3 pt-1">
 				<button

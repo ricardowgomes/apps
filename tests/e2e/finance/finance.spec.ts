@@ -81,6 +81,7 @@ test.describe("Finance", () => {
 
 	test("finance page loads with heading and summary cards", async ({ page }) => {
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		await expect(
 			page.getByRole("heading", { name: "Transactions" }),
@@ -96,11 +97,12 @@ test.describe("Finance", () => {
 		page,
 	}) => {
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		// Open the sheet via testid to avoid BottomNav / sheet button ambiguity
 		await page.getByTestId("open-add-transaction").click();
-		const sheet = page.getByRole("dialog", { name: "Add transaction" });
-		await expect(sheet).toBeVisible();
+		const sheet = page.getByTestId("transaction-sheet");
+		await expect(sheet).not.toHaveAttribute("aria-hidden");
 
 		// Switch to income
 		await sheet.getByRole("button", { name: "income" }).click();
@@ -114,7 +116,7 @@ test.describe("Finance", () => {
 		await sheet.getByRole("button", { name: "Add Transaction" }).click();
 
 		// Sheet should close and new row should be visible
-		await expect(sheet).not.toBeVisible();
+		await expect(sheet).toHaveAttribute("aria-hidden", "true");
 		await expect(page.getByText("E2E Monthly Salary")).toBeVisible();
 
 		// Income card should reflect the new amount
@@ -127,9 +129,11 @@ test.describe("Finance", () => {
 		page,
 	}) => {
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		await page.getByTestId("open-add-transaction").click();
-		const sheet = page.getByRole("dialog", { name: "Add transaction" });
+		const sheet = page.getByTestId("transaction-sheet");
+		await expect(sheet).not.toHaveAttribute("aria-hidden");
 
 		// expense is the default type — no need to switch
 		await sheet.getByLabel("Amount (CAD)").fill("250");
@@ -138,7 +142,7 @@ test.describe("Finance", () => {
 
 		await sheet.getByRole("button", { name: "Add Transaction" }).click();
 
-		await expect(sheet).not.toBeVisible();
+		await expect(sheet).toHaveAttribute("aria-hidden", "true");
 		await expect(page.getByText("E2E Grocery Run")).toBeVisible();
 
 		await expect(page.getByTestId("expenses-card")).toContainText("$250.00");
@@ -155,6 +159,7 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 		await expect(page.getByText("Test Income Entry")).toBeVisible();
 
 		// Click the delete button on that row
@@ -184,14 +189,15 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 		await expect(page.getByText("Original Description")).toBeVisible();
 
 		// Click the edit button on the row
 		await page.getByRole("button", { name: "Edit transaction" }).first().click();
 
-		const sheet = page.getByRole("dialog", { name: "Edit transaction" });
-		await expect(sheet).toBeVisible();
-		await expect(sheet.getByRole("heading", { name: "Edit Transaction" })).toBeVisible();
+		const sheet = page.getByTestId("transaction-sheet");
+		await expect(sheet).not.toHaveAttribute("aria-hidden");
+		await expect(sheet.getByText("Edit Transaction")).toBeVisible();
 
 		// Update description and amount
 		await sheet.getByLabel("Description").fill("Updated Description");
@@ -200,7 +206,7 @@ test.describe("Finance", () => {
 		await sheet.getByRole("button", { name: "Save Changes" }).click();
 
 		// Sheet should close and updated row should be visible
-		await expect(sheet).not.toBeVisible();
+		await expect(sheet).toHaveAttribute("aria-hidden", "true");
 		await expect(page.getByText("Updated Description")).toBeVisible();
 		await expect(page.getByText("Original Description")).not.toBeVisible();
 	});
@@ -225,6 +231,7 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		// Both rows visible before filtering
 		await expect(page.getByText("Filter Income Row")).toBeVisible();
@@ -260,6 +267,7 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		// Confirm both rows loaded before filtering
 		await expect(page.getByText("Expense Filter Expense Row")).toBeVisible();
@@ -295,6 +303,7 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		await expect(page.getByText("Acme Corp Payroll")).toBeVisible();
 		await expect(page.getByText("Coffee Shop Purchase")).toBeVisible();
@@ -329,6 +338,7 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		await expect(page.getByTestId("income-card")).toContainText("$2,000.00");
 		await expect(page.getByTestId("expenses-card")).toContainText("$500.00");
@@ -359,20 +369,25 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		// Default: current month — only current transaction visible
 		await expect(page.getByText("Current Month Transaction")).toBeVisible();
 		await expect(page.getByText("Previous Month Transaction")).not.toBeVisible();
 
-		// Navigate to previous month
+		// Open the date-range picker, navigate to previous month, then apply it
+		await page.getByTestId("date-range-picker").click();
 		await page.getByRole("button", { name: "Previous month" }).click();
+		await page.getByTestId("month-display").click();
 
 		// Now only previous month transaction is visible
 		await expect(page.getByText("Previous Month Transaction")).toBeVisible();
 		await expect(page.getByText("Current Month Transaction")).not.toBeVisible();
 
 		// Navigate back to current month
+		await page.getByTestId("date-range-picker").click();
 		await page.getByRole("button", { name: "Next month" }).click();
+		await page.getByTestId("month-display").click();
 
 		await expect(page.getByText("Current Month Transaction")).toBeVisible();
 		await expect(page.getByText("Previous Month Transaction")).not.toBeVisible();
@@ -404,12 +419,15 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		// Current month: $1,000 income
 		await expect(page.getByTestId("income-card")).toContainText("$1,000.00");
 
 		// Navigate to previous month: $500 income
+		await page.getByTestId("date-range-picker").click();
 		await page.getByRole("button", { name: "Previous month" }).click();
+		await page.getByTestId("month-display").click();
 		await expect(page.getByTestId("income-card")).toContainText("$500.00");
 	});
 
@@ -440,6 +458,11 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
+
+		// Switch to current month view so both past and future dates in this month are visible
+		await page.getByTestId("date-range-picker").click();
+		await page.getByTestId("month-display").click();
 
 		// Default: newest first — Late Transaction should appear before Early Transaction
 		const rows = page.getByRole("main");
@@ -488,6 +511,7 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		const chart = page.getByTestId("category-breakdown-chart");
 		await expect(chart).toBeVisible();
@@ -511,6 +535,7 @@ test.describe("Finance", () => {
 		]);
 
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		const chart = page.getByTestId("category-breakdown-chart");
 		await expect(chart).toBeVisible();
@@ -523,6 +548,7 @@ test.describe("Finance", () => {
 		page,
 	}) => {
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 
 		const chart = page.getByTestId("monthly-trend-chart");
 		await expect(chart).toBeVisible();

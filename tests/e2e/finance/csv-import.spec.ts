@@ -8,11 +8,24 @@ import { loginAsTestUser } from "../helpers";
 // Use today's date so imported rows appear in the default month view
 const TODAY = new Date().toISOString().split("T")[0];
 
+// Known amounts — used both in the CSV and in test assertions
+const ACCOUNT_INCOME = 1200.0;
+const ACCOUNT_EXPENSE = 85.5;
+const ACCOUNT_NET = ACCOUNT_INCOME - ACCOUNT_EXPENSE; // 1114.50
+
 const ACCOUNT_CSV = [
 	`"date","transaction","description","amount","balance","currency"`,
-	`"${TODAY}","AFT_IN","E2E Direct Deposit","1200.00","5000.00","CAD"`,
-	`"${TODAY}","SPEND","E2E Grocery Purchase","-85.50","4914.50","CAD"`,
+	`"${TODAY}","AFT_IN","E2E Direct Deposit","${ACCOUNT_INCOME.toFixed(2)}","5000.00","CAD"`,
+	`"${TODAY}","SPEND","E2E Grocery Purchase","-${ACCOUNT_EXPENSE.toFixed(2)}","4914.50","CAD"`,
 ].join("\n");
+
+// Mirror the component's formatAmount helper so assertions use the same locale format
+function formatAmount(amount: number): string {
+	return amount.toLocaleString("en-CA", {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	});
+}
 
 const CREDIT_CSV = [
 	`"transaction_date","post_date","type","details","amount","currency"`,
@@ -44,7 +57,8 @@ async function resetTransactions(
 async function openImportSheet(page: Parameters<typeof loginAsTestUser>[0]) {
 	await page.getByTestId("open-import").click();
 	const sheet = page.getByTestId("import-sheet");
-	await expect(sheet).toBeVisible();
+	// aria-hidden is removed when open=true — wait for that before querying inside the sheet
+	await expect(sheet).not.toHaveAttribute("aria-hidden");
 	return sheet;
 }
 
@@ -67,6 +81,7 @@ test.describe("Finance — CSV Import", () => {
 		await resetTransactions(request);
 		await loginAsTestUser(page);
 		await page.goto("/finance");
+		await page.waitForLoadState("networkidle");
 	});
 
 	test.afterEach(async ({ request }) => {
@@ -77,9 +92,7 @@ test.describe("Finance — CSV Import", () => {
 
 	test("Import button opens the import sheet", async ({ page }) => {
 		const sheet = await openImportSheet(page);
-		await expect(
-			sheet.getByRole("heading", { name: "Import Transactions" }),
-		).toBeVisible();
+		await expect(sheet.getByText("Import Transactions")).toBeVisible();
 		await expect(sheet.getByText("Wealthsimple CSV export")).toBeVisible();
 	});
 
@@ -107,9 +120,11 @@ test.describe("Finance — CSV Import", () => {
 		await expect(page.getByText("E2E Direct Deposit")).toBeVisible();
 		await expect(page.getByText("E2E Grocery Purchase")).toBeVisible();
 
-		// Income row has + prefix, expense row has - prefix
-		await expect(page.getByText("+$1,200.00")).toBeVisible();
-		await expect(page.getByText("-$85.50")).toBeVisible();
+		// Income row has + prefix, expense row has - prefix (scope to table to avoid
+		// colliding with the totals summary which shows the same formatted amounts)
+		const previewTable = page.getByRole("table");
+		await expect(previewTable.getByText(`+$${formatAmount(ACCOUNT_INCOME)}`)).toBeVisible();
+		await expect(previewTable.getByText(`-$${formatAmount(ACCOUNT_EXPENSE)}`)).toBeVisible();
 	});
 
 	// ---- 4. Credit card CSV → payments skipped ------------------------------
@@ -148,7 +163,7 @@ test.describe("Finance — CSV Import", () => {
 
 		// Close sheet
 		await page.getByRole("button", { name: "Done" }).click();
-		await expect(page.getByTestId("import-sheet")).not.toBeVisible();
+		await expect(page.getByTestId("import-sheet")).toHaveAttribute("aria-hidden", "true");
 
 		// Transactions appear in the list
 		await expect(page.getByText("E2E Direct Deposit")).toBeVisible();
@@ -177,7 +192,29 @@ test.describe("Finance — CSV Import", () => {
 		await expect(page.getByText("2 duplicates skipped")).toBeVisible();
 	});
 
-	// ---- 7. "Change file" goes back to upload step --------------------------
+	// ---- 7. Preview shows totals summary matching CSV data ------------------
+
+	test("totals summary matches the sum of income, expenses, and net from the CSV", async ({
+		page,
+	}) => {
+		await openImportSheet(page);
+		await uploadCSV(page, ACCOUNT_CSV);
+		await expect(page.getByText("2 transactions found")).toBeVisible();
+
+		const summary = page.getByTestId("import-totals-summary");
+		await expect(summary).toBeVisible();
+
+		// Expected values derived directly from the CSV fixture constants
+		const expectedIncome = `+$${formatAmount(ACCOUNT_INCOME)}`;
+		const expectedExpenses = `-$${formatAmount(ACCOUNT_EXPENSE)}`;
+		const expectedNet = `+$${formatAmount(ACCOUNT_NET)}`;
+
+		await expect(summary.getByText(expectedIncome)).toBeVisible();
+		await expect(summary.getByText(expectedExpenses)).toBeVisible();
+		await expect(summary.getByText(expectedNet)).toBeVisible();
+	});
+
+	// ---- 8. "Change file" goes back to upload step --------------------------
 
 	test("Change file link returns to the upload step", async ({ page }) => {
 		await openImportSheet(page);
@@ -197,6 +234,6 @@ test.describe("Finance — CSV Import", () => {
 	test("pressing Escape closes the import sheet", async ({ page }) => {
 		await openImportSheet(page);
 		await page.keyboard.press("Escape");
-		await expect(page.getByTestId("import-sheet")).not.toBeVisible();
+		await expect(page.getByTestId("import-sheet")).toHaveAttribute("aria-hidden", "true");
 	});
 });

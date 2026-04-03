@@ -3,6 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
 	testDir: "tests/e2e",
 	fullyParallel: false,
+	// Single worker required: all suites share the same local D1 database, so
+	// parallel test files would race on resetTransactions / seedTransactions.
+	workers: 1,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	reporter: "list",
