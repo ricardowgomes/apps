@@ -15,6 +15,13 @@ interface PreviewRow extends ParsedRow {
 	category: string;
 }
 
+function formatAmount(amount: number): string {
+	return amount.toLocaleString("en-CA", {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	});
+}
+
 function makeTransactions(rows: PreviewRow[]): Transaction[] {
 	return rows.map((r) => ({
 		id: crypto.randomUUID(),
@@ -209,13 +216,13 @@ function ImportTotalsSummary({ rows }: { rows: PreviewRow[] }) {
 			<div className="space-y-0.5">
 				<p className="text-gray-500">Income</p>
 				<p className="text-emerald-400 font-mono font-semibold">
-					+${totalIncome.toFixed(2)}
+					+${formatAmount(totalIncome)}
 				</p>
 			</div>
 			<div className="space-y-0.5 text-center">
 				<p className="text-gray-500">Expenses</p>
 				<p className="text-rose-400 font-mono font-semibold">
-					-${totalExpense.toFixed(2)}
+					-${formatAmount(totalExpense)}
 				</p>
 			</div>
 			<div className="space-y-0.5 text-right">
@@ -223,7 +230,7 @@ function ImportTotalsSummary({ rows }: { rows: PreviewRow[] }) {
 				<p
 					className={`font-mono font-semibold ${net >= 0 ? "text-emerald-400" : "text-rose-400"}`}
 				>
-					{net >= 0 ? "+" : "-"}${Math.abs(net).toFixed(2)}
+					{net >= 0 ? "+" : "-"}${formatAmount(Math.abs(net))}
 				</p>
 			</div>
 		</div>
@@ -372,7 +379,7 @@ function PreviewStep({
 											}
 										>
 											{row.type === "income" ? "+" : "-"}$
-											{row.amount.toFixed(2)}
+											{formatAmount(row.amount)}
 										</span>
 									</td>
 									<td className="px-3 py-2 whitespace-nowrap capitalize text-gray-400">
