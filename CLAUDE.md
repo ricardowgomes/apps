@@ -46,19 +46,58 @@ Primary purpose: portfolio showcase for Ricardo (software engineer). Future sub-
 - Demo/scaffold code lives in `demo/` routes and is prefixed with `demo-`; it is exempt from DDD structure
 - See ADR-0004 for full guidance
 
-### 2. Testing
+### 2. Testing — The Testing Trophy
 
-Three mandatory layers — all must pass before a task is done:
+Four layers. All must pass before a task is done. See [ADR-0005](docs/adr/0005-testing-strategy.md) for the full rationale.
 
-1. **Unit tests** (Vitest) — domain logic, pure functions, validation; live in `src/{domain}/domain/__tests__/`
-2. **Integration tests** (Vitest) — application-layer logic (filters, stores, calculations); live in `src/{domain}/tests/`
-3. **E2E tests** (Playwright) — full user flows against a running Wrangler local server; live in `tests/e2e/{domain}/`
+```
+         ╱ E2E ╲           ← 15% effort
+        ╱─────────╲
+       ╱ Integration ╲     ← 60% effort  (the sweet spot)
+      ╱───────────────╲
+     ╱   Unit Tests    ╲   ← 20% effort
+    ╱───────────────────╲
+   ╱  Static Analysis   ╲  ← base (TypeScript strict + Biome — always on)
+```
 
-**Every new production feature must ship with at least one Playwright E2E test** covering its primary user flow. A feature without a Playwright test is not done.
+#### Layer rules
 
+| Layer | Tool | Write tests for | Effort |
+|---|---|---|---|
+| Unit | Vitest | Pure functions, data transformers, domain entities | 20% |
+| Integration | Vitest + RTL | Whole pages/forms/hooks with mocked network/DB | 60% |
+| E2E | Playwright | Happy paths on critical user journeys | 15% |
+
+#### Golden rule — test the "What," not the "How"
+- **Bad**: `expect(component.state.isLoading).toBe(true)` — tests implementation detail
+- **Good**: `expect(screen.getByRole('progressbar')).toBeVisible()` — tests user-visible outcome
+
+#### File naming
+
+| Layer | Suffix |
+|---|---|
+| Unit | `*.test.ts` / `*.test.tsx` |
+| Integration | `*.integration.test.ts` / `*.integration.test.tsx` |
+| E2E | `*.spec.ts` |
+
+#### Co-location rule
+Test files live **next to the source file they test** — no `__tests__/` subdirectories.
+
+```
+src/finance/domain/
+  transaction.ts
+  transaction.test.ts                        ← unit, co-located
+src/finance/application/
+  use-transactions.ts
+  use-transactions.integration.test.ts       ← integration, co-located
+tests/e2e/finance/
+  finance.spec.ts                            ← E2E (Playwright root dir exception)
+```
+
+#### Hard rules
+- **Every new production feature ships with at least one E2E test.** A feature without a passing Playwright test is not done.
 - Never test auto-generated files (`routeTree.gen.ts`, `src/paraglide/`)
-- Demo/scaffold routes are exempt from the Playwright requirement
-- See ADR-0005 and ADR-0010 for full guidance
+- Demo/scaffold routes are exempt from the E2E requirement
 
 ### 3. ADRs
 - Before making a significant architectural decision, check `docs/adr/` for existing decisions
