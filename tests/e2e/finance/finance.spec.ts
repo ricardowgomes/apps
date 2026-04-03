@@ -109,7 +109,10 @@ test.describe("Finance", () => {
 
 		// Fill fields
 		await sheet.getByLabel("Amount (CAD)").fill("1500");
-		await sheet.getByLabel("Category").selectOption("Salary");
+		// Category is now a combobox — dropdown is portalled to document.body
+		await sheet.getByLabel("Category").click();
+		await page.getByPlaceholder("Search categories…").fill("Salary");
+		await page.getByRole("button", { name: /Salary/ }).first().click();
 		await sheet.getByLabel("Description").fill("E2E Monthly Salary");
 
 		// Submit
@@ -137,7 +140,10 @@ test.describe("Finance", () => {
 
 		// expense is the default type — no need to switch
 		await sheet.getByLabel("Amount (CAD)").fill("250");
-		await sheet.getByLabel("Category").selectOption("Food & Dining");
+		// Category is now a combobox — dropdown is portalled to body
+		await sheet.getByLabel("Category").click();
+		await page.getByPlaceholder("Search categories…").fill("Food & Dining");
+		await page.getByRole("button", { name: /Food & Dining/ }).first().click();
 		await sheet.getByLabel("Description").fill("E2E Grocery Run");
 
 		await sheet.getByRole("button", { name: "Add Transaction" }).click();
@@ -200,7 +206,7 @@ test.describe("Finance", () => {
 		await expect(sheet.getByText("Edit Transaction")).toBeVisible();
 
 		// Update description and amount
-		await sheet.getByLabel("Description").fill("Updated Description");
+		await sheet.getByRole("textbox", { name: "Description" }).fill("Updated Description");
 		await sheet.getByLabel("Amount (CAD)").fill("250");
 
 		await sheet.getByRole("button", { name: "Save Changes" }).click();
