@@ -80,6 +80,19 @@ export async function remove(db: D1Database, id: string): Promise<void> {
 	await db.prepare("DELETE FROM transactions WHERE id = ?").bind(id).run();
 }
 
+/** Updates the category for all transactions with an exact description match. */
+export async function updateCategoryByDescription(
+	db: D1Database,
+	description: string,
+	category: string,
+): Promise<number> {
+	const result = await db
+		.prepare("UPDATE transactions SET category=? WHERE description=?")
+		.bind(category, description)
+		.run();
+	return result.meta.changes ?? 0;
+}
+
 /** Returns the set of (date|amount|description) signatures already in the DB. */
 async function getDuplicateSignatures(
 	db: D1Database,

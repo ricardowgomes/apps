@@ -43,6 +43,8 @@ export default defineConfig({
 				"src/finance/infrastructure/**",
 				"src/finance/application/use-transactions.ts",
 				"src/finance/application/transaction-server-fns.ts",
+				"src/finance/application/use-categories.ts",
+				"src/finance/application/category-server-fns.ts",
 				"**/*.config.{ts,js}",
 				"**/*.d.ts",
 				"demo/**",

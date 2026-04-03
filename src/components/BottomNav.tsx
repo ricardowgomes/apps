@@ -1,6 +1,14 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useStore } from "@tanstack/react-store";
-import { ArrowLeft, Home, Layers, Mail, Plus, TrendingUp } from "lucide-react";
+import {
+	ArrowLeft,
+	Home,
+	Layers,
+	Mail,
+	Plus,
+	Tag,
+	TrendingUp,
+} from "lucide-react";
 import {
 	financeUiStore,
 	openAddTransaction,
@@ -35,13 +43,30 @@ export default function BottomNav() {
 					<span className="text-[11px] font-medium">Home</span>
 				</Link>
 
-				{/* Finance overview — current page indicator */}
+				{/* Finance overview */}
 				<Link
 					to="/finance"
-					className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all text-cyan-400 bg-cyan-500/[0.1]"
+					className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all ${
+						pathname === "/finance"
+							? "text-cyan-400 bg-cyan-500/[0.1]"
+							: "text-white/40 hover:text-white hover:bg-white/[0.05]"
+					}`}
 				>
 					<TrendingUp size={20} />
 					<span className="text-[11px] font-medium">Finance</span>
+				</Link>
+
+				{/* Categories */}
+				<Link
+					to="/finance/categories"
+					className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all ${
+						pathname === "/finance/categories"
+							? "text-cyan-400 bg-cyan-500/[0.1]"
+							: "text-white/40 hover:text-white hover:bg-white/[0.05]"
+					}`}
+				>
+					<Tag size={20} />
+					<span className="text-[11px] font-medium">Categories</span>
 				</Link>
 
 				{/* Add transaction */}

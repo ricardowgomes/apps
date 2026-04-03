@@ -1,8 +1,11 @@
 import { Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAddCategory, useCategories } from "../application/use-categories";
 import { useImportTransactions } from "../application/use-transactions";
+import { suggestCategory } from "../domain/category";
 import { type ParsedRow, parseWealthsimpleCSV } from "../domain/csv-import";
 import type { Transaction } from "../domain/transaction";
+import { CategoryCombobox } from "./CategoryCombobox";
 
 interface Props {
 	open: boolean;
@@ -47,6 +50,8 @@ export function ImportTransactionsSheet({ open, onClose }: Props) {
 	} | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const importMutation = useImportTransactions();
+	const { data: categories } = useCategories();
+	const addCategory = useAddCategory();
 
 	// Reset when sheet opens/closes
 	useEffect(() => {
@@ -69,33 +74,42 @@ export function ImportTransactionsSheet({ open, onClose }: Props) {
 		return () => window.removeEventListener("keydown", onKey);
 	}, [open, onClose]);
 
-	const handleFile = useCallback((file: File) => {
-		if (!file.name.endsWith(".csv")) {
-			setError("Please upload a .csv file.");
-			return;
-		}
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			const text = e.target?.result as string;
-			const result = parseWealthsimpleCSV(text);
-			if (!result) {
-				setError(
-					"Could not detect a supported Wealthsimple CSV format. Make sure you're uploading a Wealthsimple account or credit card statement.",
-				);
+	const handleFile = useCallback(
+		(file: File) => {
+			if (!file.name.endsWith(".csv")) {
+				setError("Please upload a .csv file.");
 				return;
 			}
-			const label =
-				result.format === "wealthsimple-credit"
-					? "Wealthsimple Credit Card"
-					: "Wealthsimple Account (Chequing / Savings / Debit)";
-			setFormatLabel(label);
-			setSkippedRows(result.skippedRows);
-			setRows(result.rows.map((r) => ({ ...r, category: "Uncategorized" })));
-			setError(null);
-			setStep("preview");
-		};
-		reader.readAsText(file);
-	}, []);
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				const text = e.target?.result as string;
+				const result = parseWealthsimpleCSV(text);
+				if (!result) {
+					setError(
+						"Could not detect a supported Wealthsimple CSV format. Make sure you're uploading a Wealthsimple account or credit card statement.",
+					);
+					return;
+				}
+				const label =
+					result.format === "wealthsimple-credit"
+						? "Wealthsimple Credit Card"
+						: "Wealthsimple Account (Chequing / Savings / Debit)";
+				setFormatLabel(label);
+				setSkippedRows(result.skippedRows);
+				// Auto-suggest a category for each row based on keywords
+				setRows(
+					result.rows.map((r) => ({
+						...r,
+						category: suggestCategory(r.description, categories),
+					})),
+				);
+				setError(null);
+				setStep("preview");
+			};
+			reader.readAsText(file);
+		},
+		[categories],
+	);
 
 	const onDrop = useCallback(
 		(e: React.DragEvent<HTMLElement>) => {
@@ -113,6 +127,12 @@ export function ImportTransactionsSheet({ open, onClose }: Props) {
 		},
 		[handleFile],
 	);
+
+	function updateRowCategory(rowIndex: number, category: string) {
+		setRows((prev) =>
+			prev.map((r) => (r.rowIndex === rowIndex ? { ...r, category } : r)),
+		);
+	}
 
 	const handleImport = async () => {
 		const transactions = makeTransactions(rows);
@@ -178,9 +198,12 @@ export function ImportTransactionsSheet({ open, onClose }: Props) {
 					{step === "preview" && (
 						<PreviewStep
 							rows={rows}
+							categories={categories}
+							addCategory={addCategory}
 							formatLabel={formatLabel}
 							skippedRows={skippedRows}
 							isImporting={importMutation.isPending}
+							onCategoryChange={updateRowCategory}
 							onBack={() => setStep("upload")}
 							onImport={handleImport}
 						/>
@@ -296,16 +319,24 @@ function UploadStep({
 
 function PreviewStep({
 	rows,
+	categories,
+	addCategory,
 	formatLabel,
 	skippedRows,
 	isImporting,
+	onCategoryChange,
 	onBack,
 	onImport,
 }: {
 	rows: PreviewRow[];
+	categories: import("../domain/category").Category[];
+	addCategory: (
+		data: import("../domain/category").CategoryInput,
+	) => Promise<unknown>;
 	formatLabel: string;
 	skippedRows: number;
 	isImporting: boolean;
+	onCategoryChange: (rowIndex: number, category: string) => void;
 	onBack: () => void;
 	onImport: () => void;
 }) {
@@ -333,63 +364,48 @@ function PreviewStep({
 				</button>
 			</div>
 
-			<p className="text-xs text-amber-400/80 bg-amber-500/10 rounded-xl px-4 py-3">
-				Categories will be set to <strong>Uncategorized</strong>. You can
-				re-categorise after importing.
+			<p className="text-xs text-cyan-400/80 bg-cyan-500/10 rounded-xl px-4 py-3">
+				Categories have been auto-suggested based on keywords. You can change
+				any row before importing.
 			</p>
 
-			{/* Preview table */}
-			<div className="rounded-xl border border-white/[0.06] overflow-hidden">
-				<div className="overflow-x-auto max-h-64">
-					<table className="w-full text-xs">
-						<thead>
-							<tr className="border-b border-white/[0.06] bg-white/[0.02]">
-								<th className="text-left px-3 py-2.5 text-gray-500 font-medium">
-									Date
-								</th>
-								<th className="text-left px-3 py-2.5 text-gray-500 font-medium">
-									Description
-								</th>
-								<th className="text-right px-3 py-2.5 text-gray-500 font-medium">
-									Amount
-								</th>
-								<th className="text-left px-3 py-2.5 text-gray-500 font-medium">
-									Type
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							{rows.map((row) => (
-								<tr
-									key={`${row.date}-${row.amount}-${row.rowIndex}`}
-									className="border-b border-white/[0.04] last:border-0"
-								>
-									<td className="px-3 py-2 text-gray-400 whitespace-nowrap">
-										{row.date}
-									</td>
-									<td className="px-3 py-2 text-white max-w-[180px] truncate">
-										{row.description}
-									</td>
-									<td className="px-3 py-2 text-right font-mono whitespace-nowrap">
-										<span
-											className={
-												row.type === "income"
-													? "text-emerald-400"
-													: "text-rose-400"
-											}
-										>
-											{row.type === "income" ? "+" : "-"}$
-											{formatAmount(row.amount)}
-										</span>
-									</td>
-									<td className="px-3 py-2 whitespace-nowrap capitalize text-gray-400">
-										{row.type}
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
+			{/* Preview rows — each has an editable category */}
+			<div className="space-y-2">
+				{rows.map((row) => (
+					<div
+						key={`${row.date}-${row.amount}-${row.rowIndex}`}
+						className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 space-y-2"
+					>
+						<div className="flex items-center justify-between gap-2">
+							<div className="min-w-0">
+								<p className="text-xs text-white truncate">{row.description}</p>
+								<p className="text-[10px] text-gray-500 mt-0.5">{row.date}</p>
+							</div>
+							<span
+								className={`text-xs font-mono font-semibold flex-shrink-0 ${
+									row.type === "income" ? "text-emerald-400" : "text-rose-400"
+								}`}
+							>
+								{row.type === "income" ? "+" : "-"}${formatAmount(row.amount)}
+							</span>
+						</div>
+						<CategoryCombobox
+							categories={categories}
+							value={row.category}
+							onChange={(v) => onCategoryChange(row.rowIndex, v)}
+							allowCreate
+							onCreateCategory={async (name) => {
+								await addCategory({
+									name,
+									icon: "",
+									color: "#6366f1",
+									keywords: [],
+								});
+							}}
+							placeholder="Assign a category…"
+						/>
+					</div>
+				))}
 			</div>
 
 			{/* Totals summary */}
