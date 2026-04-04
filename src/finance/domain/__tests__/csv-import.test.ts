@@ -190,6 +190,14 @@ describe("edge cases", () => {
 		expect(result.rows).toHaveLength(1);
 	});
 
+	it("defaults currency to CAD when the field is empty in credit format", () => {
+		const csv = `"transaction_date","post_date","type","details","amount","currency"
+"2026-03-01","2026-03-02","Purchase","Coffee","5.00",""`;
+		const result = parseWealthsimpleCSV(csv);
+		if (!result) throw new Error("Expected non-null result");
+		expect(result.rows[0].currency).toBe("CAD");
+	});
+
 	it("skips credit rows with a negative amount (card payoff)", () => {
 		const csv = `"transaction_date","post_date","type","details","amount","currency"
 "2026-03-01","2026-03-02","Purchase","Coffee","-5.00","CAD"`;
