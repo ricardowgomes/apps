@@ -5,6 +5,7 @@ import {
 	Home,
 	Layers,
 	Mail,
+	PieChart,
 	Plus,
 	Tag,
 	TrendingUp,
@@ -67,6 +68,19 @@ export default function BottomNav() {
 				>
 					<Tag size={20} />
 					<span className="text-[11px] font-medium">Categories</span>
+				</Link>
+
+				{/* Portfolio */}
+				<Link
+					to="/finance/portfolio"
+					className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all ${
+						pathname === "/finance/portfolio"
+							? "text-cyan-400 bg-cyan-500/[0.1]"
+							: "text-white/40 hover:text-white hover:bg-white/[0.05]"
+					}`}
+				>
+					<PieChart size={20} />
+					<span className="text-[11px] font-medium">Portfolio</span>
 				</Link>
 
 				{/* Add transaction */}
