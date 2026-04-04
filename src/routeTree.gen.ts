@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FinanceIndexRouteImport } from './routes/finance/index'
+import { Route as FinancePortfolioRouteImport } from './routes/finance/portfolio'
 import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
+import { Route as ApiTestPortfolioRouteImport } from './routes/api.test.portfolio'
 import { Route as ApiTestLoginRouteImport } from './routes/api.test.login'
 import { Route as ApiTestFinanceRouteImport } from './routes/api.test.finance'
 import { Route as ApiTestCategoriesRouteImport } from './routes/api.test.categories'
@@ -35,9 +37,19 @@ const FinanceIndexRoute = FinanceIndexRouteImport.update({
   path: '/finance/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FinancePortfolioRoute = FinancePortfolioRouteImport.update({
+  id: '/finance/portfolio',
+  path: '/finance/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
   id: '/finance/categories',
   path: '/finance/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTestPortfolioRoute = ApiTestPortfolioRouteImport.update({
+  id: '/api/test/portfolio',
+  path: '/api/test/portfolio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTestLoginRoute = ApiTestLoginRouteImport.update({
@@ -75,24 +87,28 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/finance/categories': typeof FinanceCategoriesRoute
+  '/finance/portfolio': typeof FinancePortfolioRoute
   '/finance/': typeof FinanceIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
+  '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/finance/categories': typeof FinanceCategoriesRoute
+  '/finance/portfolio': typeof FinancePortfolioRoute
   '/finance': typeof FinanceIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
+  '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRoutesById {
@@ -100,12 +116,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/finance/categories': typeof FinanceCategoriesRoute
+  '/finance/portfolio': typeof FinancePortfolioRoute
   '/finance/': typeof FinanceIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
+  '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRouteTypes {
@@ -114,36 +132,42 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/finance/categories'
+    | '/finance/portfolio'
     | '/finance/'
     | '/api/auth/google'
     | '/api/auth/logout'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
+    | '/api/test/portfolio'
     | '/api/auth/callback/google'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/finance/categories'
+    | '/finance/portfolio'
     | '/finance'
     | '/api/auth/google'
     | '/api/auth/logout'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
+    | '/api/test/portfolio'
     | '/api/auth/callback/google'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/finance/categories'
+    | '/finance/portfolio'
     | '/finance/'
     | '/api/auth/google'
     | '/api/auth/logout'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
+    | '/api/test/portfolio'
     | '/api/auth/callback/google'
   fileRoutesById: FileRoutesById
 }
@@ -151,12 +175,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   FinanceCategoriesRoute: typeof FinanceCategoriesRoute
+  FinancePortfolioRoute: typeof FinancePortfolioRoute
   FinanceIndexRoute: typeof FinanceIndexRoute
   ApiAuthGoogleRoute: typeof ApiAuthGoogleRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiTestCategoriesRoute: typeof ApiTestCategoriesRoute
   ApiTestFinanceRoute: typeof ApiTestFinanceRoute
   ApiTestLoginRoute: typeof ApiTestLoginRoute
+  ApiTestPortfolioRoute: typeof ApiTestPortfolioRoute
   ApiAuthCallbackGoogleRoute: typeof ApiAuthCallbackGoogleRoute
 }
 
@@ -183,11 +209,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/finance/portfolio': {
+      id: '/finance/portfolio'
+      path: '/finance/portfolio'
+      fullPath: '/finance/portfolio'
+      preLoaderRoute: typeof FinancePortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/finance/categories': {
       id: '/finance/categories'
       path: '/finance/categories'
       fullPath: '/finance/categories'
       preLoaderRoute: typeof FinanceCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/test/portfolio': {
+      id: '/api/test/portfolio'
+      path: '/api/test/portfolio'
+      fullPath: '/api/test/portfolio'
+      preLoaderRoute: typeof ApiTestPortfolioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/test/login': {
@@ -239,12 +279,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   FinanceCategoriesRoute: FinanceCategoriesRoute,
+  FinancePortfolioRoute: FinancePortfolioRoute,
   FinanceIndexRoute: FinanceIndexRoute,
   ApiAuthGoogleRoute: ApiAuthGoogleRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiTestCategoriesRoute: ApiTestCategoriesRoute,
   ApiTestFinanceRoute: ApiTestFinanceRoute,
   ApiTestLoginRoute: ApiTestLoginRoute,
+  ApiTestPortfolioRoute: ApiTestPortfolioRoute,
   ApiAuthCallbackGoogleRoute: ApiAuthCallbackGoogleRoute,
 }
 export const routeTree = rootRouteImport
