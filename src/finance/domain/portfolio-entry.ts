@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export type PortfolioEntryType = "investment" | "debt";
-
 export const portfolioEntrySchema = z.object({
 	type: z.enum(["investment", "debt"]),
 	name: z.string().min(1, "Name is required"),
@@ -24,7 +22,7 @@ export interface PortfolioEntry extends PortfolioEntryInput {
 // --- Projection helpers ---
 
 /** Number of months to project forward in the projection chart. */
-export const PROJECTION_MONTHS = 60;
+const PROJECTION_MONTHS = 60;
 
 /**
  * Projects a single investment entry forward month-by-month.

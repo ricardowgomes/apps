@@ -41,10 +41,10 @@ export default defineConfig({
 				"src/auth/application/**",
 				"src/finance/ui/**",
 				"src/finance/infrastructure/**",
-				"src/finance/application/use-transactions.ts",
+				// Server functions: D1-backed infrastructure, covered by E2E tests
 				"src/finance/application/transaction-server-fns.ts",
-				"src/finance/application/use-categories.ts",
 				"src/finance/application/category-server-fns.ts",
+				"src/finance/application/portfolio-server-fns.ts",
 				"**/*.config.{ts,js}",
 				"**/*.d.ts",
 				"demo/**",

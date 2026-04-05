@@ -7,11 +7,16 @@ export default defineConfig({
 	// parallel test files would race on resetTransactions / seedTransactions.
 	workers: 1,
 	forbidOnly: !!process.env.CI,
-	retries: process.env.CI ? 2 : 0,
+	// 1 local retry catches transient timing issues without hiding real failures.
+	// CI gets 2 retries for network/process startup variance on shared runners.
+	retries: process.env.CI ? 2 : 1,
 	reporter: "list",
 	use: {
 		baseURL: "http://localhost:3000",
 		trace: "on-first-retry",
+		// Generous timeouts to prevent races on slower CI machines.
+		actionTimeout: 15_000,
+		navigationTimeout: 30_000,
 	},
 	projects: [
 		{

@@ -86,8 +86,8 @@ test.describe("Categories page", () => {
 
 	test("edits an existing category", async ({ page }) => {
 		await page.goto("/finance/categories");
-		// Wait for categories to be fully rendered before interacting
-		const editBtn = page.getByRole("button", { name: "Edit Groceries" });
+		await page.waitForLoadState("networkidle");
+		const editBtn = page.getByTestId("edit-category-cat_test_groceries");
 		await expect(editBtn).toBeVisible();
 		await editBtn.click();
 		// Wait for the inline edit form to appear
@@ -103,11 +103,10 @@ test.describe("Categories page", () => {
 
 	test("deletes a category after confirmation", async ({ page }) => {
 		await page.goto("/finance/categories");
-		// Wait for categories to be fully rendered; avoid networkidle (Vite HMR keeps sockets open)
-		await expect(
-			page.getByRole("button", { name: "Delete Salary" }),
-		).toBeVisible();
-		await page.getByRole("button", { name: "Delete Salary" }).click();
+		await page.waitForLoadState("networkidle");
+		const deleteBtn = page.getByTestId("delete-category-cat_test_salary");
+		await expect(deleteBtn).toBeVisible();
+		await deleteBtn.click();
 		await page.getByRole("button", { name: "Confirm" }).click();
 		// After deletion, "Salary" text should no longer appear as a category name
 		await expect(
