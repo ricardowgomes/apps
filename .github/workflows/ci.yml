@@ -24,9 +24,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Paraglide runtime
-        run: pnpm exec paraglide-js compile --project ./project.inlang --outdir ./src/paraglide
-
       - name: Biome check (lint + format)
         run: pnpm check
 
@@ -62,9 +59,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Generate Paraglide runtime
-        run: pnpm exec paraglide-js compile --project ./project.inlang --outdir ./src/paraglide
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -134,9 +128,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Generate Paraglide runtime
-        run: pnpm exec paraglide-js compile --project ./project.inlang --outdir ./src/paraglide
 
       - name: Deploy to Cloudflare Workers
         run: npm run deploy

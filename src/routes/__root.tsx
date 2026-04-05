@@ -6,7 +6,6 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { getLocale } from "#/paraglide/runtime";
 import type { SessionUser } from "@/auth/domain/session";
 import BottomNav from "../components/BottomNav";
 import PortfolioHeader from "../components/PortfolioHeader";
@@ -21,11 +20,6 @@ interface MyRouterContext {
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
 	beforeLoad: async () => {
-		// Other redirect strategies are possible; see
-		// https://github.com/TanStack/router/tree/main/examples/react/i18n-paraglide#offline-redirect
-		if (typeof document !== "undefined") {
-			document.documentElement.setAttribute("lang", getLocale());
-		}
 		// Dynamic import prevents session-server-fns.ts from being evaluated at
 		// module initialisation time. __root.tsx is eagerly loaded by routeTree.gen.ts,
 		// and createServerFn() fails in the Cloudflare Workers module runner when called
@@ -64,7 +58,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootDocument({ children }: { children: React.ReactNode }) {
 	const { user } = Route.useRouteContext();
 	return (
-		<html lang={getLocale()} className="dark">
+		<html lang="en" className="dark">
 			<head>
 				<HeadContent />
 			</head>
