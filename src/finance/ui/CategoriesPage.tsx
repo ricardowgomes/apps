@@ -370,6 +370,7 @@ export function CategoriesPage() {
 												}}
 												className="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
 												aria-label={`Edit ${cat.name}`}
+												data-testid={`edit-category-${cat.id}`}
 											>
 												<Pencil size={14} />
 											</button>
@@ -378,6 +379,7 @@ export function CategoriesPage() {
 												onClick={() => setConfirmDeleteId(cat.id)}
 												className="p-2 rounded-lg text-gray-500 hover:text-rose-400 hover:bg-rose-500/[0.08] transition-colors"
 												aria-label={`Delete ${cat.name}`}
+												data-testid={`delete-category-${cat.id}`}
 											>
 												<Trash2 size={14} />
 											</button>
