@@ -96,6 +96,7 @@ export function NewStoryPage() {
 						<form onSubmit={handleSubmit} className="flex flex-col gap-3">
 							<div className="relative">
 								<textarea
+									data-testid="story-prompt"
 									value={prompt}
 									onChange={(e) => setPrompt(e.target.value)}
 									placeholder="A brave little fox who goes on an adventure to find the golden acorn…"
@@ -128,6 +129,7 @@ export function NewStoryPage() {
 									<button
 										type="button"
 										key={p}
+										data-testid="example-prompt"
 										onClick={() => applyExample(p)}
 										className="flex items-start gap-3 px-4 py-3 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.12] text-left transition-all active:scale-[0.98]"
 									>

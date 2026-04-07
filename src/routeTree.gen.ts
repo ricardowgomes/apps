@@ -17,6 +17,7 @@ import { Route as StoriesNewRouteImport } from './routes/stories/new'
 import { Route as StoriesStoryIdRouteImport } from './routes/stories/$storyId'
 import { Route as FinancePortfolioRouteImport } from './routes/finance/portfolio'
 import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
+import { Route as ApiTestStoriesRouteImport } from './routes/api.test.stories'
 import { Route as ApiTestPortfolioRouteImport } from './routes/api.test.portfolio'
 import { Route as ApiTestLoginRouteImport } from './routes/api.test.login'
 import { Route as ApiTestFinanceRouteImport } from './routes/api.test.finance'
@@ -63,6 +64,11 @@ const FinancePortfolioRoute = FinancePortfolioRouteImport.update({
 const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
   id: '/finance/categories',
   path: '/finance/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTestStoriesRoute = ApiTestStoriesRouteImport.update({
+  id: '/api/test/stories',
+  path: '/api/test/stories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTestPortfolioRoute = ApiTestPortfolioRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
+  '/api/test/stories': typeof ApiTestStoriesRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
+  '/api/test/stories': typeof ApiTestStoriesRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRoutesById {
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
+  '/api/test/stories': typeof ApiTestStoriesRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/test/portfolio'
+    | '/api/test/stories'
     | '/api/auth/callback/google'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/test/portfolio'
+    | '/api/test/stories'
     | '/api/auth/callback/google'
   id:
     | '__root__'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/test/portfolio'
+    | '/api/test/stories'
     | '/api/auth/callback/google'
   fileRoutesById: FileRoutesById
 }
@@ -222,6 +234,7 @@ export interface RootRouteChildren {
   ApiTestFinanceRoute: typeof ApiTestFinanceRoute
   ApiTestLoginRoute: typeof ApiTestLoginRoute
   ApiTestPortfolioRoute: typeof ApiTestPortfolioRoute
+  ApiTestStoriesRoute: typeof ApiTestStoriesRoute
   ApiAuthCallbackGoogleRoute: typeof ApiAuthCallbackGoogleRoute
 }
 
@@ -281,6 +294,13 @@ declare module '@tanstack/react-router' {
       path: '/finance/categories'
       fullPath: '/finance/categories'
       preLoaderRoute: typeof FinanceCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/test/stories': {
+      id: '/api/test/stories'
+      path: '/api/test/stories'
+      fullPath: '/api/test/stories'
+      preLoaderRoute: typeof ApiTestStoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/test/portfolio': {
@@ -350,6 +370,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTestFinanceRoute: ApiTestFinanceRoute,
   ApiTestLoginRoute: ApiTestLoginRoute,
   ApiTestPortfolioRoute: ApiTestPortfolioRoute,
+  ApiTestStoriesRoute: ApiTestStoriesRoute,
   ApiAuthCallbackGoogleRoute: ApiAuthCallbackGoogleRoute,
 }
 export const routeTree = rootRouteImport

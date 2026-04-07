@@ -23,6 +23,11 @@ export default function BottomNav() {
 	const isHome = pathname === "/";
 	const isFinance = pathname.startsWith("/finance");
 	const isStories = pathname.startsWith("/stories");
+	// Story viewer is full-screen with its own navigation — hide the BottomNav
+	const isStoryViewer =
+		pathname.startsWith("/stories/") &&
+		pathname !== "/stories/" &&
+		pathname !== "/stories/new";
 
 	// Subscribe so the "+" button reflects open state (just for visual feedback)
 	const addOpen = useStore(financeUiStore, (s) => s.addTransactionOpen);
@@ -34,6 +39,8 @@ export default function BottomNav() {
 		}
 		document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
 	}
+
+	if (isStoryViewer) return null;
 
 	if (isFinance) {
 		return (

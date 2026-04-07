@@ -74,6 +74,8 @@ export function StoryViewerPage({ storyId }: Props) {
 
 				<button
 					type="button"
+					aria-label="Delete story"
+					data-testid="delete-story-btn"
 					onClick={() => setShowDeleteConfirm(true)}
 					className="flex items-center justify-center w-10 h-10 rounded-xl border border-white/[0.08] bg-white/[0.03] hover:bg-rose-500/10 hover:border-rose-500/30 text-white/30 hover:text-rose-400 transition-all active:scale-95"
 				>
@@ -131,6 +133,7 @@ export function StoryViewerPage({ storyId }: Props) {
 			<div className="relative z-10 flex items-center justify-between px-6 py-6 pb-safe">
 				<button
 					type="button"
+					data-testid="nav-prev"
 					onClick={prev}
 					disabled={isFirst}
 					className="flex items-center gap-2 px-5 py-3 rounded-xl border border-white/[0.10] bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95"
@@ -158,6 +161,7 @@ export function StoryViewerPage({ storyId }: Props) {
 				{isLast ? (
 					<Link
 						to="/stories/"
+						data-testid="nav-done"
 						className="flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-all active:scale-95"
 					>
 						Done
@@ -165,6 +169,7 @@ export function StoryViewerPage({ storyId }: Props) {
 				) : (
 					<button
 						type="button"
+						data-testid="nav-next"
 						onClick={next}
 						className="flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-all active:scale-95"
 					>
