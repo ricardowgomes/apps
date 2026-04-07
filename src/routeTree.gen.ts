@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StoriesIndexRouteImport } from './routes/stories/index'
 import { Route as FinanceIndexRouteImport } from './routes/finance/index'
+import { Route as StoriesNewRouteImport } from './routes/stories/new'
+import { Route as StoriesStoryIdRouteImport } from './routes/stories/$storyId'
 import { Route as FinancePortfolioRouteImport } from './routes/finance/portfolio'
 import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
 import { Route as ApiTestPortfolioRouteImport } from './routes/api.test.portfolio'
@@ -32,9 +35,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoriesIndexRoute = StoriesIndexRouteImport.update({
+  id: '/stories/',
+  path: '/stories/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FinanceIndexRoute = FinanceIndexRouteImport.update({
   id: '/finance/',
   path: '/finance/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoriesNewRoute = StoriesNewRouteImport.update({
+  id: '/stories/new',
+  path: '/stories/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoriesStoryIdRoute = StoriesStoryIdRouteImport.update({
+  id: '/stories/$storyId',
+  path: '/stories/$storyId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinancePortfolioRoute = FinancePortfolioRouteImport.update({
@@ -88,7 +106,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/portfolio': typeof FinancePortfolioRoute
+  '/stories/$storyId': typeof StoriesStoryIdRoute
+  '/stories/new': typeof StoriesNewRoute
   '/finance/': typeof FinanceIndexRoute
+  '/stories/': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
@@ -102,7 +123,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/portfolio': typeof FinancePortfolioRoute
+  '/stories/$storyId': typeof StoriesStoryIdRoute
+  '/stories/new': typeof StoriesNewRoute
   '/finance': typeof FinanceIndexRoute
+  '/stories': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
@@ -117,7 +141,10 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/portfolio': typeof FinancePortfolioRoute
+  '/stories/$storyId': typeof StoriesStoryIdRoute
+  '/stories/new': typeof StoriesNewRoute
   '/finance/': typeof FinanceIndexRoute
+  '/stories/': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
@@ -133,7 +160,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/finance/categories'
     | '/finance/portfolio'
+    | '/stories/$storyId'
+    | '/stories/new'
     | '/finance/'
+    | '/stories/'
     | '/api/auth/google'
     | '/api/auth/logout'
     | '/api/test/categories'
@@ -147,7 +177,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/finance/categories'
     | '/finance/portfolio'
+    | '/stories/$storyId'
+    | '/stories/new'
     | '/finance'
+    | '/stories'
     | '/api/auth/google'
     | '/api/auth/logout'
     | '/api/test/categories'
@@ -161,7 +194,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/finance/categories'
     | '/finance/portfolio'
+    | '/stories/$storyId'
+    | '/stories/new'
     | '/finance/'
+    | '/stories/'
     | '/api/auth/google'
     | '/api/auth/logout'
     | '/api/test/categories'
@@ -176,7 +212,10 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   FinanceCategoriesRoute: typeof FinanceCategoriesRoute
   FinancePortfolioRoute: typeof FinancePortfolioRoute
+  StoriesStoryIdRoute: typeof StoriesStoryIdRoute
+  StoriesNewRoute: typeof StoriesNewRoute
   FinanceIndexRoute: typeof FinanceIndexRoute
+  StoriesIndexRoute: typeof StoriesIndexRoute
   ApiAuthGoogleRoute: typeof ApiAuthGoogleRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiTestCategoriesRoute: typeof ApiTestCategoriesRoute
@@ -202,11 +241,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stories/': {
+      id: '/stories/'
+      path: '/stories'
+      fullPath: '/stories/'
+      preLoaderRoute: typeof StoriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/finance/': {
       id: '/finance/'
       path: '/finance'
       fullPath: '/finance/'
       preLoaderRoute: typeof FinanceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stories/new': {
+      id: '/stories/new'
+      path: '/stories/new'
+      fullPath: '/stories/new'
+      preLoaderRoute: typeof StoriesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stories/$storyId': {
+      id: '/stories/$storyId'
+      path: '/stories/$storyId'
+      fullPath: '/stories/$storyId'
+      preLoaderRoute: typeof StoriesStoryIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/finance/portfolio': {
@@ -280,7 +340,10 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   FinanceCategoriesRoute: FinanceCategoriesRoute,
   FinancePortfolioRoute: FinancePortfolioRoute,
+  StoriesStoryIdRoute: StoriesStoryIdRoute,
+  StoriesNewRoute: StoriesNewRoute,
   FinanceIndexRoute: FinanceIndexRoute,
+  StoriesIndexRoute: StoriesIndexRoute,
   ApiAuthGoogleRoute: ApiAuthGoogleRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiTestCategoriesRoute: ApiTestCategoriesRoute,
