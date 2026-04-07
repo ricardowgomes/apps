@@ -45,6 +45,10 @@ export default defineConfig({
 				"src/finance/application/transaction-server-fns.ts",
 				"src/finance/application/category-server-fns.ts",
 				"src/finance/application/portfolio-server-fns.ts",
+				"src/stories/ui/**",
+				"src/stories/infrastructure/**",
+				// Server functions: D1-backed + external AI call, covered by E2E tests
+				"src/stories/application/story-server-fns.ts",
 				"**/*.config.{ts,js}",
 				"**/*.d.ts",
 				"demo/**",

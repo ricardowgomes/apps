@@ -3,6 +3,7 @@
 interface Env {
 	GOOGLE_CLIENT_ID: string;
 	GOOGLE_CLIENT_SECRET: string;
+	ANTHROPIC_API_KEY?: string;
 	// Local-only flag — set in .dev.vars to enable the test-only /api/test/login endpoint.
 	// Never set in production; the endpoint returns 404 when this is absent.
 	CYPRESS?: string;
