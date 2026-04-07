@@ -45,22 +45,7 @@ If any domain is missing E2E tests:
 
 ---
 
-## Gate 3 — All E2E Tests Pass
-
-Run:
-```bash
-npm run pw:run
-```
-
-Playwright's `webServer` config will start the dev server automatically if it is not already running.
-
-If any test fails:
-- Print the failing test names and error summaries.
-- **Abort.** Do not proceed.
-
----
-
-## Gate 4 — Lint, Types, and Dead Code Pass
+## Gate 3 — Lint, Types, and Dead Code Pass
 
 Run the following in sequence and collect all failures before aborting:
 ```bash
@@ -97,5 +82,7 @@ Report: "Shipped. $BRANCH merged into main."
 |---|------|-----------|
 | 1 | Unit/integration coverage | All metrics ≥ 95% |
 | 2 | E2E tests exist per domain | At least one spec per touched domain |
-| 3 | E2E tests pass | Zero failures |
-| 4 | Lint + types + dead code | All checks pass |
+| 3 | Lint + types + dead code | All checks pass |
+
+> **Note:** E2E execution (`pw:run`) is intentionally omitted from `/ship` to keep the cycle fast.
+> It remains a required gate before deploying to production.
