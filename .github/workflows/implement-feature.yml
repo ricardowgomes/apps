@@ -1,0 +1,105 @@
+name: Implement Feature (Remote Control)
+
+on:
+  workflow_dispatch:
+    inputs:
+      conversation_id:
+        description: "WhatsApp conversation ID"
+        required: true
+        type: string
+      feature_spec:
+        description: "Full feature spec (request + plan)"
+        required: true
+        type: string
+      branch_slug:
+        description: "Branch name suffix (e.g. dark-mode-toggle)"
+        required: true
+        type: string
+
+jobs:
+  implement:
+    name: Implement with Claude Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure git
+        run: |
+          git config user.email "claude-code[bot]@users.noreply.github.com"
+          git config user.name "Claude Code"
+
+      - name: Create feature branch
+        run: |
+          git checkout -b feat/${{ github.event.inputs.branch_slug }}
+          git push -u origin feat/${{ github.event.inputs.branch_slug }}
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Implement feature
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          claude --print "${{ github.event.inputs.feature_spec }}" \
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep,TodoWrite" \
+            --max-turns 50
+
+      - name: Open pull request
+        id: open_pr
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          PR_URL=$(gh pr create \
+            --title "feat: ${{ github.event.inputs.branch_slug }}" \
+            --body "$(cat <<'EOF'
+          ## Summary
+
+          Implemented via WhatsApp Remote Control.
+
+          conversation_id: ${{ github.event.inputs.conversation_id }}
+
+          ---
+          🤖 Generated with [Claude Code](https://claude.ai/claude-code)
+          EOF
+          )" \
+            --base main \
+            --head feat/${{ github.event.inputs.branch_slug }} 2>/dev/null || echo "already_exists")
+
+          if [ "$PR_URL" = "already_exists" ]; then
+            PR_URL=$(gh pr view feat/${{ github.event.inputs.branch_slug }} --json url -q .url)
+          fi
+
+          PR_NUMBER=$(gh pr view "$PR_URL" --json number -q .number)
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Notify Worker — PR created
+        env:
+          GITHUB_NOTIFY_SECRET: ${{ secrets.GITHUB_NOTIFY_SECRET }}
+        run: |
+          curl -s -X POST https://app.ricardowgomes.workers.dev/api/github/webhook \
+            -H "Authorization: Bearer $GITHUB_NOTIFY_SECRET" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "event": "pr_created",
+              "conversation_id": "${{ github.event.inputs.conversation_id }}",
+              "pr_url": "${{ steps.open_pr.outputs.pr_url }}",
+              "pr_number": ${{ steps.open_pr.outputs.pr_number }}
+            }'

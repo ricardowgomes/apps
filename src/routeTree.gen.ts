@@ -17,11 +17,13 @@ import { Route as StoriesNewRouteImport } from './routes/stories/new'
 import { Route as StoriesStoryIdRouteImport } from './routes/stories/$storyId'
 import { Route as FinancePortfolioRouteImport } from './routes/finance/portfolio'
 import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
+import { Route as ApiWhatsappWebhookRouteImport } from './routes/api.whatsapp.webhook'
 import { Route as ApiTestStoriesRouteImport } from './routes/api.test.stories'
 import { Route as ApiTestPortfolioRouteImport } from './routes/api.test.portfolio'
 import { Route as ApiTestLoginRouteImport } from './routes/api.test.login'
 import { Route as ApiTestFinanceRouteImport } from './routes/api.test.finance'
 import { Route as ApiTestCategoriesRouteImport } from './routes/api.test.categories'
+import { Route as ApiGithubWebhookRouteImport } from './routes/api.github.webhook'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api.auth.logout'
 import { Route as ApiAuthGoogleRouteImport } from './routes/api.auth.google'
 import { Route as ApiAuthCallbackGoogleRouteImport } from './routes/api.auth.callback.google'
@@ -66,6 +68,11 @@ const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
   path: '/finance/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWhatsappWebhookRoute = ApiWhatsappWebhookRouteImport.update({
+  id: '/api/whatsapp/webhook',
+  path: '/api/whatsapp/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTestStoriesRoute = ApiTestStoriesRouteImport.update({
   id: '/api/test/stories',
   path: '/api/test/stories',
@@ -89,6 +96,11 @@ const ApiTestFinanceRoute = ApiTestFinanceRouteImport.update({
 const ApiTestCategoriesRoute = ApiTestCategoriesRouteImport.update({
   id: '/api/test/categories',
   path: '/api/test/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
+  id: '/api/github/webhook',
+  path: '/api/github/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
@@ -118,11 +130,13 @@ export interface FileRoutesByFullPath {
   '/stories/': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/test/stories': typeof ApiTestStoriesRoute
+  '/api/whatsapp/webhook': typeof ApiWhatsappWebhookRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRoutesByTo {
@@ -136,11 +150,13 @@ export interface FileRoutesByTo {
   '/stories': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/test/stories': typeof ApiTestStoriesRoute
+  '/api/whatsapp/webhook': typeof ApiWhatsappWebhookRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRoutesById {
@@ -155,11 +171,13 @@ export interface FileRoutesById {
   '/stories/': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/test/stories': typeof ApiTestStoriesRoute
+  '/api/whatsapp/webhook': typeof ApiWhatsappWebhookRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
 }
 export interface FileRouteTypes {
@@ -175,11 +193,13 @@ export interface FileRouteTypes {
     | '/stories/'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/github/webhook'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/test/portfolio'
     | '/api/test/stories'
+    | '/api/whatsapp/webhook'
     | '/api/auth/callback/google'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -193,11 +213,13 @@ export interface FileRouteTypes {
     | '/stories'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/github/webhook'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/test/portfolio'
     | '/api/test/stories'
+    | '/api/whatsapp/webhook'
     | '/api/auth/callback/google'
   id:
     | '__root__'
@@ -211,11 +233,13 @@ export interface FileRouteTypes {
     | '/stories/'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/github/webhook'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
     | '/api/test/portfolio'
     | '/api/test/stories'
+    | '/api/whatsapp/webhook'
     | '/api/auth/callback/google'
   fileRoutesById: FileRoutesById
 }
@@ -230,11 +254,13 @@ export interface RootRouteChildren {
   StoriesIndexRoute: typeof StoriesIndexRoute
   ApiAuthGoogleRoute: typeof ApiAuthGoogleRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiTestCategoriesRoute: typeof ApiTestCategoriesRoute
   ApiTestFinanceRoute: typeof ApiTestFinanceRoute
   ApiTestLoginRoute: typeof ApiTestLoginRoute
   ApiTestPortfolioRoute: typeof ApiTestPortfolioRoute
   ApiTestStoriesRoute: typeof ApiTestStoriesRoute
+  ApiWhatsappWebhookRoute: typeof ApiWhatsappWebhookRoute
   ApiAuthCallbackGoogleRoute: typeof ApiAuthCallbackGoogleRoute
 }
 
@@ -296,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceCategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/whatsapp/webhook': {
+      id: '/api/whatsapp/webhook'
+      path: '/api/whatsapp/webhook'
+      fullPath: '/api/whatsapp/webhook'
+      preLoaderRoute: typeof ApiWhatsappWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/test/stories': {
       id: '/api/test/stories'
       path: '/api/test/stories'
@@ -329,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/api/test/categories'
       fullPath: '/api/test/categories'
       preLoaderRoute: typeof ApiTestCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github/webhook': {
+      id: '/api/github/webhook'
+      path: '/api/github/webhook'
+      fullPath: '/api/github/webhook'
+      preLoaderRoute: typeof ApiGithubWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/logout': {
@@ -366,11 +406,13 @@ const rootRouteChildren: RootRouteChildren = {
   StoriesIndexRoute: StoriesIndexRoute,
   ApiAuthGoogleRoute: ApiAuthGoogleRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiTestCategoriesRoute: ApiTestCategoriesRoute,
   ApiTestFinanceRoute: ApiTestFinanceRoute,
   ApiTestLoginRoute: ApiTestLoginRoute,
   ApiTestPortfolioRoute: ApiTestPortfolioRoute,
   ApiTestStoriesRoute: ApiTestStoriesRoute,
+  ApiWhatsappWebhookRoute: ApiWhatsappWebhookRoute,
   ApiAuthCallbackGoogleRoute: ApiAuthCallbackGoogleRoute,
 }
 export const routeTree = rootRouteImport
