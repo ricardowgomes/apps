@@ -7,4 +7,7 @@ interface Env {
 	// Local-only flag — set in .dev.vars to enable the test-only /api/test/login endpoint.
 	// Never set in production; the endpoint returns 404 when this is absent.
 	CYPRESS?: string;
+	// Local-only flag — set in .dev.vars to skip OAuth and return a mock session.
+	// Never set in production.
+	DEV_AUTO_LOGIN?: string;
 }

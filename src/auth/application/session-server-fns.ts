@@ -10,6 +10,10 @@ import { getById } from "../infrastructure/d1-session-repository";
 
 export const getSessionFn = createServerFn({ method: "GET" }).handler(
 	async ({ context }): Promise<SessionUser | null> => {
+		if (context.cloudflare.env.DEV_AUTO_LOGIN) {
+			return { email: "dev@local", name: "Dev User", avatar: null };
+		}
+
 		const sessionId = getCookie(SESSION_COOKIE_NAME);
 		if (!sessionId) return null;
 
