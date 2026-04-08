@@ -16,19 +16,18 @@ import {
 	mergePr,
 	triggerImplementation,
 } from "../infrastructure/github-actions-client";
-import { sendMessage } from "../infrastructure/whatsapp-client";
+import { sendMessage } from "../infrastructure/telegram-client";
 import { extractBranchSlug, generatePlan, revisePlan } from "./ai-planner";
 
 interface Env {
 	DB: D1Database;
-	WHATSAPP_TOKEN: string;
-	WHATSAPP_PHONE_NUMBER_ID: string;
+	TELEGRAM_BOT_TOKEN: string;
 	GITHUB_TOKEN: string;
 	ANTHROPIC_API_KEY?: string;
 	GEMINI_API_KEY?: string;
 	GROK_API_KEY?: string;
 	OPENAI_API_KEY?: string;
-	ALLOWED_WHATSAPP_NUMBERS?: string;
+	ALLOWED_TELEGRAM_CHAT_IDS?: string;
 }
 
 function providerKeys(env: Env) {
@@ -40,8 +39,8 @@ function providerKeys(env: Env) {
 	};
 }
 
-async function reply(env: Env, to: string, text: string) {
-	await sendMessage(env.WHATSAPP_PHONE_NUMBER_ID, env.WHATSAPP_TOKEN, to, text);
+async function reply(env: Env, chatId: string, text: string) {
+	await sendMessage(env.TELEGRAM_BOT_TOKEN, chatId, text);
 }
 
 function formatPlanMessage(plan: string): string {
@@ -59,15 +58,15 @@ ${conv.prUrl}
 Reply *SHIP* to merge and deploy, or *CANCEL* to close the PR.`;
 }
 
-/** Main entry point — called from the WhatsApp webhook for every incoming message */
+/** Main entry point — called from the Telegram webhook for every incoming message */
 export async function handleMessage(
 	env: Env,
 	from: string,
 	text: string,
 ): Promise<void> {
 	// Authorization check
-	if (env.ALLOWED_WHATSAPP_NUMBERS) {
-		const allowed = env.ALLOWED_WHATSAPP_NUMBERS.split(",").map((n) =>
+	if (env.ALLOWED_TELEGRAM_CHAT_IDS) {
+		const allowed = env.ALLOWED_TELEGRAM_CHAT_IDS.split(",").map((n) =>
 			n.trim(),
 		);
 		if (!allowed.includes(from)) {
@@ -249,18 +248,16 @@ export async function handleDeployNotification(
 	deployUrl: string,
 	commitMessage: string,
 ): Promise<void> {
-	// Notify all numbers that had a conversation shipped recently (within last hour)
-	// For simplicity, notify all ALLOWED_WHATSAPP_NUMBERS
-	if (!env.ALLOWED_WHATSAPP_NUMBERS) return;
+	if (!env.ALLOWED_TELEGRAM_CHAT_IDS) return;
 
-	const numbers = env.ALLOWED_WHATSAPP_NUMBERS.split(",").map((n) => n.trim());
+	const chatIds = env.ALLOWED_TELEGRAM_CHAT_IDS.split(",").map((n) => n.trim());
 	const message =
 		status === "success"
 			? `Deployed! ✅\n\n${deployUrl}\n\n${commitMessage}`
 			: `Deploy failed ❌\n\nCheck GitHub Actions for details.`;
 
-	for (const number of numbers) {
-		await reply(env, number, message);
+	for (const chatId of chatIds) {
+		await reply(env, chatId, message);
 	}
 }
 

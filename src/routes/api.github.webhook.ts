@@ -32,48 +32,32 @@ export const Route = createFileRoute("/api/github/webhook")({
 
 				const event = body.event as string;
 
+				const handlerEnv = {
+					DB: env.DB,
+					TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
+					GITHUB_TOKEN: env.GITHUB_TOKEN,
+					ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
+					GEMINI_API_KEY: env.GEMINI_API_KEY,
+					GROK_API_KEY: env.GROK_API_KEY,
+					OPENAI_API_KEY: env.OPENAI_API_KEY,
+					ALLOWED_TELEGRAM_CHAT_IDS: env.ALLOWED_TELEGRAM_CHAT_IDS,
+				};
+
 				if (event === "pr_created") {
 					const { conversation_id, pr_url, pr_number } = body as {
 						conversation_id: string;
 						pr_url: string;
 						pr_number: number;
 					};
-
-					await handlePrCreated(
-						{
-							DB: env.DB,
-							WHATSAPP_TOKEN: env.WHATSAPP_TOKEN,
-							WHATSAPP_PHONE_NUMBER_ID: env.WHATSAPP_PHONE_NUMBER_ID,
-							GITHUB_TOKEN: env.GITHUB_TOKEN,
-							ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
-							GEMINI_API_KEY: env.GEMINI_API_KEY,
-							GROK_API_KEY: env.GROK_API_KEY,
-							OPENAI_API_KEY: env.OPENAI_API_KEY,
-							ALLOWED_WHATSAPP_NUMBERS: env.ALLOWED_WHATSAPP_NUMBERS,
-						},
-						conversation_id,
-						pr_url,
-						pr_number,
-					);
+					await handlePrCreated(handlerEnv, conversation_id, pr_url, pr_number);
 				} else if (event === "deploy") {
 					const { status, deploy_url, commit_message } = body as {
 						status: "success" | "failure";
 						deploy_url: string;
 						commit_message: string;
 					};
-
 					await handleDeployNotification(
-						{
-							DB: env.DB,
-							WHATSAPP_TOKEN: env.WHATSAPP_TOKEN,
-							WHATSAPP_PHONE_NUMBER_ID: env.WHATSAPP_PHONE_NUMBER_ID,
-							GITHUB_TOKEN: env.GITHUB_TOKEN,
-							ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
-							GEMINI_API_KEY: env.GEMINI_API_KEY,
-							GROK_API_KEY: env.GROK_API_KEY,
-							OPENAI_API_KEY: env.OPENAI_API_KEY,
-							ALLOWED_WHATSAPP_NUMBERS: env.ALLOWED_WHATSAPP_NUMBERS,
-						},
+						handlerEnv,
 						status,
 						deploy_url,
 						commit_message,
