@@ -38,7 +38,7 @@ export const generatedStorySchema = z.object({
 				imagePrompt: z
 					.string()
 					.describe(
-						"A vivid image generation prompt describing the scene illustration (style: children's book watercolour painting)",
+						"A vivid image generation prompt describing the scene illustration (style: colorful graphic novel panel, bold outlines, flat colours, child-safe, no violence, warm and joyful)",
 					),
 			}),
 		)
