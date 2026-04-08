@@ -17,14 +17,6 @@ export interface Conversation {
 	updatedAt: string;
 }
 
-export interface Plan {
-	title: string;
-	steps: string[];
-	effort: "S" | "M" | "L";
-	branch: string;
-	raw: string;
-}
-
 /** Returns true if the message is an affirmative approval */
 export function isApproval(text: string): boolean {
 	return /^(yes|y|si|ok|approve[d]?|go|lgtm|👍)$/i.test(text.trim());

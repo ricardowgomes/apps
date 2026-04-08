@@ -1,6 +1,6 @@
 const TELEGRAM_API_BASE = "https://api.telegram.org";
 
-export interface IncomingMessage {
+interface IncomingMessage {
 	from: string; // chat_id as string — used as the "phone number" equivalent
 	text: string;
 	messageId: number;
