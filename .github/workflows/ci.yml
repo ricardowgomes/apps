@@ -135,13 +135,13 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Notify WhatsApp — deploy success
-        if: success() && env.GITHUB_NOTIFY_SECRET != ''
+        if: success() && env.WORKER_NOTIFY_SECRET != ''
         env:
-          GITHUB_NOTIFY_SECRET: ${{ secrets.GITHUB_NOTIFY_SECRET }}
+          WORKER_NOTIFY_SECRET: ${{ secrets.WORKER_NOTIFY_SECRET }}
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%s)
           curl -s -X POST https://app.ricardowgomes.workers.dev/api/github/webhook \
-            -H "Authorization: Bearer $GITHUB_NOTIFY_SECRET" \
+            -H "Authorization: Bearer $WORKER_NOTIFY_SECRET" \
             -H "Content-Type: application/json" \
             -d "{
               \"event\": \"deploy\",
@@ -151,13 +151,13 @@ jobs:
             }"
 
       - name: Notify WhatsApp — deploy failure
-        if: failure() && env.GITHUB_NOTIFY_SECRET != ''
+        if: failure() && env.WORKER_NOTIFY_SECRET != ''
         env:
-          GITHUB_NOTIFY_SECRET: ${{ secrets.GITHUB_NOTIFY_SECRET }}
+          WORKER_NOTIFY_SECRET: ${{ secrets.WORKER_NOTIFY_SECRET }}
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%s)
           curl -s -X POST https://app.ricardowgomes.workers.dev/api/github/webhook \
-            -H "Authorization: Bearer $GITHUB_NOTIFY_SECRET" \
+            -H "Authorization: Bearer $WORKER_NOTIFY_SECRET" \
             -H "Content-Type: application/json" \
             -d "{
               \"event\": \"deploy\",

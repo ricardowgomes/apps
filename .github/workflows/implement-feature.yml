@@ -92,10 +92,10 @@ jobs:
 
       - name: Notify Worker — PR created
         env:
-          GITHUB_NOTIFY_SECRET: ${{ secrets.GITHUB_NOTIFY_SECRET }}
+          WORKER_NOTIFY_SECRET: ${{ secrets.WORKER_NOTIFY_SECRET }}
         run: |
           curl -s -X POST https://app.ricardowgomes.workers.dev/api/github/webhook \
-            -H "Authorization: Bearer $GITHUB_NOTIFY_SECRET" \
+            -H "Authorization: Bearer $WORKER_NOTIFY_SECRET" \
             -H "Content-Type: application/json" \
             -d '{
               "event": "pr_created",

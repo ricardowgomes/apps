@@ -20,8 +20,8 @@ interface Env {
 	ALLOWED_TELEGRAM_CHAT_IDS?: string;
 	// GitHub personal access token with repo + workflow scopes (wrangler secret put GITHUB_TOKEN)
 	GITHUB_TOKEN: string;
-	// Shared secret to authenticate GitHub Actions → Worker notifications (wrangler secret put GITHUB_NOTIFY_SECRET)
-	GITHUB_NOTIFY_SECRET: string;
+	// Shared secret to authenticate GitHub Actions → Worker notifications (wrangler secret put WORKER_NOTIFY_SECRET)
+	WORKER_NOTIFY_SECRET: string;
 	// AI provider fallbacks (all optional; Anthropic is primary)
 	GEMINI_API_KEY?: string;
 	GROK_API_KEY?: string;

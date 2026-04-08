@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/github/webhook")({
 				const env = context.cloudflare.env;
 
 				const authHeader = request.headers.get("authorization");
-				if (!verifyGitHubNotifySecret(authHeader, env.GITHUB_NOTIFY_SECRET)) {
+				if (!verifyGitHubNotifySecret(authHeader, env.WORKER_NOTIFY_SECRET)) {
 					return new Response("Unauthorized", { status: 401 });
 				}
 
