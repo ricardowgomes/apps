@@ -1,3 +1,4 @@
+import { reportError } from "@/observability/error-reporter";
 import type { Conversation } from "../domain/conversation";
 import {
 	isApproval,
@@ -85,11 +86,10 @@ export async function handleMessage(
 		try {
 			plan = await generatePlan(text, providerKeys(env));
 		} catch (err) {
-			await reply(
-				env,
-				from,
-				`Failed to generate plan: ${err}. Please try again.`,
-			);
+			await Promise.all([
+				reply(env, from, `Failed to generate plan: ${err}. Please try again.`),
+				reportError(env, err, { handler: "generatePlan" }),
+			]);
 			return;
 		}
 
@@ -151,7 +151,10 @@ export async function handleMessage(
 					providerKeys(env),
 				);
 			} catch (err) {
-				await reply(env, from, `Failed to revise plan: ${err}. Try again.`);
+				await Promise.all([
+					reply(env, from, `Failed to revise plan: ${err}. Try again.`),
+					reportError(env, err, { handler: "revisePlan" }),
+				]);
 				return;
 			}
 			await updatePlan(env.DB, active.id, revised);
