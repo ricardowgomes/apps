@@ -1,6 +1,6 @@
 import { sendMessage } from "@/remotecontrol/infrastructure/telegram-client";
 
-export interface ErrorContext {
+interface ErrorContext {
 	/** Route or URL path where the error occurred */
 	route?: string;
 	/** Handler or function name where the error was caught */
