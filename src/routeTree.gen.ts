@@ -22,6 +22,9 @@ import { Route as ApiTestPortfolioRouteImport } from './routes/api.test.portfoli
 import { Route as ApiTestLoginRouteImport } from './routes/api.test.login'
 import { Route as ApiTestFinanceRouteImport } from './routes/api.test.finance'
 import { Route as ApiTestCategoriesRouteImport } from './routes/api.test.categories'
+import { Route as ApiTelegramWebhookRouteImport } from './routes/api.telegram.webhook'
+import { Route as ApiTelegramSetupRouteImport } from './routes/api.telegram.setup'
+import { Route as ApiGithubWebhookRouteImport } from './routes/api.github.webhook'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api.auth.logout'
 import { Route as ApiAuthGoogleRouteImport } from './routes/api.auth.google'
 import { Route as ApiAuthCallbackGoogleRouteImport } from './routes/api.auth.callback.google'
@@ -91,6 +94,21 @@ const ApiTestCategoriesRoute = ApiTestCategoriesRouteImport.update({
   path: '/api/test/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTelegramWebhookRoute = ApiTelegramWebhookRouteImport.update({
+  id: '/api/telegram/webhook',
+  path: '/api/telegram/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramSetupRoute = ApiTelegramSetupRouteImport.update({
+  id: '/api/telegram/setup',
+  path: '/api/telegram/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
+  id: '/api/github/webhook',
+  path: '/api/github/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
   id: '/api/auth/logout',
   path: '/api/auth/logout',
@@ -118,6 +136,9 @@ export interface FileRoutesByFullPath {
   '/stories/': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
+  '/api/telegram/setup': typeof ApiTelegramSetupRoute
+  '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
@@ -136,6 +157,9 @@ export interface FileRoutesByTo {
   '/stories': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
+  '/api/telegram/setup': typeof ApiTelegramSetupRoute
+  '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
@@ -155,6 +179,9 @@ export interface FileRoutesById {
   '/stories/': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
+  '/api/telegram/setup': typeof ApiTelegramSetupRoute
+  '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
@@ -175,6 +202,9 @@ export interface FileRouteTypes {
     | '/stories/'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/github/webhook'
+    | '/api/telegram/setup'
+    | '/api/telegram/webhook'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
@@ -193,6 +223,9 @@ export interface FileRouteTypes {
     | '/stories'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/github/webhook'
+    | '/api/telegram/setup'
+    | '/api/telegram/webhook'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
@@ -211,6 +244,9 @@ export interface FileRouteTypes {
     | '/stories/'
     | '/api/auth/google'
     | '/api/auth/logout'
+    | '/api/github/webhook'
+    | '/api/telegram/setup'
+    | '/api/telegram/webhook'
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
@@ -230,6 +266,9 @@ export interface RootRouteChildren {
   StoriesIndexRoute: typeof StoriesIndexRoute
   ApiAuthGoogleRoute: typeof ApiAuthGoogleRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
+  ApiTelegramSetupRoute: typeof ApiTelegramSetupRoute
+  ApiTelegramWebhookRoute: typeof ApiTelegramWebhookRoute
   ApiTestCategoriesRoute: typeof ApiTestCategoriesRoute
   ApiTestFinanceRoute: typeof ApiTestFinanceRoute
   ApiTestLoginRoute: typeof ApiTestLoginRoute
@@ -331,6 +370,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTestCategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/telegram/webhook': {
+      id: '/api/telegram/webhook'
+      path: '/api/telegram/webhook'
+      fullPath: '/api/telegram/webhook'
+      preLoaderRoute: typeof ApiTelegramWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/setup': {
+      id: '/api/telegram/setup'
+      path: '/api/telegram/setup'
+      fullPath: '/api/telegram/setup'
+      preLoaderRoute: typeof ApiTelegramSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github/webhook': {
+      id: '/api/github/webhook'
+      path: '/api/github/webhook'
+      fullPath: '/api/github/webhook'
+      preLoaderRoute: typeof ApiGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/logout': {
       id: '/api/auth/logout'
       path: '/api/auth/logout'
@@ -366,6 +426,9 @@ const rootRouteChildren: RootRouteChildren = {
   StoriesIndexRoute: StoriesIndexRoute,
   ApiAuthGoogleRoute: ApiAuthGoogleRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiGithubWebhookRoute: ApiGithubWebhookRoute,
+  ApiTelegramSetupRoute: ApiTelegramSetupRoute,
+  ApiTelegramWebhookRoute: ApiTelegramWebhookRoute,
   ApiTestCategoriesRoute: ApiTestCategoriesRoute,
   ApiTestFinanceRoute: ApiTestFinanceRoute,
   ApiTestLoginRoute: ApiTestLoginRoute,

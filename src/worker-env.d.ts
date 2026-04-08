@@ -10,4 +10,20 @@ interface Env {
 	// Local-only flag — set in .dev.vars to skip OAuth and return a mock session.
 	// Never set in production.
 	DEV_AUTO_LOGIN?: string;
+
+	// ── Telegram Remote Control ───────────────────────────────────────────────
+	// Telegram Bot token from @BotFather (wrangler secret put TELEGRAM_BOT_TOKEN)
+	TELEGRAM_BOT_TOKEN: string;
+	// Secret token to verify webhook requests come from Telegram (wrangler secret put TELEGRAM_WEBHOOK_SECRET)
+	TELEGRAM_WEBHOOK_SECRET: string;
+	// Comma-separated list of allowed Telegram chat IDs — set in wrangler.jsonc vars
+	ALLOWED_TELEGRAM_CHAT_IDS?: string;
+	// GitHub personal access token with repo + workflow scopes (wrangler secret put GITHUB_TOKEN)
+	GITHUB_TOKEN: string;
+	// Shared secret to authenticate GitHub Actions → Worker notifications (wrangler secret put GITHUB_NOTIFY_SECRET)
+	GITHUB_NOTIFY_SECRET: string;
+	// AI provider fallbacks (all optional; Anthropic is primary)
+	GEMINI_API_KEY?: string;
+	GROK_API_KEY?: string;
+	OPENAI_API_KEY?: string;
 }

@@ -13,6 +13,7 @@
   ],
   "vars": {
     "ALLOWED_EMAILS": "riwgomes@gmail.com,leticiamizota@gmail.com,mizotagomes@gmail.com",
-    "GOOGLE_REDIRECT_URI": "https://app.ricardowgomes.workers.dev/api/auth/callback/google"
+    "GOOGLE_REDIRECT_URI": "https://app.ricardowgomes.workers.dev/api/auth/callback/google",
+    "ALLOWED_TELEGRAM_CHAT_IDS": "8637801816"
   }
 }
