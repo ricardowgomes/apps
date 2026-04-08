@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import type { SessionUser } from "@/auth/domain/session";
+import { ErrorBoundary } from "@/observability/ErrorBoundary";
 import BottomNav from "../components/BottomNav";
 import PortfolioHeader from "../components/PortfolioHeader";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
@@ -64,9 +65,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="bg-[#05080d]">
 				<TanStackQueryProvider>
-					<PortfolioHeader user={user} />
-					{children}
-					<BottomNav />
+					<ErrorBoundary>
+						<PortfolioHeader user={user} />
+						{children}
+						<BottomNav />
+					</ErrorBoundary>
 					<TanStackDevtools
 						config={{
 							position: "bottom-right",

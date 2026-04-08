@@ -28,6 +28,10 @@ vi.mock("./ai-planner", () => ({
 
 vi.mock("../infrastructure/d1-conversation-repository");
 
+vi.mock("@/observability/error-reporter", () => ({
+	reportError: vi.fn().mockResolvedValue(undefined),
+}));
+
 // ── Imports after mocks ───────────────────────────────────────────────────────
 
 import * as repo from "../infrastructure/d1-conversation-repository";

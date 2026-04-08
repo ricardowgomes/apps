@@ -17,6 +17,7 @@ import { Route as StoriesNewRouteImport } from './routes/stories/new'
 import { Route as StoriesStoryIdRouteImport } from './routes/stories/$storyId'
 import { Route as FinancePortfolioRouteImport } from './routes/finance/portfolio'
 import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
+import { Route as ApiReportErrorRouteImport } from './routes/api.report-error'
 import { Route as ApiTestStoriesRouteImport } from './routes/api.test.stories'
 import { Route as ApiTestPortfolioRouteImport } from './routes/api.test.portfolio'
 import { Route as ApiTestLoginRouteImport } from './routes/api.test.login'
@@ -67,6 +68,11 @@ const FinancePortfolioRoute = FinancePortfolioRouteImport.update({
 const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
   id: '/finance/categories',
   path: '/finance/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiReportErrorRoute = ApiReportErrorRouteImport.update({
+  id: '/api/report-error',
+  path: '/api/report-error',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTestStoriesRoute = ApiTestStoriesRouteImport.update({
@@ -128,6 +134,7 @@ const ApiAuthCallbackGoogleRoute = ApiAuthCallbackGoogleRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/api/report-error': typeof ApiReportErrorRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/portfolio': typeof FinancePortfolioRoute
   '/stories/$storyId': typeof StoriesStoryIdRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/api/report-error': typeof ApiReportErrorRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/portfolio': typeof FinancePortfolioRoute
   '/stories/$storyId': typeof StoriesStoryIdRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/api/report-error': typeof ApiReportErrorRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/portfolio': typeof FinancePortfolioRoute
   '/stories/$storyId': typeof StoriesStoryIdRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/api/report-error'
     | '/finance/categories'
     | '/finance/portfolio'
     | '/stories/$storyId'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/api/report-error'
     | '/finance/categories'
     | '/finance/portfolio'
     | '/stories/$storyId'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/api/report-error'
     | '/finance/categories'
     | '/finance/portfolio'
     | '/stories/$storyId'
@@ -258,6 +270,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  ApiReportErrorRoute: typeof ApiReportErrorRoute
   FinanceCategoriesRoute: typeof FinanceCategoriesRoute
   FinancePortfolioRoute: typeof FinancePortfolioRoute
   StoriesStoryIdRoute: typeof StoriesStoryIdRoute
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/finance/categories'
       fullPath: '/finance/categories'
       preLoaderRoute: typeof FinanceCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/report-error': {
+      id: '/api/report-error'
+      path: '/api/report-error'
+      fullPath: '/api/report-error'
+      preLoaderRoute: typeof ApiReportErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/test/stories': {
@@ -418,6 +438,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  ApiReportErrorRoute: ApiReportErrorRoute,
   FinanceCategoriesRoute: FinanceCategoriesRoute,
   FinancePortfolioRoute: FinancePortfolioRoute,
   StoriesStoryIdRoute: StoriesStoryIdRoute,
