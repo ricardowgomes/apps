@@ -1,10 +1,10 @@
-import { chat } from "@tanstack/ai";
-import { AnthropicTextAdapter } from "@tanstack/ai-anthropic";
+import Anthropic from "@anthropic-ai/sdk";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { isSessionExpired, SESSION_COOKIE_NAME } from "@/auth/domain/session";
 import { getById as getSessionById } from "@/auth/infrastructure/d1-session-repository";
+import { reportError } from "@/observability/error-reporter";
 import { generatedStorySchema } from "../domain/story";
 import {
 	deleteStory,
@@ -83,13 +83,49 @@ export const getStoryFn = createServerFn({ method: "GET" })
 		return getStoryById(db, data.storyId);
 	});
 
+// JSON Schema for the structured story output tool — mirrors generatedStorySchema.
+// Defined inline to avoid a zod-to-json-schema dependency.
+const STORY_OUTPUT_SCHEMA = {
+	type: "object" as const,
+	properties: {
+		title: {
+			type: "string",
+			description: "A short, evocative title for the story",
+		},
+		scenes: {
+			type: "array",
+			description: "The scenes that make up the story, in order",
+			minItems: 3,
+			maxItems: 6,
+			items: {
+				type: "object",
+				properties: {
+					text: {
+						type: "string",
+						description:
+							"One paragraph of narrative text for this scene (2–4 sentences, child-friendly)",
+					},
+					imagePrompt: {
+						type: "string",
+						description:
+							"A vivid image generation prompt describing the scene illustration (style: colorful graphic novel panel, bold outlines, flat colours, child-safe, no violence, warm and joyful)",
+					},
+				},
+				required: ["text", "imagePrompt"],
+			},
+		},
+	},
+	required: ["title", "scenes"],
+};
+
 // ── Generate ─────────────────────────────────────────────────────────────────
 
 export const generateStoryFn = createServerFn({ method: "POST" })
 	.inputValidator(z.object({ prompt: z.string().min(1).max(500) }))
 	.handler(async ({ data, context }) => {
-		const db = context.cloudflare.env.DB;
-		const apiKey = context.cloudflare.env.ANTHROPIC_API_KEY;
+		const env = context.cloudflare.env;
+		const db = env.DB;
+		const apiKey = env.ANTHROPIC_API_KEY;
 		if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured");
 
 		// Resolve current user from session cookie
@@ -99,35 +135,48 @@ export const generateStoryFn = createServerFn({ method: "POST" })
 		if (!session || isSessionExpired(session))
 			throw new Error("Session expired");
 
-		// Use @tanstack/ai with the Anthropic adapter for structured story generation
-		const adapter = new AnthropicTextAdapter({ apiKey }, "claude-3-5-haiku");
+		try {
+			const client = new Anthropic({ apiKey });
 
-		// Build an enriched prompt from the raw user idea.
-		// The system message defines the author persona and standing rules;
-		// the user message passes the polished story brief.
-		const enrichedPrompt = buildStoryPrompt(data.prompt);
+			// Single API call: force the model to call the structured_output tool.
+			// This avoids the double-call overhead of @tanstack/ai's structured output flow.
+			const response = await client.messages.create({
+				model: "claude-3-5-haiku-20241022",
+				max_tokens: 2048,
+				system: STORY_SYSTEM_PROMPT,
+				messages: [{ role: "user", content: buildStoryPrompt(data.prompt) }],
+				tools: [
+					{
+						name: "structured_output",
+						description:
+							"Use this tool to provide your story response in the required structured format.",
+						input_schema: STORY_OUTPUT_SCHEMA,
+					},
+				],
+				tool_choice: { type: "tool", name: "structured_output" },
+			});
 
-		const story = await chat({
-			adapter,
-			messages: [
-				{
-					role: "user",
-					// @tanstack/ai does not expose a system-message role, so we
-					// prepend the standing author rules to the user turn.
-					content: [
-						{
-							type: "text",
-							content: `${STORY_SYSTEM_PROMPT}\n\n---\n\n${enrichedPrompt}`,
-						},
-					],
-				},
-			],
-			outputSchema: generatedStorySchema,
-		});
+			// Extract the tool call result
+			const toolBlock = response.content.find(
+				(block) =>
+					block.type === "tool_use" && block.name === "structured_output",
+			);
+			if (!toolBlock || toolBlock.type !== "tool_use") {
+				throw new Error("Model did not return structured output");
+			}
 
-		const storyId = await saveGeneratedStory(db, story, session.userEmail);
+			// Validate against the Zod schema
+			const story = generatedStorySchema.parse(toolBlock.input);
+			const storyId = await saveGeneratedStory(db, story, session.userEmail);
 
-		return { storyId, story };
+			return { storyId, story };
+		} catch (err) {
+			await reportError(env, err, {
+				route: "/stories/new",
+				handler: "generateStoryFn",
+			});
+			throw err;
+		}
 	});
 
 // ── Delete ───────────────────────────────────────────────────────────────────
