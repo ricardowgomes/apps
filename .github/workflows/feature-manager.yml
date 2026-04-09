@@ -22,6 +22,8 @@ jobs:
     permissions:
       contents: read
       issues: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
@@ -122,6 +124,8 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4

@@ -8,6 +8,8 @@ jobs:
   ci:
     name: Lint, Type-check, Test, Dead Code
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +46,8 @@ jobs:
     # Failures show as warnings in the PR but do not prevent merging.
     # Revisit when a staging/production deployment target exists.
     continue-on-error: true
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
@@ -100,6 +104,8 @@ jobs:
     # Only deploy on pushes to main, and only if ci passed.
     # playwright is non-blocking (continue-on-error), so its failure won't block deploy.
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
