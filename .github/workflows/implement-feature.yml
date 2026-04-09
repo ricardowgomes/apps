@@ -54,9 +54,7 @@ jobs:
 
       - name: Write feature spec to file
         run: |
-          cat > /tmp/feature-spec.md << 'SPEC_EOF'
-          ${{ github.event.inputs.feature_spec }}
-          SPEC_EOF
+          printf '%s' '${{ github.event.inputs.feature_spec }}' > /tmp/feature-spec.md
 
       - name: Implement feature
         env:
@@ -111,3 +109,15 @@ jobs:
             echo "::error::Worker notify failed with HTTP $HTTP_STATUS"
             exit 1
           fi
+
+      - name: Notify Worker — implementation failed
+        if: failure()
+        env:
+          WORKER_NOTIFY_SECRET: ${{ secrets.WORKER_NOTIFY_SECRET }}
+        run: |
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -s -X POST \
+            https://app.ricardowgomes.workers.dev/api/github/webhook \
+            -H "Authorization: Bearer $WORKER_NOTIFY_SECRET" \
+            -H "Content-Type: application/json" \
+            -d "{\"event\":\"implementation_failed\",\"conversation_id\":\"${{ github.event.inputs.conversation_id }}\",\"run_url\":\"$RUN_URL\"}"

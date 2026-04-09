@@ -258,6 +258,23 @@ export async function handlePrCreated(
 	await reply(env, conv.phoneNumber, formatPrReadyMessage(updated));
 }
 
+/** Called by the GitHub Actions notify webhook when implementation fails */
+export async function handleImplementationFailed(
+	env: Env,
+	conversationId: string,
+	runUrl: string,
+): Promise<void> {
+	const conv = await findById(env.DB, conversationId);
+	if (!conv) return;
+
+	await updateState(env.DB, conversationId, "done");
+	await reply(
+		env,
+		conv.phoneNumber,
+		`Implementation failed ❌\n\nSee the logs: ${runUrl}\n\nSend your request again to retry.`,
+	);
+}
+
 /** Called by the GitHub Actions deploy job when deployment completes */
 export async function handleDeployNotification(
 	env: Env,

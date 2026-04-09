@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	handleDeployNotification,
+	handleImplementationFailed,
 	handlePrCreated,
 } from "@/remotecontrol/application/conversation-handler";
 import { verifyGitHubNotifySecret } from "@/remotecontrol/infrastructure/github-actions-client";
@@ -44,7 +45,17 @@ export const Route = createFileRoute("/api/github/webhook")({
 					ALLOWED_TELEGRAM_CHAT_IDS: env.ALLOWED_TELEGRAM_CHAT_IDS,
 				};
 
-				if (event === "pr_created") {
+				if (event === "implementation_failed") {
+					const { conversation_id, run_url } = body as {
+						conversation_id: string;
+						run_url: string;
+					};
+					await handleImplementationFailed(
+						handlerEnv,
+						conversation_id,
+						run_url,
+					);
+				} else if (event === "pr_created") {
 					const { conversation_id, pr_url, pr_number } = body as {
 						conversation_id: string;
 						pr_url: string;
