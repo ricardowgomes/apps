@@ -8,6 +8,7 @@ declare module "@tanstack/router-core" {
 			requestContext: {
 				cloudflare: {
 					env: Env;
+					ctx: ExecutionContext;
 				};
 			};
 		};

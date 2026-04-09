@@ -4,6 +4,7 @@ interface IncomingMessage {
 	from: string; // chat_id as string — used as the "phone number" equivalent
 	text: string;
 	messageId: number;
+	updateId: number;
 }
 
 /** Parse the first text message from a Telegram webhook payload */
@@ -23,6 +24,7 @@ export function parseIncomingMessage(body: unknown): IncomingMessage | null {
 			from: chatId,
 			text,
 			messageId: message.message_id as number,
+			updateId: update.update_id as number,
 		};
 	} catch {
 		return null;

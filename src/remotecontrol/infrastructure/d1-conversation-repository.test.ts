@@ -3,24 +3,30 @@ import {
 	create,
 	findActive,
 	findById,
+	findStuck,
+	getLastUpdateId,
+	getMessages,
+	saveMessage,
+	setLastUpdateId,
 	updatePlan,
 	updateState,
 } from "./d1-conversation-repository";
 
 // ── D1 mock helpers ───────────────────────────────────────────────────────────
 
-function makeDb(firstResult: unknown = null) {
+function makeDb(firstResult: unknown = null, allResults: unknown[] = []) {
 	const run = vi.fn().mockResolvedValue(undefined);
 	const first = vi.fn().mockResolvedValue(firstResult);
-	const bind = vi.fn().mockReturnValue({ run, first });
+	const all = vi.fn().mockResolvedValue({ results: allResults });
+	const bind = vi.fn().mockReturnValue({ run, first, all });
 	const prepare = vi.fn().mockReturnValue({ bind });
-	return { prepare, bind, run, first } as unknown as D1Database;
+	return { prepare, bind, run, first, all } as unknown as D1Database;
 }
 
 const baseRow = {
 	id: "conv-1",
 	phone_number: "8637801816",
-	state: "awaiting_approval",
+	state: "active",
 	feature_request: "Add dark mode",
 	plan: "**Feature: Dark mode**",
 	pr_url: null,
@@ -28,6 +34,14 @@ const baseRow = {
 	branch_name: null,
 	created_at: "2026-01-01",
 	updated_at: "2026-01-01",
+};
+
+const baseMessageRow = {
+	id: "msg-1",
+	conversation_id: "conv-1",
+	role: "user",
+	content: "Add dark mode",
+	created_at: "2026-01-01",
 };
 
 // ── findActive ────────────────────────────────────────────────────────────────
@@ -40,15 +54,14 @@ describe("findActive", () => {
 		expect(result).toMatchObject({
 			id: "conv-1",
 			phoneNumber: "8637801816",
-			state: "awaiting_approval",
+			state: "active",
 			featureRequest: "Add dark mode",
 		});
 	});
 
 	it("returns null when no row found", async () => {
 		const db = makeDb(null);
-		const result = await findActive(db, "8637801816");
-		expect(result).toBeNull();
+		expect(await findActive(db, "8637801816")).toBeNull();
 	});
 });
 
@@ -57,8 +70,7 @@ describe("findActive", () => {
 describe("findById", () => {
 	it("returns mapped conversation when row found", async () => {
 		const db = makeDb(baseRow);
-		const result = await findById(db, "conv-1");
-		expect(result?.id).toBe("conv-1");
+		expect((await findById(db, "conv-1"))?.id).toBe("conv-1");
 	});
 
 	it("returns null when not found", async () => {
@@ -67,10 +79,28 @@ describe("findById", () => {
 	});
 });
 
+// ── findStuck ─────────────────────────────────────────────────────────────────
+
+describe("findStuck", () => {
+	it("returns conversations stuck in implementing state", async () => {
+		const db = makeDb(null, [{ ...baseRow, state: "implementing" }]);
+		const result = await findStuck(db, 20);
+
+		expect(result).toHaveLength(1);
+		expect(result[0].state).toBe("implementing");
+	});
+
+	it("returns empty array when none are stuck", async () => {
+		const db = makeDb(null, []);
+		const result = await findStuck(db, 20);
+		expect(result).toHaveLength(0);
+	});
+});
+
 // ── create ────────────────────────────────────────────────────────────────────
 
 describe("create", () => {
-	it("inserts a new conversation row", async () => {
+	it("inserts a new conversation row in active state", async () => {
 		const db = makeDb();
 		await create(db, {
 			id: "conv-new",
@@ -80,6 +110,7 @@ describe("create", () => {
 		});
 
 		expect(db.prepare).toHaveBeenCalledWith(expect.stringContaining("INSERT"));
+		expect(db.prepare).toHaveBeenCalledWith(expect.stringContaining("active"));
 	});
 
 	it("handles null plan", async () => {
@@ -122,5 +153,65 @@ describe("updateState", () => {
 			prNumber: 1,
 		});
 		expect(db.prepare).toHaveBeenCalled();
+	});
+});
+
+// ── saveMessage ───────────────────────────────────────────────────────────────
+
+describe("saveMessage", () => {
+	it("inserts a message row", async () => {
+		const db = makeDb();
+		await saveMessage(db, "conv-1", "user", "hello");
+		expect(db.prepare).toHaveBeenCalledWith(
+			expect.stringContaining("INSERT INTO telegram_messages"),
+		);
+	});
+});
+
+// ── getMessages ───────────────────────────────────────────────────────────────
+
+describe("getMessages", () => {
+	it("returns mapped messages ordered oldest-first", async () => {
+		const db = makeDb(null, [baseMessageRow]);
+		const result = await getMessages(db, "conv-1", 20);
+
+		expect(result).toHaveLength(1);
+		expect(result[0]).toMatchObject({
+			id: "msg-1",
+			conversationId: "conv-1",
+			role: "user",
+			content: "Add dark mode",
+		});
+	});
+
+	it("returns empty array when no messages", async () => {
+		const db = makeDb(null, []);
+		expect(await getMessages(db, "conv-1")).toHaveLength(0);
+	});
+});
+
+// ── getLastUpdateId ───────────────────────────────────────────────────────────
+
+describe("getLastUpdateId", () => {
+	it("returns the stored update_id", async () => {
+		const db = makeDb({ last_update_id: 42 });
+		expect(await getLastUpdateId(db, "chat-1")).toBe(42);
+	});
+
+	it("returns 0 when no row exists", async () => {
+		const db = makeDb(null);
+		expect(await getLastUpdateId(db, "chat-1")).toBe(0);
+	});
+});
+
+// ── setLastUpdateId ───────────────────────────────────────────────────────────
+
+describe("setLastUpdateId", () => {
+	it("upserts the update_id", async () => {
+		const db = makeDb();
+		await setLastUpdateId(db, "chat-1", 99);
+		expect(db.prepare).toHaveBeenCalledWith(
+			expect.stringContaining("ON CONFLICT"),
+		);
 	});
 });

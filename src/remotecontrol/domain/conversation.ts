@@ -1,5 +1,5 @@
 export type ConversationState =
-	| "awaiting_approval"
+	| "active"
 	| "implementing"
 	| "awaiting_ship"
 	| "done";
@@ -17,17 +17,20 @@ export interface Conversation {
 	updatedAt: string;
 }
 
-/** Returns true if the message is an affirmative approval */
-export function isApproval(text: string): boolean {
-	return /^(yes|y|si|ok|approve[d]?|go|lgtm|👍)$/i.test(text.trim());
+export interface Message {
+	id: string;
+	conversationId: string;
+	role: "user" | "assistant";
+	content: string;
+	createdAt: string;
 }
 
-/** Returns true if the message is a cancellation */
-export function isCancellation(text: string): boolean {
-	return /^(no|cancel|stop|abort|nope|👎)$/i.test(text.trim());
-}
-
-/** Returns true if the message is a ship command */
+/** Returns true if the message is a ship/merge command */
 export function isShipCommand(text: string): boolean {
-	return /^(ship|merge|deploy|go|yes|y|ok|do it)$/i.test(text.trim());
+	return /^(ship|merge|deploy)$/i.test(text.trim());
+}
+
+/** Returns true if the message is a cancellation — works from any state */
+export function isCancelCommand(text: string): boolean {
+	return /\b(cancel|stop|abort)\b/i.test(text.trim());
 }
