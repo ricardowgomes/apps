@@ -279,7 +279,12 @@ describe("LLM plan response", () => {
 		expect(telegram.sendMessage).toHaveBeenCalledWith(
 			"bot-token",
 			"8637801816",
-			"Here's my plan:",
+			expect.stringContaining(plan),
+		);
+		expect(telegram.sendMessage).toHaveBeenCalledWith(
+			"bot-token",
+			"8637801816",
+			expect.stringContaining("YES"),
 		);
 	});
 });
