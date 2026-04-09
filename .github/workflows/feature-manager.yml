@@ -11,7 +11,7 @@ on:
 jobs:
   implement:
     name: Implement issue
-    if: github.event.label.name == 'status: ready to pull'
+    if: "github.event.label.name == 'status: ready to pull'"
     runs-on: ubuntu-latest
     permissions:
       contents: write
