@@ -20,10 +20,8 @@ interface Env {
 	ALLOWED_TELEGRAM_CHAT_IDS?: string;
 	// GitHub personal access token with repo + workflow scopes (wrangler secret put GITHUB_TOKEN)
 	GITHUB_TOKEN: string;
-	// Shared secret to authenticate agent → Worker notifications (wrangler secret put WORKER_NOTIFY_SECRET)
+	// Shared secret to authenticate GitHub Actions → Worker notifications (wrangler secret put WORKER_NOTIFY_SECRET)
 	WORKER_NOTIFY_SECRET: string;
-	// claude.ai API token used to trigger the remote Claude Code agent (wrangler secret put CLAUDE_AI_API_TOKEN)
-	CLAUDE_AI_API_TOKEN: string;
 	// AI provider fallbacks (all optional; Anthropic is primary)
 	GEMINI_API_KEY?: string;
 	GROK_API_KEY?: string;

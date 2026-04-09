@@ -43,7 +43,6 @@ export const Route = createFileRoute("/api/telegram/webhook")({
 						DB: env.DB,
 						TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
 						GITHUB_TOKEN: env.GITHUB_TOKEN,
-						CLAUDE_AI_API_TOKEN: env.CLAUDE_AI_API_TOKEN,
 						WORKER_NOTIFY_SECRET: env.WORKER_NOTIFY_SECRET,
 						ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
 						GEMINI_API_KEY: env.GEMINI_API_KEY,
