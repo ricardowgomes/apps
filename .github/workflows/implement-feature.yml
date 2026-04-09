@@ -46,6 +46,7 @@ jobs:
 
       - name: Create feature branch
         run: |
+          git push origin --delete feat/${{ github.event.inputs.branch_slug }} 2>/dev/null || true
           git checkout -b feat/${{ github.event.inputs.branch_slug }}
           git push -u origin feat/${{ github.event.inputs.branch_slug }}
 
