@@ -118,6 +118,17 @@ const STORY_OUTPUT_SCHEMA = {
 	required: ["title", "scenes"],
 };
 
+// ── Image URL builder ────────────────────────────────────────────────────────
+
+/**
+ * Builds a Pollinations.ai URL for a given image prompt.
+ * Images are generated lazily on first request and cached on their CDN.
+ * No API key required.
+ */
+function buildImageUrl(imagePrompt: string): string {
+	return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=768&height=768&nologo=true&model=flux`;
+}
+
 // ── Generate ─────────────────────────────────────────────────────────────────
 
 export const generateStoryFn = createServerFn({ method: "POST" })
@@ -167,7 +178,15 @@ export const generateStoryFn = createServerFn({ method: "POST" })
 
 			// Validate against the Zod schema
 			const story = generatedStorySchema.parse(toolBlock.input);
-			const storyId = await saveGeneratedStory(db, story, session.userEmail);
+			const imageUrls = story.scenes.map((scene) =>
+				buildImageUrl(scene.imagePrompt),
+			);
+			const storyId = await saveGeneratedStory(
+				db,
+				story,
+				imageUrls,
+				session.userEmail,
+			);
 
 			return { storyId, story };
 		} catch (err) {

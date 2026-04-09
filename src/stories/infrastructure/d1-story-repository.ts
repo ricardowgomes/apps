@@ -94,16 +94,18 @@ export async function getStoryById(
 export async function saveGeneratedStory(
 	db: D1Database,
 	generated: GeneratedStory,
+	imageUrls: string[],
 	createdBy: string,
 ): Promise<string> {
 	const storyId = crypto.randomUUID();
 	const now = new Date().toISOString();
+	const coverImageUrl = imageUrls[0] ?? null;
 
 	await db
 		.prepare(
 			"INSERT INTO stories (id, title, cover_image_url, created_by, created_at) VALUES (?, ?, ?, ?, ?)",
 		)
-		.bind(storyId, generated.title, null, createdBy, now)
+		.bind(storyId, generated.title, coverImageUrl, createdBy, now)
 		.run();
 
 	const insertScene = db.prepare(
@@ -118,7 +120,7 @@ export async function saveGeneratedStory(
 				i,
 				scene.text,
 				scene.imagePrompt,
-				null,
+				imageUrls[i] ?? null,
 				now,
 			),
 		),
