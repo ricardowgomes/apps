@@ -126,12 +126,25 @@ export async function handleMessage(
 				});
 
 				const spec = buildImplementationSpec(active);
-				await triggerImplementation(
-					env.GITHUB_TOKEN,
-					active.id,
-					spec,
-					branch.replace("feat/", ""),
-				);
+				try {
+					await triggerImplementation(
+						env.GITHUB_TOKEN,
+						active.id,
+						spec,
+						branch.replace("feat/", ""),
+					);
+				} catch (err) {
+					await updateState(env.DB, active.id, "done");
+					await Promise.all([
+						reply(
+							env,
+							from,
+							`Failed to start implementation ❌\n\n${err}\n\nSend your request again to retry.`,
+						),
+						reportError(env, err, { handler: "triggerImplementation" }),
+					]);
+					return;
+				}
 
 				await reply(
 					env,
