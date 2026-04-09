@@ -31,6 +31,15 @@ describe("storyGradient", () => {
 		expect(() => storyGradient(longId)).not.toThrow();
 		expect(STORY_GRADIENTS).toContain(storyGradient(longId));
 	});
+
+	it("covers all 8 gradient slots — every palette entry is reachable", () => {
+		// With a large enough id space, the hash function must produce all 8 remainders
+		const reached = new Set<string>();
+		for (let i = 0; reached.size < STORY_GRADIENTS.length && i < 10_000; i++) {
+			reached.add(storyGradient(`seed-${i}`));
+		}
+		expect(reached.size).toBe(STORY_GRADIENTS.length);
+	});
 });
 
 // ── generatedStorySchema ─────────────────────────────────────────────────────
