@@ -1,5 +1,6 @@
 const REPO = "ricardowgomes/apps";
 const IMPLEMENT_WORKFLOW = "implement-feature.yml";
+const USER_AGENT = "exponencial-app";
 
 /** Trigger the implement-feature workflow via GitHub API workflow_dispatch */
 export async function triggerImplementation(
@@ -16,6 +17,7 @@ export async function triggerImplementation(
 				Authorization: `token ${token}`,
 				"Content-Type": "application/json",
 				Accept: "application/vnd.github+json",
+				"User-Agent": USER_AGENT,
 			},
 			body: JSON.stringify({
 				ref: "main",
@@ -44,6 +46,7 @@ export async function mergePr(token: string, prNumber: number): Promise<void> {
 				Authorization: `token ${token}`,
 				"Content-Type": "application/json",
 				Accept: "application/vnd.github+json",
+				"User-Agent": USER_AGENT,
 			},
 			body: JSON.stringify({ merge_method: "squash" }),
 		},
@@ -65,6 +68,7 @@ export async function closePr(token: string, prNumber: number): Promise<void> {
 				Authorization: `token ${token}`,
 				"Content-Type": "application/json",
 				Accept: "application/vnd.github+json",
+				"User-Agent": USER_AGENT,
 			},
 			body: JSON.stringify({ state: "closed" }),
 		},
