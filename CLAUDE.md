@@ -206,18 +206,29 @@ Commit as soon as a logical unit of work is complete — don't batch everything 
 ### 5. Document for future self
 Add code comments where the intent or reasoning isn't obvious. Write for the next Claude session, not for Ricardo.
 
-### 6. Verify everything before declaring done
-Run all of the following and fix any failures:
-- `npm run test` — tests pass
-- `npm run check` — Biome lint + format
-- `npx tsc --noEmit` — TypeScript
-- `npm run knip` — no dead code
+### 6. Ship gates — run, fix, repeat until all pass
+
+When the feature implementation is complete, run all four gates in sequence. If any gate fails, **fix it immediately and re-run that gate** — do not stop, do not ask Ricardo for input, do not move on. Repeat until every gate is green. This loop is autonomous; you are fully authorized to make whatever code changes are required to pass.
+
+```
+npm run test          # tests pass
+npm run check         # Biome lint + format (auto-fix with: npm run format)
+npx tsc --noEmit      # TypeScript strict
+npm run knip          # no dead code
+```
+
+**Gate failure rules:**
+- `test` fails → diagnose, fix the code or test, re-run
+- `check` fails → run `npm run format` first; if lint errors remain, fix them, re-run
+- `tsc` fails → fix type errors, re-run
+- `knip` fails → remove the dead export/import, re-run
+- Never skip a gate. Never use `--no-verify` or suppression comments to silence a gate.
 
 ### 7. Final self-review
-After verification, re-read the original requirements and ask: did I actually meet them? If there's a clear improvement or missed requirement, iterate before finishing.
+After all gates are green, re-read the original requirements: did I actually meet them? If there's a clear gap or missed requirement, fix it (gates loop again), then continue.
 
-### 8. Push and open a PR
-Once all checks pass:
+### 8. Ship automatically once gates pass
+No confirmation needed. Execute immediately:
 ```bash
 git push -u origin <branch-name>
 gh pr create --fill
