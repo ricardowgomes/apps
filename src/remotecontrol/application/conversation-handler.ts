@@ -199,8 +199,12 @@ export async function handleMessage(
 	// ── Handle each turn type ─────────────────────────────────────────────
 	switch (turn.type) {
 		case "plan": {
-			// LLM has produced a plan — save it, state stays 'active'
+			// LLM has produced a plan — save it and append it to the message so the user sees it
 			await updatePlan(env.DB, conversation.id, turn.plan);
+			turn = {
+				...turn,
+				message: `${turn.message}\n\n${turn.plan}\n\n─────────────────\nReply *YES* to build, describe changes to revise, or *CANCEL* to abort.`,
+			};
 			break;
 		}
 
