@@ -1,0 +1,133 @@
+name: Feature Manager — Auto-implement
+
+# Triggered when a GitHub Issue is labeled "status: ready to pull".
+# Claude Code picks it up, implements it on a feature branch, and opens a PR.
+# The PR body contains "Closes #N" so GitHub auto-closes the issue on merge.
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  implement:
+    name: Implement issue
+    if: github.event.label.name == 'status: ready to pull'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+
+      - name: Transition issue to in progress
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh issue edit ${{ github.event.issue.number }} \
+            --remove-label "status: ready to pull" \
+            --add-label "status: in progress"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure git
+        run: |
+          git config user.email "claude-code[bot]@users.noreply.github.com"
+          git config user.name "Claude Code"
+
+      - name: Create feature branch
+        id: branch
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          SLUG=$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//' | cut -c1-40)
+          BRANCH="feat/issue-${ISSUE_NUMBER}-${SLUG}"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          git checkout -b "$BRANCH"
+          git push -u origin "$BRANCH"
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Write feature spec
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          node -e "
+            const num = process.env.ISSUE_NUMBER;
+            const title = process.env.ISSUE_TITLE;
+            const body = process.env.ISSUE_BODY || '';
+            const spec = '# Issue #' + num + ': ' + title + '\n\n' + body + '\n';
+            require('fs').writeFileSync('/tmp/feature-spec.md', spec);
+          "
+
+      - name: Implement feature
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          claude --print --dangerously-skip-permissions \
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep,TodoWrite,Agent" \
+            --max-turns 200 \
+            "$(cat /tmp/feature-spec.md)"
+
+      - name: Create pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          BRANCH: ${{ steps.branch.outputs.branch }}
+        run: |
+          PR_BODY=$(printf 'Closes #%s\n\nImplemented autonomously via Feature Manager.\n\n🤖 Generated with [Claude Code](https://claude.ai/claude-code)' "$ISSUE_NUMBER")
+
+          PR_URL=$(gh pr create \
+            --title "feat: $ISSUE_TITLE" \
+            --body "$PR_BODY" \
+            --base main \
+            --head "$BRANCH" 2>/dev/null) || true
+
+          # If already exists, get the URL
+          if [ -z "$PR_URL" ]; then
+            PR_URL=$(gh pr view "$BRANCH" --json url -q .url 2>/dev/null || echo "")
+          fi
+
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+      - name: Comment on issue with PR link
+        if: steps.pr.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          PR_URL: ${{ steps.pr.outputs.pr_url }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" \
+            --body "🤖 PR ready for review: $PR_URL — issue will close automatically on merge."
+
+      - name: Revert label and comment on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh issue edit ${{ github.event.issue.number }} \
+            --remove-label "status: in progress" \
+            --add-label "status: ready to pull"
+          gh issue comment ${{ github.event.issue.number }} \
+            --body "⚠️ Auto-implementation failed. Reverted to 'status: ready to pull'. See [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details."

@@ -26,7 +26,8 @@ Primary purpose: portfolio showcase for Ricardo (software engineer). Future sub-
 |---|---|
 | `docs/architecture.md` | Codebase structure, patterns, and decisions |
 | `docs/adr/` | Architecture Decision Records — read before making design choices |
-| `docs/backlog/` | **Active epics and tasks — check here at the start of every session** |
+| `docs/backlog/` | Epics and high-level plans (supplementary) |
+| GitHub Issues | **Primary task backlog — check at the start of every session** |
 | `docs/logs/` | Implementation logs — historical record of what was shipped and why |
 | `src/routes/__root.tsx` | Root layout — wraps all pages |
 | `src/router.tsx` | Router instance setup |
@@ -180,7 +181,31 @@ This is an AI-first project. Most code and features are written by Claude. Follo
 **Standing authorization**: You are pre-authorized to run `git commit`, `git push`, and `gh pr create` on non-main branches without asking for permission. Execute these as part of the normal workflow — do not wait for approval.
 
 ### 0. Check the backlog first
-At the start of every session, read `docs/backlog/` to understand what is active and what the next tasks are. Update task checkboxes as work is completed.
+
+**Primary source: GitHub Issues** (`ricardowgomes/apps`)
+
+Use the `mcp__github__list_issues` tool (when available in the session) to fetch open issues:
+
+```
+label: "status: ready to pull"   ← pick these up autonomously
+label: "status: in story writing" ← read, write a plan, move to "ready to pull"
+label: "status: in progress"      ← already being worked on, skip unless you started it
+```
+
+**Issue status lifecycle:**
+```
+status: in story writing  →  (Claude plans)  →  status: ready to pull
+status: ready to pull     →  (Claude starts)  →  status: in progress
+status: in progress       →  (PR merged)      →  closed (auto via "Closes #N")
+```
+
+**Picking the next task:**
+1. List issues with `status: ready to pull`, sorted by `priority: high` first
+2. Take the top one
+3. Update its label to `status: in progress` using `mcp__github__issue_write`
+4. Use the issue title + body as the feature spec
+
+**When MCP tools are unavailable:** fall back to `docs/backlog/` markdown files.
 
 ### 1. Create a feature branch
 Before writing any code, create and checkout a feature branch from `main`:
@@ -233,7 +258,13 @@ No confirmation needed. Execute immediately:
 git push -u origin <branch-name>
 gh pr create --fill
 ```
-GitHub will populate the PR body from `.github/pull_request_template.md`. Fill in the Summary and check off the relevant boxes. Link any `docs/backlog/` items addressed.
+GitHub will populate the PR body from `.github/pull_request_template.md`. Fill in the Summary and check off the relevant boxes.
+
+**Always include in the PR body when working from a GitHub Issue:**
+```
+Closes #<issue-number>
+```
+This auto-closes the issue when the PR is merged — no manual cleanup needed.
 
 ### 9. End-of-task summary
 After the PR is open, give a brief summary that includes:

@@ -27,6 +27,11 @@
 - [ ] `npx tsc --noEmit` — passes (TypeScript)
 - [ ] `npm run knip` — passes (no dead code)
 
+## Closes
+
+<!-- Link the GitHub Issue this PR resolves. GitHub will auto-close it on merge. -->
+<!-- Format: Closes #123 -->
+
 ## Related backlog items
 
-<!-- Link to docs/backlog/ items addressed by this PR -->
+<!-- Link to docs/backlog/ items addressed by this PR (if any) -->
