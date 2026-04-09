@@ -24,11 +24,13 @@ export default defineConfig({
 			use: { ...devices["Desktop Chrome"] },
 		},
 	],
-	// Auto-start the dev server when running E2E tests (skip if already running)
+	// Auto-start the dev server when running E2E tests (skip if already running).
+	// 120 s gives CI runners enough time to cold-start the Vite + Cloudflare dev
+	// server (which builds workers, routes, etc.) before tests begin.
 	webServer: {
 		command: "npm run dev",
 		url: "http://localhost:3000",
 		reuseExistingServer: true,
-		timeout: 60_000,
+		timeout: 120_000,
 	},
 });
