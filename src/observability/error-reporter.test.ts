@@ -89,4 +89,23 @@ describe("reportError", () => {
 
 		expect(sendMessage).toHaveBeenCalledTimes(2);
 	});
+
+	it("does not throw when sendMessage throws synchronously (outer catch)", async () => {
+		// A synchronous throw inside .map() propagates before Promise.allSettled wraps it,
+		// exercising the outer catch block (lines 69-72).
+		vi.mocked(sendMessage).mockImplementation(() => {
+			throw new Error("sync failure");
+		});
+		const consoleSpy = vi
+			.spyOn(console, "error")
+			.mockImplementation(() => undefined);
+
+		await expect(reportError(env, new Error("x"))).resolves.toBeUndefined();
+		expect(consoleSpy).toHaveBeenCalledWith(
+			expect.stringContaining("[observability]"),
+			expect.any(Error),
+		);
+
+		consoleSpy.mockRestore();
+	});
 });

@@ -40,6 +40,7 @@ import * as telegram from "../infrastructure/telegram-client";
 import * as planner from "./ai-planner";
 import {
 	handleDeployNotification,
+	handleImplementationFailed,
 	handleMessage,
 	handlePrCreated,
 } from "./conversation-handler";
@@ -161,6 +162,21 @@ describe("handleMessage — awaiting_approval state", () => {
 			expect.objectContaining({ branchName: "feat/test-feature" }),
 		);
 		expect(github.triggerImplementation).toHaveBeenCalled();
+	});
+
+	it("sends error and resets state when triggerImplementation fails", async () => {
+		vi.mocked(github.triggerImplementation).mockRejectedValueOnce(
+			new Error("GitHub Actions unavailable"),
+		);
+
+		await handleMessage(baseEnv, "8637801816", "yes");
+
+		expect(repo.updateState).toHaveBeenCalledWith(mockDb, "conv-1", "done");
+		expect(telegram.sendMessage).toHaveBeenCalledWith(
+			"bot-token",
+			"8637801816",
+			expect.stringContaining("Failed to start implementation"),
+		);
 	});
 
 	it("marks done on CANCEL", async () => {
@@ -316,6 +332,42 @@ describe("handlePrCreated", () => {
 		vi.mocked(repo.findById).mockResolvedValue(null);
 
 		await handlePrCreated(baseEnv, "missing-id", "https://url", 1);
+
+		expect(repo.updateState).not.toHaveBeenCalled();
+		expect(telegram.sendMessage).not.toHaveBeenCalled();
+	});
+});
+
+describe("handleImplementationFailed", () => {
+	it("updates state to done and notifies user with run URL", async () => {
+		vi.mocked(repo.findById).mockResolvedValue(makeConversation() as never);
+		vi.mocked(repo.updateState).mockResolvedValue(undefined);
+
+		await handleImplementationFailed(
+			baseEnv,
+			"conv-1",
+			"https://github.com/ricardowgomes/apps/actions/runs/99",
+		);
+
+		expect(repo.updateState).toHaveBeenCalledWith(mockDb, "conv-1", "done");
+		expect(telegram.sendMessage).toHaveBeenCalledWith(
+			"bot-token",
+			"8637801816",
+			expect.stringContaining("Implementation failed"),
+		);
+		expect(telegram.sendMessage).toHaveBeenCalledWith(
+			"bot-token",
+			"8637801816",
+			expect.stringContaining(
+				"https://github.com/ricardowgomes/apps/actions/runs/99",
+			),
+		);
+	});
+
+	it("does nothing if conversation not found", async () => {
+		vi.mocked(repo.findById).mockResolvedValue(null);
+
+		await handleImplementationFailed(baseEnv, "missing-id", "https://url");
 
 		expect(repo.updateState).not.toHaveBeenCalled();
 		expect(telegram.sendMessage).not.toHaveBeenCalled();

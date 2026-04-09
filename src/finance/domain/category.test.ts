@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Category } from "./category";
-import { suggestCategory } from "./category";
+import { categorySchema, suggestCategory } from "./category";
 
 const makeCategory = (name: string, keywords: string[]): Category => ({
 	id: `cat_${name.toLowerCase()}`,
@@ -58,5 +58,72 @@ describe("suggestCategory", () => {
 
 	it("returns Uncategorized for an empty categories list", () => {
 		expect(suggestCategory("walmart", [])).toBe("Uncategorized");
+	});
+
+	it("returns Uncategorized for an empty description", () => {
+		expect(suggestCategory("", categories)).toBe("Uncategorized");
+	});
+
+	it("matches keyword that appears mid-word in description", () => {
+		// "gas" appears inside "gasoline" — keyword matching uses includes()
+		expect(suggestCategory("gasoline purchase", categories)).toBe("Transport");
+	});
+});
+
+// ── categorySchema ────────────────────────────────────────────────────────────
+
+describe("categorySchema", () => {
+	it("accepts a fully valid category", () => {
+		const result = categorySchema.safeParse({
+			name: "Groceries",
+			icon: "🛒",
+			color: "#4ade80",
+			keywords: ["walmart", "loblaws"],
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("applies default color and icon when omitted", () => {
+		const result = categorySchema.safeParse({ name: "Misc" });
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.icon).toBe("");
+			expect(result.data.color).toBe("#6366f1");
+			expect(result.data.keywords).toEqual([]);
+		}
+	});
+
+	it("rejects an empty name", () => {
+		const result = categorySchema.safeParse({ name: "" });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects a name longer than 64 characters", () => {
+		const result = categorySchema.safeParse({ name: "a".repeat(65) });
+		expect(result.success).toBe(false);
+	});
+
+	it("accepts a name of exactly 64 characters", () => {
+		const result = categorySchema.safeParse({ name: "a".repeat(64) });
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects a color that is not a valid 6-digit hex", () => {
+		const result = categorySchema.safeParse({ name: "Test", color: "red" });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects a 3-digit hex color shorthand", () => {
+		const result = categorySchema.safeParse({ name: "Test", color: "#fff" });
+		expect(result.success).toBe(false);
+	});
+
+	it("accepts both uppercase and lowercase hex digits", () => {
+		expect(
+			categorySchema.safeParse({ name: "A", color: "#AABBCC" }).success,
+		).toBe(true);
+		expect(
+			categorySchema.safeParse({ name: "B", color: "#aabbcc" }).success,
+		).toBe(true);
 	});
 });

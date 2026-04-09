@@ -360,6 +360,18 @@ describe("computeDateBounds", () => {
 		expect(from).toBe("2026-01-10");
 		expect(to).toBe("2026-03-20");
 	});
+
+	it("month type handles February in a leap year (29 days)", () => {
+		const { from, to } = computeDateBounds({ type: "month", month: "2024-02" });
+		expect(from).toBe("2024-02-01");
+		expect(to).toBe("2024-02-29");
+	});
+
+	it("month type handles February in a non-leap year (28 days)", () => {
+		const { from, to } = computeDateBounds({ type: "month", month: "2025-02" });
+		expect(from).toBe("2025-02-01");
+		expect(to).toBe("2025-02-28");
+	});
 });
 
 describe("getDateRangeLabel", () => {
@@ -441,5 +453,43 @@ describe("computeMonthlyTrend", () => {
 			expect(point.income).toBe(0);
 			expect(point.expenses).toBe(0);
 		}
+	});
+
+	it("includes a human-readable short label for each data point", () => {
+		const now = new Date("2026-03-15");
+		const result = computeMonthlyTrend([], now);
+
+		// Every point must have a non-empty label string (e.g. "Jan", "Feb")
+		for (const point of result) {
+			expect(typeof point.label).toBe("string");
+			expect(point.label.length).toBeGreaterThan(0);
+		}
+		// The last point (current month) should contain "Mar"
+		expect(result[5].label).toContain("Mar");
+		// The first point (6 months ago) should contain "Oct"
+		expect(result[0].label).toContain("Oct");
+	});
+
+	it("excludes transactions outside the 6-month window", () => {
+		const now = new Date("2026-03-15");
+		const txs = [
+			// 7 months ago — outside the window
+			makeTx({ type: "income", amount: 9999, date: "2025-08-10" }),
+			// 6 months ago boundary — inside (Oct 2025)
+			makeTx({ type: "income", amount: 100, date: "2025-10-01" }),
+		];
+
+		const result = computeMonthlyTrend(txs, now);
+		const total = result.reduce((s, p) => s + p.income, 0);
+		// Only the Oct transaction should be counted
+		expect(total).toBe(100);
+	});
+
+	it("crosses year boundary correctly (window spans Dec → Jan)", () => {
+		const now = new Date("2026-01-15");
+		const result = computeMonthlyTrend([], now);
+
+		expect(result[0].month).toBe("2025-08");
+		expect(result[5].month).toBe("2026-01");
 	});
 });

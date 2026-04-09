@@ -49,6 +49,8 @@ export default defineConfig({
 				"src/stories/infrastructure/**",
 				// Server functions: D1-backed + external AI call, covered by E2E tests
 				"src/stories/application/story-server-fns.ts",
+				// UI component — requires jsdom, excluded until environment upgrades to Node 22+
+				"src/observability/ErrorBoundary.tsx",
 				"**/*.config.{ts,js}",
 				"**/*.d.ts",
 				"demo/**",
