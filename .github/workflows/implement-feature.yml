@@ -64,7 +64,7 @@ jobs:
         run: |
           claude --print --dangerously-skip-permissions \
             --allowedTools "Bash,Read,Write,Edit,Glob,Grep,TodoWrite" \
-            --max-turns 50 \
+            --max-turns 200 \
             "$(cat /tmp/feature-spec.md)"
 
       - name: Open pull request
