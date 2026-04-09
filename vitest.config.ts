@@ -11,11 +11,7 @@ export default defineConfig({
 		},
 	},
 	test: {
-		// Using "node" environment because jsdom 27 depends on ESM-only packages
-		// incompatible with Node 20 (CJS require() of ESM modules fails).
-		// Switch to "jsdom" when the project upgrades to Node 22+, which supports
-		// --experimental-require-module and enables React component render tests.
-		environment: "node",
+		environment: "jsdom",
 		globals: true,
 		exclude: ["tests/e2e/**", "node_modules/**"],
 		coverage: {
