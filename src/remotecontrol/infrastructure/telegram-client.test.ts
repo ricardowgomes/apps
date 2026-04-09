@@ -29,6 +29,7 @@ describe("parseIncomingMessage", () => {
 			from: "8637801816",
 			text: "Hello",
 			messageId: 1,
+			updateId: 123,
 		});
 	});
 

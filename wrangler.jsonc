@@ -11,6 +11,9 @@
       "database_id": "1b6898b0-1b7a-452a-b04d-053c5d66d296"
     }
   ],
+  "triggers": {
+    "crons": ["*/10 * * * *"]
+  },
   "vars": {
     "ALLOWED_EMAILS": "riwgomes@gmail.com,leticiamizota@gmail.com,mizotagomes@gmail.com",
     "GOOGLE_REDIRECT_URI": "https://app.ricardowgomes.workers.dev/api/auth/callback/google",
