@@ -16,9 +16,11 @@ export const Route = createFileRoute("/api/test/stories")({
 					title: string;
 					scenes: Array<{ text: string; imagePrompt: string }>;
 				};
+				const imageUrls = body.scenes.map(() => "");
 				const storyId = await saveGeneratedStory(
 					env.DB,
 					body,
+					imageUrls,
 					"test@example.com",
 				);
 				return Response.json({ storyId });
