@@ -12,11 +12,8 @@ import {
 	updatePlan,
 	updateState,
 } from "../infrastructure/d1-conversation-repository";
-import {
-	closePr,
-	mergePr,
-	triggerImplementation,
-} from "../infrastructure/github-actions-client";
+import { closePr, mergePr } from "../infrastructure/github-actions-client";
+import { runRemoteTrigger } from "../infrastructure/remote-trigger-client";
 import { sendMessage } from "../infrastructure/telegram-client";
 import { extractBranchSlug, generatePlan, revisePlan } from "./ai-planner";
 
@@ -24,6 +21,8 @@ interface Env {
 	DB: D1Database;
 	TELEGRAM_BOT_TOKEN: string;
 	GITHUB_TOKEN: string;
+	CLAUDE_AI_API_TOKEN: string;
+	WORKER_NOTIFY_SECRET: string;
 	ANTHROPIC_API_KEY?: string;
 	GEMINI_API_KEY?: string;
 	GROK_API_KEY?: string;
@@ -124,13 +123,8 @@ export async function handleMessage(
 					branchName: branch,
 				});
 
-				const spec = buildImplementationSpec(active);
-				await triggerImplementation(
-					env.GITHUB_TOKEN,
-					active.id,
-					spec,
-					branch.replace("feat/", ""),
-				);
+				const spec = buildImplementationSpec(active, env.WORKER_NOTIFY_SECRET);
+				await runRemoteTrigger(env.CLAUDE_AI_API_TOKEN, spec);
 
 				await reply(
 					env,
@@ -264,7 +258,10 @@ export async function handleDeployNotification(
 	}
 }
 
-function buildImplementationSpec(conv: Conversation): string {
+function buildImplementationSpec(
+	conv: Conversation,
+	notifySecret: string,
+): string {
 	return `# Feature Request
 
 ${conv.featureRequest}
@@ -282,6 +279,13 @@ ${conv.plan ?? "Follow the feature request directly."}
 - Run npm run test and npm run check before committing
 - Create branch: ${conv.branchName ?? "feat/remote-feature"}
 - Commit frequently after each meaningful change
-- Open a PR when done with: gh pr create --fill
-- The PR body should include: "conversation_id: ${conv.id}"`;
+- Open a PR when done with:
+    gh pr create --title "feat: ${conv.branchName ?? "remote-feature"}" --body "conversation_id: ${conv.id}"
+- After the PR is open, notify the controller by running exactly this in Bash:
+    PR_URL=$(gh pr view --json url -q .url)
+    PR_NUMBER=$(gh pr view --json number -q .number)
+    curl -s -X POST https://app.ricardowgomes.workers.dev/api/github/webhook \\
+      -H "Authorization: Bearer ${notifySecret}" \\
+      -H "Content-Type: application/json" \\
+      -d "{\\"event\\":\\"pr_created\\",\\"conversation_id\\":\\"${conv.id}\\",\\"pr_url\\":\\"$PR_URL\\",\\"pr_number\\":$PR_NUMBER}"`;
 }

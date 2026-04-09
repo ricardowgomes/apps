@@ -7,9 +7,12 @@ vi.mock("../infrastructure/telegram-client", () => ({
 }));
 
 vi.mock("../infrastructure/github-actions-client", () => ({
-	triggerImplementation: vi.fn().mockResolvedValue(undefined),
 	mergePr: vi.fn().mockResolvedValue(undefined),
 	closePr: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("../infrastructure/remote-trigger-client", () => ({
+	runRemoteTrigger: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("./ai-planner", () => ({
@@ -36,6 +39,7 @@ vi.mock("@/observability/error-reporter", () => ({
 
 import * as repo from "../infrastructure/d1-conversation-repository";
 import * as github from "../infrastructure/github-actions-client";
+import * as remoteTrigger from "../infrastructure/remote-trigger-client";
 import * as telegram from "../infrastructure/telegram-client";
 import * as planner from "./ai-planner";
 import {
@@ -83,6 +87,8 @@ const baseEnv = {
 	DB: mockDb,
 	TELEGRAM_BOT_TOKEN: "bot-token",
 	GITHUB_TOKEN: "gh-token",
+	CLAUDE_AI_API_TOKEN: "claude-token",
+	WORKER_NOTIFY_SECRET: "notify-secret",
 	ANTHROPIC_API_KEY: "ant-key",
 	ALLOWED_TELEGRAM_CHAT_IDS: "8637801816",
 };
@@ -159,14 +165,14 @@ describe("handleMessage — awaiting_approval state", () => {
 			"implementing",
 			expect.objectContaining({ branchName: "feat/test-feature" }),
 		);
-		expect(github.triggerImplementation).toHaveBeenCalled();
+		expect(remoteTrigger.runRemoteTrigger).toHaveBeenCalled();
 	});
 
 	it("marks done on CANCEL", async () => {
 		await handleMessage(baseEnv, "8637801816", "cancel");
 
 		expect(repo.updateState).toHaveBeenCalledWith(mockDb, "conv-1", "done");
-		expect(github.triggerImplementation).not.toHaveBeenCalled();
+		expect(remoteTrigger.runRemoteTrigger).not.toHaveBeenCalled();
 	});
 
 	it("revises the plan on feedback text", async () => {
