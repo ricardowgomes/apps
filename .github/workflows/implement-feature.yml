@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       conversation_id:
-        description: "WhatsApp conversation ID"
+        description: "Telegram conversation ID"
         required: true
         type: string
       feature_spec:
@@ -52,14 +52,21 @@ jobs:
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: Write feature spec to file
+        run: |
+          cat > /tmp/feature-spec.md << 'SPEC_EOF'
+          ${{ github.event.inputs.feature_spec }}
+          SPEC_EOF
+
       - name: Implement feature
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          claude --print "${{ github.event.inputs.feature_spec }}" \
+          claude --print --dangerously-skip-permissions \
             --allowedTools "Bash,Read,Write,Edit,Glob,Grep,TodoWrite" \
-            --max-turns 50
+            --max-turns 50 \
+            "$(cat /tmp/feature-spec.md)"
 
       - name: Open pull request
         id: open_pr
@@ -68,22 +75,22 @@ jobs:
         run: |
           PR_URL=$(gh pr create \
             --title "feat: ${{ github.event.inputs.branch_slug }}" \
-            --body "$(cat <<'EOF'
-          ## Summary
-
-          Implemented via WhatsApp Remote Control.
+            --body "Implemented via Telegram Remote Control.
 
           conversation_id: ${{ github.event.inputs.conversation_id }}
 
           ---
-          🤖 Generated with [Claude Code](https://claude.ai/claude-code)
-          EOF
-          )" \
+          🤖 Generated with [Claude Code](https://claude.ai/claude-code)" \
             --base main \
-            --head feat/${{ github.event.inputs.branch_slug }} 2>/dev/null || echo "already_exists")
+            --head feat/${{ github.event.inputs.branch_slug }} 2>/dev/null || true)
 
-          if [ "$PR_URL" = "already_exists" ]; then
-            PR_URL=$(gh pr view feat/${{ github.event.inputs.branch_slug }} --json url -q .url)
+          if [ -z "$PR_URL" ]; then
+            PR_URL=$(gh pr view feat/${{ github.event.inputs.branch_slug }} --json url -q .url 2>/dev/null || echo "")
+          fi
+
+          if [ -z "$PR_URL" ]; then
+            echo "::error::No PR URL — Claude may not have committed anything"
+            exit 1
           fi
 
           PR_NUMBER=$(gh pr view "$PR_URL" --json number -q .number)
@@ -94,12 +101,13 @@ jobs:
         env:
           WORKER_NOTIFY_SECRET: ${{ secrets.WORKER_NOTIFY_SECRET }}
         run: |
-          curl -s -X POST https://app.ricardowgomes.workers.dev/api/github/webhook \
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            https://app.ricardowgomes.workers.dev/api/github/webhook \
             -H "Authorization: Bearer $WORKER_NOTIFY_SECRET" \
             -H "Content-Type: application/json" \
-            -d '{
-              "event": "pr_created",
-              "conversation_id": "${{ github.event.inputs.conversation_id }}",
-              "pr_url": "${{ steps.open_pr.outputs.pr_url }}",
-              "pr_number": ${{ steps.open_pr.outputs.pr_number }}
-            }'
+            -d "{\"event\":\"pr_created\",\"conversation_id\":\"${{ github.event.inputs.conversation_id }}\",\"pr_url\":\"${{ steps.open_pr.outputs.pr_url }}\",\"pr_number\":${{ steps.open_pr.outputs.pr_number }}}")
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "::error::Worker notify failed with HTTP $HTTP_STATUS"
+            exit 1
+          fi
