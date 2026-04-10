@@ -128,9 +128,14 @@ const STORY_OUTPUT_SCHEMA = {
  * Builds a Pollinations.ai URL for a given image prompt.
  * Images are generated lazily on first request and cached on their CDN.
  * No API key required.
+ *
+ * seed: explicit integer seed makes the image deterministic (same URL = same
+ * image on every load) AND ensures scenes with similar prompts get different
+ * images. Without a seed, Pollinations derives one from the prompt text, so
+ * adjacent scenes with the same character tend to produce the same image.
  */
-function buildImageUrl(imagePrompt: string): string {
-	return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=768&height=768&nologo=true&model=flux`;
+function buildImageUrl(imagePrompt: string, seed: number): string {
+	return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=768&height=768&nologo=true&model=flux&seed=${seed}`;
 }
 
 // ── Generate ─────────────────────────────────────────────────────────────────
@@ -182,8 +187,13 @@ export const generateStoryFn = createServerFn({ method: "POST" })
 
 			// Validate against the Zod schema
 			const story = generatedStorySchema.parse(toolBlock.input);
+			// Each scene gets a unique random seed so Pollinations produces a
+			// distinct image per scene even when adjacent scene prompts are similar.
 			const imageUrls = story.scenes.map((scene) =>
-				buildImageUrl(scene.imagePrompt),
+				buildImageUrl(
+					scene.imagePrompt,
+					Math.floor(Math.random() * 2_000_000_000),
+				),
 			);
 			const storyId = await saveGeneratedStory(
 				db,

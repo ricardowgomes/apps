@@ -19,6 +19,11 @@ export function StoryViewerPage({ storyId }: Props) {
 	const deleteStory = useDeleteStory();
 	const [currentScene, setCurrentScene] = useState(0);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	// Track image loading per scene. Reset to "loading" in every navigation
+	// handler so the fallback placeholder appears immediately on failed loads.
+	const [imageStatus, setImageStatus] = useState<
+		"loading" | "loaded" | "error"
+	>("loading");
 
 	if (!story) {
 		return (
@@ -38,11 +43,17 @@ export function StoryViewerPage({ storyId }: Props) {
 	const progress = (currentScene + 1) / story.scenes.length;
 
 	function prev() {
-		if (!isFirst) setCurrentScene((n) => n - 1);
+		if (!isFirst) {
+			setImageStatus("loading");
+			setCurrentScene((n) => n - 1);
+		}
 	}
 
 	function next() {
-		if (!isLast) setCurrentScene((n) => n + 1);
+		if (!isLast) {
+			setImageStatus("loading");
+			setCurrentScene((n) => n + 1);
+		}
 	}
 
 	function handleDelete() {
@@ -104,12 +115,20 @@ export function StoryViewerPage({ storyId }: Props) {
 				<div
 					className={`relative w-full max-w-sm aspect-square rounded-3xl bg-gradient-to-br ${gradient} mb-8 flex items-center justify-center overflow-hidden shadow-2xl`}
 				>
-					{scene.imageUrl ? (
-						<img
-							src={scene.imageUrl}
-							alt={`Scene ${currentScene + 1}`}
-							className="absolute inset-0 w-full h-full object-cover"
-						/>
+					{scene.imageUrl && imageStatus !== "error" ? (
+						<>
+							{imageStatus === "loading" && (
+								<div className="absolute inset-0 animate-pulse bg-white/[0.06]" />
+							)}
+							<img
+								key={scene.id}
+								src={scene.imageUrl}
+								alt={`Scene ${currentScene + 1}`}
+								className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${imageStatus === "loaded" ? "opacity-100" : "opacity-0"}`}
+								onLoad={() => setImageStatus("loaded")}
+								onError={() => setImageStatus("error")}
+							/>
+						</>
 					) : (
 						<>
 							<div className="absolute inset-0 opacity-30">
@@ -148,7 +167,10 @@ export function StoryViewerPage({ storyId }: Props) {
 						<button
 							type="button"
 							key={sc.id}
-							onClick={() => setCurrentScene(i)}
+							onClick={() => {
+								setImageStatus("loading");
+								setCurrentScene(i);
+							}}
 							className={`rounded-full transition-all duration-300 ${
 								i === currentScene
 									? "w-5 h-2 bg-amber-400"
