@@ -85,6 +85,8 @@ jobs:
           npx wrangler d1 execute finance --local --file=migrations/0004_create_portfolio_entries.sql
           npx wrangler d1 execute finance --local --file=migrations/0005_create_stories.sql
           npx wrangler d1 execute finance --local --file=migrations/0006_create_whatsapp_conversations.sql
+          npx wrangler d1 execute finance --local --file=migrations/0007_conversational_bot.sql
+          npx wrangler d1 execute finance --local --file=migrations/0008_create_media_archive.sql
 
       - name: Run Playwright E2E tests
         run: npm run pw:run
