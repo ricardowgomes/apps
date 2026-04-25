@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StoriesIndexRouteImport } from './routes/stories/index'
+import { Route as MediaIndexRouteImport } from './routes/media/index'
 import { Route as FinanceIndexRouteImport } from './routes/finance/index'
 import { Route as StoriesNewRouteImport } from './routes/stories/new'
 import { Route as StoriesStoryIdRouteImport } from './routes/stories/$storyId'
@@ -20,6 +21,7 @@ import { Route as FinanceCategoriesRouteImport } from './routes/finance/categori
 import { Route as ApiReportErrorRouteImport } from './routes/api.report-error'
 import { Route as ApiTestStoriesRouteImport } from './routes/api.test.stories'
 import { Route as ApiTestPortfolioRouteImport } from './routes/api.test.portfolio'
+import { Route as ApiTestMediaRouteImport } from './routes/api.test.media'
 import { Route as ApiTestLoginRouteImport } from './routes/api.test.login'
 import { Route as ApiTestFinanceRouteImport } from './routes/api.test.finance'
 import { Route as ApiTestCategoriesRouteImport } from './routes/api.test.categories'
@@ -43,6 +45,11 @@ const IndexRoute = IndexRouteImport.update({
 const StoriesIndexRoute = StoriesIndexRouteImport.update({
   id: '/stories/',
   path: '/stories/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaIndexRoute = MediaIndexRouteImport.update({
+  id: '/media/',
+  path: '/media/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinanceIndexRoute = FinanceIndexRouteImport.update({
@@ -83,6 +90,11 @@ const ApiTestStoriesRoute = ApiTestStoriesRouteImport.update({
 const ApiTestPortfolioRoute = ApiTestPortfolioRouteImport.update({
   id: '/api/test/portfolio',
   path: '/api/test/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTestMediaRoute = ApiTestMediaRouteImport.update({
+  id: '/api/test/media',
+  path: '/api/test/media',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTestLoginRoute = ApiTestLoginRouteImport.update({
@@ -140,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/stories/$storyId': typeof StoriesStoryIdRoute
   '/stories/new': typeof StoriesNewRoute
   '/finance/': typeof FinanceIndexRoute
+  '/media/': typeof MediaIndexRoute
   '/stories/': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -149,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
+  '/api/test/media': typeof ApiTestMediaRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/test/stories': typeof ApiTestStoriesRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
@@ -162,6 +176,7 @@ export interface FileRoutesByTo {
   '/stories/$storyId': typeof StoriesStoryIdRoute
   '/stories/new': typeof StoriesNewRoute
   '/finance': typeof FinanceIndexRoute
+  '/media': typeof MediaIndexRoute
   '/stories': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -171,6 +186,7 @@ export interface FileRoutesByTo {
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
+  '/api/test/media': typeof ApiTestMediaRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/test/stories': typeof ApiTestStoriesRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
@@ -185,6 +201,7 @@ export interface FileRoutesById {
   '/stories/$storyId': typeof StoriesStoryIdRoute
   '/stories/new': typeof StoriesNewRoute
   '/finance/': typeof FinanceIndexRoute
+  '/media/': typeof MediaIndexRoute
   '/stories/': typeof StoriesIndexRoute
   '/api/auth/google': typeof ApiAuthGoogleRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -194,6 +211,7 @@ export interface FileRoutesById {
   '/api/test/categories': typeof ApiTestCategoriesRoute
   '/api/test/finance': typeof ApiTestFinanceRoute
   '/api/test/login': typeof ApiTestLoginRoute
+  '/api/test/media': typeof ApiTestMediaRoute
   '/api/test/portfolio': typeof ApiTestPortfolioRoute
   '/api/test/stories': typeof ApiTestStoriesRoute
   '/api/auth/callback/google': typeof ApiAuthCallbackGoogleRoute
@@ -209,6 +227,7 @@ export interface FileRouteTypes {
     | '/stories/$storyId'
     | '/stories/new'
     | '/finance/'
+    | '/media/'
     | '/stories/'
     | '/api/auth/google'
     | '/api/auth/logout'
@@ -218,6 +237,7 @@ export interface FileRouteTypes {
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
+    | '/api/test/media'
     | '/api/test/portfolio'
     | '/api/test/stories'
     | '/api/auth/callback/google'
@@ -231,6 +251,7 @@ export interface FileRouteTypes {
     | '/stories/$storyId'
     | '/stories/new'
     | '/finance'
+    | '/media'
     | '/stories'
     | '/api/auth/google'
     | '/api/auth/logout'
@@ -240,6 +261,7 @@ export interface FileRouteTypes {
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
+    | '/api/test/media'
     | '/api/test/portfolio'
     | '/api/test/stories'
     | '/api/auth/callback/google'
@@ -253,6 +275,7 @@ export interface FileRouteTypes {
     | '/stories/$storyId'
     | '/stories/new'
     | '/finance/'
+    | '/media/'
     | '/stories/'
     | '/api/auth/google'
     | '/api/auth/logout'
@@ -262,6 +285,7 @@ export interface FileRouteTypes {
     | '/api/test/categories'
     | '/api/test/finance'
     | '/api/test/login'
+    | '/api/test/media'
     | '/api/test/portfolio'
     | '/api/test/stories'
     | '/api/auth/callback/google'
@@ -276,6 +300,7 @@ export interface RootRouteChildren {
   StoriesStoryIdRoute: typeof StoriesStoryIdRoute
   StoriesNewRoute: typeof StoriesNewRoute
   FinanceIndexRoute: typeof FinanceIndexRoute
+  MediaIndexRoute: typeof MediaIndexRoute
   StoriesIndexRoute: typeof StoriesIndexRoute
   ApiAuthGoogleRoute: typeof ApiAuthGoogleRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
@@ -285,6 +310,7 @@ export interface RootRouteChildren {
   ApiTestCategoriesRoute: typeof ApiTestCategoriesRoute
   ApiTestFinanceRoute: typeof ApiTestFinanceRoute
   ApiTestLoginRoute: typeof ApiTestLoginRoute
+  ApiTestMediaRoute: typeof ApiTestMediaRoute
   ApiTestPortfolioRoute: typeof ApiTestPortfolioRoute
   ApiTestStoriesRoute: typeof ApiTestStoriesRoute
   ApiAuthCallbackGoogleRoute: typeof ApiAuthCallbackGoogleRoute
@@ -311,6 +337,13 @@ declare module '@tanstack/react-router' {
       path: '/stories'
       fullPath: '/stories/'
       preLoaderRoute: typeof StoriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media/': {
+      id: '/media/'
+      path: '/media'
+      fullPath: '/media/'
+      preLoaderRoute: typeof MediaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/finance/': {
@@ -367,6 +400,13 @@ declare module '@tanstack/react-router' {
       path: '/api/test/portfolio'
       fullPath: '/api/test/portfolio'
       preLoaderRoute: typeof ApiTestPortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/test/media': {
+      id: '/api/test/media'
+      path: '/api/test/media'
+      fullPath: '/api/test/media'
+      preLoaderRoute: typeof ApiTestMediaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/test/login': {
@@ -444,6 +484,7 @@ const rootRouteChildren: RootRouteChildren = {
   StoriesStoryIdRoute: StoriesStoryIdRoute,
   StoriesNewRoute: StoriesNewRoute,
   FinanceIndexRoute: FinanceIndexRoute,
+  MediaIndexRoute: MediaIndexRoute,
   StoriesIndexRoute: StoriesIndexRoute,
   ApiAuthGoogleRoute: ApiAuthGoogleRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
@@ -453,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTestCategoriesRoute: ApiTestCategoriesRoute,
   ApiTestFinanceRoute: ApiTestFinanceRoute,
   ApiTestLoginRoute: ApiTestLoginRoute,
+  ApiTestMediaRoute: ApiTestMediaRoute,
   ApiTestPortfolioRoute: ApiTestPortfolioRoute,
   ApiTestStoriesRoute: ApiTestStoriesRoute,
   ApiAuthCallbackGoogleRoute: ApiAuthCallbackGoogleRoute,
