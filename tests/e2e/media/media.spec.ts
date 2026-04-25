@@ -59,8 +59,8 @@ test.describe("Media Archive", () => {
 		await page.getByTestId("add-media-button").click();
 		await expect(page.getByTestId("media-sheet")).toBeVisible();
 
-		// Fill in the title
-		await page.getByPlaceholder("Title").fill("Inception");
+		// Fill in the title — use exact match to avoid matching the search bar placeholder
+		await page.getByPlaceholder("Title", { exact: true }).fill("Inception");
 
 		// Submit
 		await page.getByRole("button", { name: "Add to Archive" }).click();
@@ -103,9 +103,13 @@ test.describe("Media Archive", () => {
 		await expect(page.getByText("The Matrix")).toBeVisible();
 		await expect(page.getByText("Dark Side of the Moon")).toBeVisible();
 
-		// Open filters and pick Movie
+		// Open filters and pick Movie — scope to filter panel to avoid matching
+		// the type selector inside the always-rendered AddMediaSheet
 		await page.getByRole("button", { name: "Filters" }).click();
-		await page.getByRole("button", { name: "Movie" }).click();
+		await page
+			.getByTestId("media-filters")
+			.getByRole("button", { name: "Movie" })
+			.click();
 
 		// Only the movie should be visible
 		await expect(page.getByText("The Matrix")).toBeVisible();

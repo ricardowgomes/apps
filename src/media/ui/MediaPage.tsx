@@ -180,7 +180,10 @@ export function MediaPage() {
 
 						{/* Expandable filter panel */}
 						{filtersOpen && (
-							<div className="space-y-3 p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+							<div
+								data-testid="media-filters"
+								className="space-y-3 p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02]"
+							>
 								{/* Type filter */}
 								<div>
 									<p className="text-xs font-medium text-gray-500 mb-2">Type</p>
