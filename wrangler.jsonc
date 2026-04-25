@@ -8,7 +8,8 @@
     {
       "binding": "DB",
       "database_name": "finance",
-      "database_id": "1b6898b0-1b7a-452a-b04d-053c5d66d296"
+      "database_id": "1b6898b0-1b7a-452a-b04d-053c5d66d296",
+      "migrations_dir": "migrations"
     }
   ],
   "triggers": {
