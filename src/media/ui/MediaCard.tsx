@@ -36,7 +36,10 @@ export function MediaCard({
 	const statusLabel = MEDIA_STATUS_LABELS_BY_TYPE[item.type][item.status];
 
 	return (
-		<div className="group relative flex gap-4 p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+		<div
+			data-testid="media-card"
+			className="group relative flex gap-4 p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+		>
 			{/* Poster */}
 			<div className="shrink-0 w-14 h-20 rounded-xl overflow-hidden">
 				{item.posterUrl ? (

@@ -174,10 +174,10 @@ test.describe("Media Archive", () => {
 		await page.goto("/media/");
 		await expect(page.getByText("Rumours")).toBeVisible();
 
-		// Hover to reveal the delete button
-		const card = page.locator('[aria-label="Edit Rumours"]');
+		// Hover on the card container to reveal the opacity-0 action buttons
+		const card = page.getByTestId("media-card").filter({ hasText: "Rumours" });
 		await card.hover();
-		await page.getByRole("button", { name: "Delete Rumours" }).click();
+		await card.getByRole("button", { name: "Delete Rumours" }).click();
 
 		await expect(page.getByText("Rumours")).not.toBeVisible();
 	});
